@@ -40,10 +40,7 @@ const dict = LOCALES[lang].dict;
 const runtime = Object.fromEntries(Object.entries(dict).filter(([k]) => runtimePrefixes.some((p) => k.startsWith(p))));
 runtime.email = site.email;
 // 內嵌腳本去掉註解，減少每頁的大小
-const langRedirectInline = langRedirect.replace(/\/\*[\s\S]*?\*\//g, '').replace(/
-\s*
-/g, '
-');
+const langRedirectInline = langRedirect.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\n\s*\n/g, '\n');
 const runtimeJson = JSON.stringify(runtime).replace(/</g, '\\u003c');
 ---
 <!doctype html>
