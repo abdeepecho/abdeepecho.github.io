@@ -159,6 +159,9 @@ function introGeometry() {
   const r1 = Math.max(art.width / 2 + 40, zh.bottom - cy + 40);
   const r2 = Math.hypot(Math.max(cx - box.left, box.right - cx), Math.max(cy - box.top, box.bottom - cy)) + 80;
   reveal.style.setProperty('--reveal-y', `${((cy - box.top) / box.height) * 100}%`);
+  const heroBox = hero.getBoundingClientRect();
+  hero.style.setProperty('--ring-x', `${cx - heroBox.left}px`);
+  hero.style.setProperty('--ring-y', `${cy - heroBox.top}px`);
   return { r1, r2, sloganDist: slogan.top - cy, maxR: Math.hypot(window.innerWidth, window.innerHeight) };
 }
 

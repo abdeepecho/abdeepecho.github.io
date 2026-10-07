@@ -2,8 +2,8 @@
   "_說明": "海溝場景的所有可調數值。改這個檔案即可調整，不需改程式。顏色用 #RRGGBB；depth 單位公尺；u 是鏡頭在海溝中的位置（0 = 海面，1 = 海溝底）。",
 
   "depthBands": [
-    { "depth": 0,     "u": 0.0,  "zone": "surface",  "water": "#1D6A8F", "fog": 0.016, "darkness": 0.0 },
-    { "depth": 200,   "u": 0.2,  "zone": "twilight", "water": "#0E3D5C", "fog": 0.02,  "darkness": 0.18 },
+    { "depth": 0,     "u": 0.0,  "zone": "surface",  "water": "#1D6A8F", "fog": 0.022, "darkness": 0.2 },
+    { "depth": 200,   "u": 0.2,  "zone": "twilight", "water": "#0E3D5C", "fog": 0.022, "darkness": 0.22 },
     { "depth": 1000,  "u": 0.42, "zone": "midnight", "water": "#0A2C47", "fog": 0.026, "darkness": 0.34 },
     { "depth": 4000,  "u": 0.64, "zone": "abyss",    "water": "#06213A", "fog": 0.032, "darkness": 0.5 },
     { "depth": 6000,  "u": 0.82, "zone": "hadal",    "water": "#031322", "fog": 0.038, "darkness": 0.58 },
@@ -17,7 +17,7 @@
     { "from": 6000, "key": "hadal" },
     { "from": 10900, "key": "floor" }
   ],
-  "anchorViewportRatio": 0.4,
+  "anchorViewportRatio": 0.14,
 
   "camera": {
     "fov": 60,
@@ -33,19 +33,21 @@
     "bottom": -150,
     "halfWidthTop": 18,
     "halfWidthBottom": 7,
-    "wallSegments": [70, 130],
+    "wallSegments": [150, 260],
+    "wallSegmentsMobile": [70, 130],
     "floorSegments": [60, 80],
     "rockColor": "#415564",
+    "sedimentColor": "#8C9A9B",
     "seed": 50
   },
 
   "light": {
     "hemiSky": "#9FDCF0",
     "hemiGround": "#04101A",
-    "hemiIntensity": 2.6,
+    "hemiIntensity": 1.2,
     "hemiFloor": 0.12,
     "sunColor": "#9FE6FF",
-    "sunIntensity": 3.6,
+    "sunIntensity": 1.6,
     "torchColor": "#E2F7FF",
     "torchIntensityTop": 6,
     "torchIntensityDeep": 70,
@@ -53,14 +55,14 @@
     "torchAngle": 0.42,
     "torchPenumbra": 0.6,
     "torchDecay": 1,
-    "exposure": 1.1
+    "exposure": 0.92
   },
 
-  "rays": { "count": 7, "color": "#C4F1FF", "opacityMin": 0.12, "opacityRange": 0.14, "fadeOutU": 0.32 },
+  "rays": { "count": 7, "xRange": [4, 22], "color": "#C4F1FF", "opacityMin": 0.05, "opacityRange": 0.07, "fadeOutU": 0.32 },
 
   "particles": {
-    "snow":    { "desktop": 1800, "mobile": 600, "speed": 0.25, "size": 0.08, "color": "#CFE8F2", "opacity": 0.55 },
-    "bubbles": { "desktop": 220,  "mobile": 80,  "speedMin": 1.2, "speedMax": 3.8, "size": 0.45, "color": "#E6F6FF", "opacityTop": 0.85, "opacityDeep": 0.35 },
+    "snow":    { "desktop": 1800, "mobile": 600, "speed": 0.25, "size": 0.16, "color": "#CFE8F2", "opacity": 0.55 },
+    "bubbles": { "desktop": 160,  "mobile": 60,  "speedMin": 1.2, "speedMax": 3.8, "size": 0.2, "color": "#E6F6FF", "opacityTop": 0.6, "opacityDeep": 0.25 },
     "glow":    { "desktop": 26,   "mobile": 12,  "colors": ["#8EF0DE", "#9FD8FF", "#B8A6FF"], "size": 0.9, "appearFromU": 0.25, "fullAtU": 0.55 }
   },
 
@@ -68,10 +70,10 @@
 
   "sonar": {
     "color": "#8EF0DE",
-    "ringWidth": 1.6,
+    "ringWidth": 1.1,
     "speed": 48,
     "maxRadius": 90,
-    "strength": 1.4,
+    "strength": 0.75,
     "introPings": [
       { "atMs": 350, "revealTo": "logo" },
       { "atMs": 1500, "revealTo": "all" }

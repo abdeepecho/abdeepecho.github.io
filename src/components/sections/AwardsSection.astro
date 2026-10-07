@@ -24,9 +24,6 @@ const work = (name: string) => (lang === 'zh-Hant' ? `《${name}》` : name);
         </li>
       ))}
     </ul>
-    <svg class="seabed" viewBox="0 0 1000 60" preserveAspectRatio="none" aria-hidden="true">
-      <path d="M0 42 L60 38 L110 44 L180 33 L240 40 L300 36 L370 46 L430 39 L500 43 L560 31 L630 41 L690 37 L760 45 L820 35 L880 42 L940 38 L1000 44 L1000 60 L0 60 Z"></path>
-    </svg>
   </div>
 </section>
 
@@ -64,17 +61,6 @@ const work = (name: string) => (lang === 'zh-Hant' ? `《${name}》` : name);
     opacity: calc(0.25 + var(--lit) * 0.75);
     pointer-events: none;
   }
-  .find::after {
-    /* 物件下方的泥沙陰影 */
-    content: '';
-    position: absolute;
-    left: 8%;
-    right: 8%;
-    bottom: 0;
-    height: 10px;
-    border-radius: 50%;
-    background: radial-gradient(closest-side, rgba(1, 7, 14, 0.8), rgba(1, 7, 14, 0));
-  }
   .find-year {
     font-family: var(--font-mark);
     font-size: var(--fs-sm);
@@ -90,7 +76,7 @@ const work = (name: string) => (lang === 'zh-Hant' ? `《${name}》` : name);
     line-height: 1.3;
     color: color-mix(in srgb, var(--ink) calc(55% + var(--lit) * 45%), var(--ink-dim));
   }
-  .find-result:lang(en) { letter-spacing: 0.01em; }
+  .find-result:lang(en) { letter-spacing: 0.01em; font-size: var(--fs-xl); }
   .find-selection .find-result { font-size: var(--fs-xl); }
   .find-name {
     margin-top: var(--space-2);
@@ -101,7 +87,6 @@ const work = (name: string) => (lang === 'zh-Hant' ? `《${name}》` : name);
   }
   .find-work { margin-top: var(--space-1); font-size: var(--fs-sm); color: var(--ink-dim); }
 
-  .seabed { display: block; width: 100%; height: 48px; margin-top: var(--space-6); fill: rgba(65, 85, 100, 0.22); }
 
   @media (max-width: 760px) {
     .finds { grid-template-columns: minmax(0, 1fr); gap: var(--space-4); margin-top: var(--space-6); }

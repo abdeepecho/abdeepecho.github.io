@@ -67,12 +67,13 @@ const otherLang = lang === 'en' ? 'zh-Hant' : 'en';
     margin-top: var(--space-4);
     font-family: var(--font-heading);
     font-weight: 900;
-    font-size: var(--fs-display);
+    font-size: clamp(3rem, 1.2rem + 4.6vw, 6.75rem);
     line-height: 1.02;
+    white-space: nowrap;
     letter-spacing: 0.08em;
     color: #F2FAFC;
   }
-  .game-title:lang(en) { font-size: clamp(2.75rem, 1.4rem + 5vw, 5.25rem); letter-spacing: 0; line-height: 1.05; }
+  .game-title:lang(en) { font-size: clamp(2.75rem, 1.2rem + 3.8vw, 4.75rem); letter-spacing: 0; line-height: 1.05; white-space: normal; }
   .game-alt { margin-top: var(--space-3); font-family: var(--font-mark); font-size: var(--fs-lg); letter-spacing: 0.22em; color: var(--ink-dim); }
   .game-alt:lang(zh-Hant) { font-family: var(--font-heading); font-weight: 900; letter-spacing: 0.3em; }
   .game-tagline { margin-top: var(--space-5); max-width: 26em; font-size: var(--fs-md); color: var(--ink); text-shadow: var(--text-shadow-body); }

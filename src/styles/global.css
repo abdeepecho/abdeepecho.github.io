@@ -3,6 +3,7 @@
 
 html {
   background: var(--water-hadal);
+  overflow-x: clip;
   -webkit-text-size-adjust: 100%;
   scroll-padding-top: calc(var(--header-h) + var(--space-4));
 }
@@ -204,7 +205,8 @@ button { font: inherit; color: inherit; }
 .descent-line {
   position: absolute;
   z-index: 1;
-  top: 0;
+  top: 100vh;
+  top: 100svh;
   bottom: 0;
   left: max(var(--gutter), calc((100% - var(--content-max) - var(--rail-col)) / 2 + var(--gutter)));
   width: 0;

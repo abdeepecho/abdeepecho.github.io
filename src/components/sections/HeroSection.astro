@@ -12,7 +12,6 @@ const B = site.brand;
       <span class="lockup-art" data-logo aria-hidden="true">
         <img class="lockup-glitch" src={B.glitch} width={B.glitchSize[0]} height={B.glitchSize[1]} alt="" decoding="async" fetchpriority="high" />
         <img class="lockup-mark" src={B.mark} width={B.markSize[0]} height={B.markSize[1]} alt="" decoding="async" fetchpriority="high" />
-        <span class="sonar-rings"><span class="sonar-ring"></span><span class="sonar-ring"></span></span>
       </span>
       <span class="wordmark" lang="en">Deep Echo</span>
       <span class="wordmark-zh" lang="zh-Hant">幽海工作室</span>
@@ -20,6 +19,7 @@ const B = site.brand;
     <p class="slogan" data-reveal-late>{t(lang, 'slogan')}</p>
     <p class="hero-sub" data-reveal-late>{t(lang, 'hero.sub')}</p>
   </div>
+  <span class="sonar-rings" aria-hidden="true"><span class="sonar-ring"></span><span class="sonar-ring"></span></span>
   <a class="dive-cue" href="#about">
     <span>{t(lang, 'hero.dive')}</span>
     <span class="dive-line" aria-hidden="true"><span class="dive-weight"></span></span>
@@ -39,6 +39,8 @@ const B = site.brand;
     justify-content: center;
     padding: calc(var(--header-h) + var(--space-6)) var(--gutter) var(--space-9);
     text-align: center;
+    overflow: hidden; /* 聲納光環很大，不能撐出水平捲軸 */
+    overflow: clip;
   }
   .hero-content {
     display: flex;
@@ -127,7 +129,8 @@ const B = site.brand;
   .hero-sub:lang(en) { letter-spacing: 0.04em; }
 
   /* 聲納光環：以標誌中心擴散，開場時由 home.js 播放 */
-  .sonar-rings { position: absolute; inset: 50% auto auto 50%; width: 0; height: 0; pointer-events: none; }
+  /* 位置（標誌中心）由 home.js 設定 --ring-x / --ring-y；放在遮罩外面，光環才看得到 */
+  .sonar-rings { position: absolute; left: var(--ring-x, 50%); top: var(--ring-y, 35%); width: 0; height: 0; pointer-events: none; }
   .sonar-ring {
     position: absolute;
     left: -50vmax;

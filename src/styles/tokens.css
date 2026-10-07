@@ -47,7 +47,7 @@
   --lh-heading: 1.25;
   --tracking-heading: 0.06em;
   /* 標題不加光暈；內文只留很小的深色陰影，確保疊在場景上可讀 */
-  --text-shadow-body: 0 1px 3px rgba(1, 7, 14, 0.75);
+  --text-shadow-body: 0 0 2px rgba(1, 7, 14, 0.9), 0 1px 4px rgba(1, 7, 14, 0.6);
 
   /* 間距：8 的倍數 */
   --space-1: 0.25rem;

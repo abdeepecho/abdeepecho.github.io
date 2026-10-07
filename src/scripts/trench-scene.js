@@ -9,6 +9,7 @@ import {
   DirectionalLight,
   DoubleSide,
   FogExp2,
+  Group,
   HemisphereLight,
   ACESFilmicToneMapping,
   Mesh,
@@ -101,10 +102,10 @@ export function createTrenchScene(canvas, cfg, { mobile = false, reduceMotion = 
     width: { value: cfg.sonar.ringWidth },
   };
   const rockMat = new MeshStandardMaterial({
-    color: new Color(T.rockColor),
-    roughness: 1,
+    color: 0xffffff,
+    roughness: 0.95,
     metalness: 0,
-    flatShading: true,
+    vertexColors: true,
     side: DoubleSide,
   });
   rockMat.onBeforeCompile = (shader) => {
@@ -128,16 +129,17 @@ export function createTrenchScene(canvas, cfg, { mobile = false, reduceMotion = 
       'uniform float uPingWidth;',
       shader.fragmentShader,
     ].join('\n').replace(
-      '#include <opaque_fragment>',
-      `#include <opaque_fragment>
+      '#include <fog_fragment>',
+      `#include <fog_fragment>
       {
         float d = distance(vSonarWorld, uPingOrigin);
         float x = uPingRadius - d;
         float front = exp(-abs(x) / uPingWidth);
-        float wake = x > 0.0 ? exp(-x / (uPingWidth * 7.0)) * 0.3 : 0.0;
+        float wake = x > 0.0 ? exp(-x / (uPingWidth * 9.0)) * 0.12 : 0.0;
         vec3 toOrigin = normalize(uPingOriginView + vViewPosition);
         float facing = 0.25 + 0.75 * max(dot(normal, toOrigin), 0.0);
-        gl_FragColor.rgb += uPingColor * (front + wake) * facing * uPingStrength;
+        // 加在霧之後：開場全黑時光波仍能照出遠處岩壁，只隨距離緩慢衰減
+        gl_FragColor.rgb += uPingColor * (front + wake) * facing * uPingStrength * exp(-d * 0.018);
       }`
     );
   };
@@ -153,9 +155,30 @@ export function createTrenchScene(canvas, cfg, { mobile = false, reduceMotion = 
     });
   }
 
+  // 岩石頂點色：斑駁的明暗、凸出岩棚上堆積的沉積物（海雪），讓岩壁不像低多邊形
+  const baseRock = new Color(T.rockColor);
+  const sediment = new Color(T.sedimentColor || '#8C9A9B');
+  const vc = new Color();
+  function paintRock(geo, seedX) {
+    const pos = geo.attributes.position;
+    const nor = geo.attributes.normal;
+    const colors = new Float32Array(pos.count * 3);
+    for (let i = 0; i < pos.count; i++) {
+      const x = pos.getX(i), y = pos.getY(i), z = pos.getZ(i);
+      const mottle = 0.5 + 0.75 * fbm(z * 0.35 + seedX, y * 0.35);
+      const streak = 0.85 + 0.3 * valueNoise(z * 0.05 + seedX, y * 1.6);
+      vc.copy(baseRock).multiplyScalar(mottle * streak);
+      const up = nor.getY(i);
+      if (up > 0.3) vc.lerp(sediment, Math.min(1, (up - 0.3) * 1.6) * 0.7);
+      colors[i * 3] = vc.r; colors[i * 3 + 1] = vc.g; colors[i * 3 + 2] = vc.b;
+    }
+    geo.setAttribute('color', new BufferAttribute(colors, 3));
+  }
+
+  const seg = mobile ? T.wallSegmentsMobile : T.wallSegments;
   function makeWall(side) {
     const zLen = 120, yLen = TOP - BOTTOM;
-    const geo = new PlaneGeometry(zLen, yLen, T.wallSegments[0], T.wallSegments[1]);
+    const geo = new PlaneGeometry(zLen, yLen, seg[0], seg[1]);
     const pos = geo.attributes.position;
     const off = side > 0 ? T.seed : 0;
     for (let i = 0; i < pos.count; i++) {
@@ -164,24 +187,38 @@ export function createTrenchScene(canvas, cfg, { mobile = false, reduceMotion = 
       const y = v + (TOP + BOTTOM) / 2;
       const n = fbm(u * 0.06 + off, y * 0.05);
       const ridge = Math.abs(fbm(u * 0.16 + 10, y * 0.13 + (side > 0 ? 7 : 0)) - 0.5) * 2;
-      const x = side * (halfWidth(y) + (n - 0.5) * 10 + ridge * 2.8 + Math.max(0, -z - 45) * 0.12);
+      // 水平岩層：沿高度起伏的岩棚
+      const strata = Math.sin(y * 0.85 + n * 6) * 0.35 + Math.sin(y * 2.3 + u * 0.1) * 0.12;
+      const detail = (fbm(u * 0.45 + off, y * 0.45) - 0.5) * 1.6;
+      const x = side * (halfWidth(y) + (n - 0.5) * 10 + ridge * 2.8 + strata + detail + Math.max(0, -z - 45) * 0.12);
       pos.setXYZ(i, x, y, z);
     }
     geo.computeVertexNormals();
+    paintRock(geo, off);
     return new Mesh(geo, rockMat);
   }
-  scene.add(makeWall(-1));
-  scene.add(makeWall(1));
+  // 岩壁放在同一個群組：直式螢幕時把海溝在水平方向收窄，手機上也看得到兩側岩壁
+  const trench = new Group();
+  trench.add(makeWall(-1));
+  trench.add(makeWall(1));
+  scene.add(trench);
+  const fitTrench = () => {
+    const aspect = window.innerWidth / window.innerHeight;
+    trench.scale.x = Math.min(1, Math.max(cfg.camera.minTrenchScale ?? 0.4, aspect / 1.25));
+  };
+  fitTrench();
 
   {
     const geo = new PlaneGeometry(60, 120, T.floorSegments[0], T.floorSegments[1]);
     const pos = geo.attributes.position;
     for (let i = 0; i < pos.count; i++) {
       const u = pos.getX(i), v = pos.getY(i);
-      pos.setXYZ(i, u, BOTTOM + 10 + fbm(u * 0.12, v * 0.12) * 7 + Math.abs(u) * 0.25, v - 45);
+      const h = fbm(u * 0.12, v * 0.12) * 7 + (fbm(u * 0.6, v * 0.6) - 0.5) * 1.2 + Math.abs(u) * 0.25;
+      pos.setXYZ(i, u, BOTTOM + 10 + h, v - 45);
     }
     geo.computeVertexNormals();
-    scene.add(new Mesh(geo, rockMat));
+    paintRock(geo, 99);
+    trench.add(new Mesh(geo, rockMat));
   }
 
   // ---- 燈光：陽光隨深度消失，最後只剩潛水燈 ----
@@ -189,7 +226,7 @@ export function createTrenchScene(canvas, cfg, { mobile = false, reduceMotion = 
   const hemi = new HemisphereLight(new Color(L.hemiSky), new Color(L.hemiGround), L.hemiIntensity);
   scene.add(hemi);
   const sun = new DirectionalLight(new Color(L.sunColor), L.sunIntensity);
-  sun.position.set(-6, 60, 12);
+  sun.position.set(8, 60, 12);
   scene.add(sun);
   const torch = new SpotLight(new Color(L.torchColor), L.torchIntensityTop, L.torchDistance, L.torchAngle, L.torchPenumbra, L.torchDecay);
   camera.add(torch);
@@ -200,7 +237,7 @@ export function createTrenchScene(canvas, cfg, { mobile = false, reduceMotion = 
   // ---- 貼圖 ----
   const rayTex = canvasTexture(128, 512, (g, w, h) => {
     const v = g.createLinearGradient(0, 0, 0, h);
-    v.addColorStop(0, 'rgba(255,255,255,0.95)'); v.addColorStop(1, 'rgba(255,255,255,0)');
+    v.addColorStop(0, 'rgba(255,255,255,0)'); v.addColorStop(0.18, 'rgba(255,255,255,0.9)'); v.addColorStop(1, 'rgba(255,255,255,0)');
     g.fillStyle = v; g.fillRect(0, 0, w, h);
     g.globalCompositeOperation = 'destination-in';
     const hz = g.createLinearGradient(0, 0, w, 0);
@@ -220,16 +257,20 @@ export function createTrenchScene(canvas, cfg, { mobile = false, reduceMotion = 
   });
 
   // 海面光束
+  // 固定種子的亂數：每次載入的光束位置都一樣，文字欄後方不會剛好出現亮光
+  let seedState = 7;
+  const seeded = () => { seedState = (seedState * 16807) % 2147483647; return (seedState - 1) / 2147483646; };
   const rays = [];
+  const [rayMinX, rayMaxX] = cfg.rays.xRange || [-14, 14];
   for (let r = 0; r < cfg.rays.count; r++) {
     const mat = new MeshBasicMaterial({
       map: rayTex, color: new Color(cfg.rays.color), transparent: true, opacity: 0,
       blending: AdditiveBlending, depthWrite: false, fog: false,
     });
-    const ray = new Mesh(new PlaneGeometry(2 + Math.random() * 5, 80), mat);
-    ray.position.set(-14 + Math.random() * 28, -10, -18 - Math.random() * 34);
-    ray.rotation.z = (Math.random() - 0.5) * 0.5;
-    ray.userData = { base: cfg.rays.opacityMin + Math.random() * cfg.rays.opacityRange, phase: Math.random() * 6.28 };
+    const ray = new Mesh(new PlaneGeometry(2 + seeded() * 5, 80), mat);
+    ray.position.set(rayMinX + seeded() * (rayMaxX - rayMinX), -10, -18 - seeded() * 34);
+    ray.rotation.z = -0.1 - seeded() * 0.3;
+    ray.userData = { base: cfg.rays.opacityMin + seeded() * cfg.rays.opacityRange, phase: seeded() * 6.28 };
     scene.add(ray);
     rays.push(ray);
   }
@@ -248,7 +289,7 @@ export function createTrenchScene(canvas, cfg, { mobile = false, reduceMotion = 
     snowPos[s * 3 + 2] = -70 + Math.random() * 76;
   }
   snowGeo.setAttribute('position', new BufferAttribute(snowPos, 3));
-  const snowMat = new PointsMaterial({ color: new Color(P.snow.color), size: P.snow.size, transparent: true, opacity: P.snow.opacity, depthWrite: false });
+  const snowMat = new PointsMaterial({ map: glowTex, color: new Color(P.snow.color), size: P.snow.size, transparent: true, opacity: P.snow.opacity, depthWrite: false });
   scene.add(new Points(snowGeo, snowMat));
 
   // 氣泡：在鏡頭附近往上飄
@@ -324,6 +365,7 @@ export function createTrenchScene(canvas, cfg, { mobile = false, reduceMotion = 
   }
 
   function resize() {
+    fitTrench();
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight, false);
