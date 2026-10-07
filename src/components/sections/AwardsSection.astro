@@ -1,0 +1,111 @@
+---
+// 4,000 m 獲獎：像散落在海床上的物件，潛水燈照到時更亮（只用文字，不放獎項標誌）
+// 只放已查證的獎項，資料在 src/data/games.json
+import games from '../../data/games.json';
+import { t, pick } from '../../i18n/index.js';
+import Sounding from '../Sounding.astro';
+interface Props { lang: string }
+const { lang } = Astro.props;
+const finds = games.flatMap((g) => (g.awards ?? []).map((a) => ({ ...a, game: pick(g.title, lang) })));
+const work = (name: string) => (lang === 'zh-Hant' ? `《${name}》` : name);
+---
+<section class="band awards" id="awards" data-depth="4000" data-zone="abyss" aria-labelledby="awards-title">
+  <Sounding lang={lang} depth={4000} zone="abyss" />
+  <div class="band-body">
+    <h2 class="h2" id="awards-title">{t(lang, 'awards.title')}</h2>
+    <ul class="finds" data-finds>
+      {finds.map((a) => (
+        <li class:list={['find', `find-${a.kind}`]} data-find>
+          <span class="find-light" aria-hidden="true"></span>
+          <p class="find-year">{a.year}</p>
+          <p class="find-result">{pick(a.result, lang)}</p>
+          <h3 class="find-name" lang={/^[\x00-\x7F]+$/.test(pick(a.name, lang)) ? 'en' : undefined}>{pick(a.name, lang)}</h3>
+          <p class="find-work">{work(a.game)}</p>
+        </li>
+      ))}
+    </ul>
+    <svg class="seabed" viewBox="0 0 1000 60" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0 42 L60 38 L110 44 L180 33 L240 40 L300 36 L370 46 L430 39 L500 43 L560 31 L630 41 L690 37 L760 45 L820 35 L880 42 L940 38 L1000 44 L1000 60 L0 60 Z"></path>
+    </svg>
+  </div>
+</section>
+
+<style>
+  .awards .band-body { position: relative; }
+  .finds {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: var(--space-6) var(--space-5);
+    margin: var(--space-8) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  /* 散落在海床上：每件物品的位置與高度都不同 */
+  .find { grid-column: span 6; }
+  .find:nth-child(1) { grid-column: 1 / span 5; }
+  .find:nth-child(2) { grid-column: 7 / span 5; margin-top: var(--space-9); }
+  .find:nth-child(3) { grid-column: 3 / span 5; margin-top: calc(-1 * var(--space-6)); }
+  .find:nth-child(4) { grid-column: 9 / span 4; margin-top: var(--space-7); }
+  .find:nth-child(5) { grid-column: 1 / span 5; margin-top: calc(-1 * var(--space-4)); }
+
+  .find {
+    --lit: 0;
+    position: relative;
+    padding: var(--space-5) var(--space-5) var(--space-6);
+    color: var(--ink-dim);
+  }
+  /* 燈光照到的光圈，強度由 home.js 依潛水燈距離設定 --lit */
+  .find-light {
+    position: absolute;
+    inset: -30% -20%;
+    z-index: -1;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, rgba(226, 247, 255, 0.13), rgba(142, 240, 222, 0.05) 55%, rgba(142, 240, 222, 0) 100%);
+    opacity: calc(0.25 + var(--lit) * 0.75);
+    pointer-events: none;
+  }
+  .find::after {
+    /* 物件下方的泥沙陰影 */
+    content: '';
+    position: absolute;
+    left: 8%;
+    right: 8%;
+    bottom: 0;
+    height: 10px;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, rgba(1, 7, 14, 0.8), rgba(1, 7, 14, 0));
+  }
+  .find-year {
+    font-family: var(--font-mark);
+    font-size: var(--fs-sm);
+    letter-spacing: 0.2em;
+    color: var(--ink-dim);
+  }
+  .find-result {
+    margin-top: var(--space-1);
+    font-family: var(--font-heading);
+    font-weight: 900;
+    font-size: var(--fs-2xl);
+    letter-spacing: 0.1em;
+    line-height: 1.3;
+    color: color-mix(in srgb, var(--ink) calc(55% + var(--lit) * 45%), var(--ink-dim));
+  }
+  .find-result:lang(en) { letter-spacing: 0.01em; }
+  .find-selection .find-result { font-size: var(--fs-xl); }
+  .find-name {
+    margin-top: var(--space-2);
+    font-size: var(--fs-base);
+    font-weight: 500;
+    line-height: 1.6;
+    color: color-mix(in srgb, var(--ink) calc(40% + var(--lit) * 60%), var(--ink-dim));
+  }
+  .find-work { margin-top: var(--space-1); font-size: var(--fs-sm); color: var(--ink-dim); }
+
+  .seabed { display: block; width: 100%; height: 48px; margin-top: var(--space-6); fill: rgba(65, 85, 100, 0.22); }
+
+  @media (max-width: 760px) {
+    .finds { grid-template-columns: minmax(0, 1fr); gap: var(--space-4); margin-top: var(--space-6); }
+    .find:nth-child(n) { grid-column: 1; margin-top: 0; margin-left: 0; }
+    .find:nth-child(even) { margin-left: 12%; }
+  }
+</style>

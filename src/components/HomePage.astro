@@ -1,0 +1,98 @@
+---
+// 首頁（中英文共用）：往下捲動就是往海溝下潛，每個區塊是一個深度帶
+import site from '../data/site.json';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import DepthMeter from './DepthMeter.astro';
+import HeroSection from './sections/HeroSection.astro';
+import AboutSection from './sections/AboutSection.astro';
+import ServicesSection from './sections/ServicesSection.astro';
+import WorksSection from './sections/WorksSection.astro';
+import AwardsSection from './sections/AwardsSection.astro';
+import ProcessFaqSection from './sections/ProcessFaqSection.astro';
+import ContactSection from './sections/ContactSection.astro';
+import { t } from '../i18n/index.js';
+interface Props { lang: string }
+const { lang } = Astro.props;
+---
+<BaseLayout lang={lang} path="/" title={t(lang, 'meta.home.title')} description={t(lang, 'meta.home.desc')} isHome bodyClass="page-home">
+  <script is:inline slot="head-early">
+    /* 開場判斷：第一次造訪、沒有指定區塊、沒有減少動態 → 播放聲納開場；4 秒內主程式沒接手就直接顯示內容 */
+    (function () {
+      var d = document.documentElement, seen = null;
+      try { seen = window.localStorage.getItem('deepecho-intro-seen'); } catch (e) {}
+      var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (!seen && !reduce && !window.location.hash) {
+        d.classList.add('intro-pending');
+        setTimeout(function () {
+          if (d.classList.contains('intro-pending')) { d.classList.remove('intro-pending'); d.classList.add('intro-done', 'intro-late'); }
+        }, 4000);
+      } else {
+        d.classList.add('intro-done', 'intro-late');
+      }
+    })();
+  </script>
+
+  <Fragment slot="before-main">
+    <canvas class="trench" data-trench aria-hidden="true"></canvas>
+    <div class="torch-veil" data-torch aria-hidden="true"></div>
+    <DepthMeter lang={lang} />
+  </Fragment>
+
+  <div class="descent-line" aria-hidden="true"></div>
+  <HeroSection lang={lang} />
+  <AboutSection lang={lang} />
+  <ServicesSection lang={lang} />
+  <WorksSection lang={lang} />
+  <AwardsSection lang={lang} />
+  {site.commissionsOpen && <ProcessFaqSection lang={lang} />}
+  <ContactSection lang={lang} />
+</BaseLayout>
+
+<script>
+  import '../scripts/home.js';
+</script>
+
+<style is:global>
+  .page-home main { position: relative; }
+  .trench {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+  /* 潛水燈：越深越暗，只剩游標附近的光；開場時整片全黑 */
+  .torch-veil {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background:
+      linear-gradient(rgba(1, 7, 14, var(--veil, 0)), rgba(1, 7, 14, var(--veil, 0))),
+      radial-gradient(circle var(--torch-r, 300px) at var(--tx, 50%) var(--ty, 40%), rgba(1, 7, 14, 0) 0%, rgba(1, 7, 14, 0) 35%, rgba(1, 7, 14, var(--dark, 0)) 100%);
+  }
+  @media (max-width: 760px) { .torch-veil { --torch-r: 200px; } }
+
+  /* 開場時隱藏導覽列與深度計，結束後淡入 */
+  html.intro-pending .site-header,
+  html.intro-running .site-header,
+  html.intro-pending .depth-meter,
+  html.intro-running .depth-meter { opacity: 0; pointer-events: none; }
+  html.intro-pending .torch-veil { --veil: 1; }
+
+  /* 暫停接案說明（服務與聯絡區共用） */
+  .paused-note {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-top: var(--space-5);
+    padding: var(--space-2) var(--space-4);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-pill);
+    background: rgba(1, 7, 14, 0.5);
+    font-size: var(--fs-sm);
+    color: var(--ink);
+  }
+  .paused-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--lure); flex: none; }
+</style>

@@ -1,0 +1,78 @@
+---
+// 深度計：桌機在右側中間（即時水深、深度帶名稱、下潛進度）；手機縮成右下角一行
+// 數值由 home.js 每幀更新；各區塊的水深標記已提供相同資訊給螢幕閱讀器，所以這裡 aria-hidden
+import { t } from '../i18n/index.js';
+interface Props { lang: string }
+const { lang } = Astro.props;
+---
+<aside class="depth-meter" aria-hidden="true">
+  <p class="dm-depth"><span class="dm-num" data-depth-num>0</span><span class="dm-unit">m</span></p>
+  <p class="dm-zone" data-depth-zone>{t(lang, 'zone.surface')}</p>
+  <div class="dm-track"><span class="dm-fill" data-depth-fill></span><span class="dm-dot" data-depth-dot></span></div>
+</aside>
+
+<style>
+  .depth-meter {
+    position: fixed;
+    z-index: 15;
+    right: calc(var(--space-5) + env(safe-area-inset-right, 0px));
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: var(--space-1);
+    pointer-events: none;
+    text-shadow: 0 1px 10px rgba(1, 7, 14, 0.9);
+    transition: opacity 600ms var(--ease-out);
+  }
+  .dm-depth { display: flex; align-items: baseline; gap: 0.25em; line-height: 1; }
+  .dm-num {
+    font-family: var(--font-mark);
+    font-weight: 600;
+    font-size: 1.75rem;
+    letter-spacing: 0.03em;
+    font-variant-numeric: lining-nums tabular-nums;
+    min-width: 4.2ch;
+    text-align: right;
+  }
+  .dm-unit { font-family: var(--font-mark); font-size: var(--fs-sm); color: var(--ink-dim); }
+  .dm-zone { font-size: var(--fs-xs); color: var(--glow); letter-spacing: 0.08em; line-height: 1.4; }
+  .dm-track {
+    position: relative;
+    width: 2px;
+    height: 160px;
+    margin-top: var(--space-3);
+    margin-right: 6px;
+    background: rgba(230, 242, 247, 0.16);
+    border-radius: 2px;
+  }
+  .dm-fill { position: absolute; inset: 0 0 auto 0; height: 0; background: var(--glow-line); }
+  .dm-dot {
+    position: absolute;
+    left: -4px;
+    top: -5px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--glow);
+  }
+  @media (max-width: 760px) {
+    .depth-meter {
+      top: auto;
+      bottom: calc(var(--space-3) + env(safe-area-inset-bottom, 0px));
+      right: calc(var(--space-3) + env(safe-area-inset-right, 0px));
+      transform: none;
+      flex-direction: row;
+      align-items: baseline;
+      gap: var(--space-2);
+      padding: var(--space-1) var(--space-3);
+      border-radius: var(--radius-pill);
+      background: rgba(1, 7, 14, 0.6);
+      backdrop-filter: blur(6px);
+    }
+    .dm-num { font-size: 1.0625rem; min-width: 0; }
+    .dm-unit { font-size: var(--fs-xs); }
+    .dm-track { display: none; }
+  }
+</style>

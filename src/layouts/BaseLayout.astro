@@ -1,0 +1,99 @@
+---
+// 共用版型：<head>（SEO、hreflang、Open Graph、字體）、導覽列、頁尾
+import '../styles/tokens.css';
+import '../styles/global.css';
+import site from '../data/site.json';
+import { LOCALES, LOCALE_CODES, DEFAULT_LOCALE, localePath, t } from '../i18n/index.js';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import langRedirect from '../scripts/lang-redirect.js?raw';
+
+interface Props {
+  lang: string;
+  path: string;          // 不含語言前綴的路徑，例如 '/' 或 '/games/silent-wreckage/'
+  title: string;
+  description: string;
+  ogImage?: string;
+  ogImageSize?: number[];
+  isHome?: boolean;
+  bodyClass?: string;
+}
+const {
+  lang,
+  path,
+  title,
+  description,
+  ogImage = site.ogImage,
+  ogImageSize = site.ogImageSize,
+  isHome = false,
+  bodyClass = '',
+} = Astro.props;
+
+const abs = (p: string) => new URL(p, site.siteUrl).href;
+const canonical = abs(localePath(lang, path));
+const ogImageUrl = abs(ogImage);
+const ogLocale = t(lang, 'meta.ogLocale');
+
+// 前端需要的字串（表單訊息、選單標籤、深度帶名稱）
+const runtimePrefixes = ['menu.', 'sound.', 'form.', 'zone.', 'depth.', 'lb.', 'video.'];
+const dict = LOCALES[lang].dict;
+const runtime = Object.fromEntries(Object.entries(dict).filter(([k]) => runtimePrefixes.some((p) => k.startsWith(p))));
+runtime.email = site.email;
+// 內嵌腳本去掉註解，減少每頁的大小
+const langRedirectInline = langRedirect.replace(/\/\*[\s\S]*?\*\//g, '').replace(/
+\s*
+/g, '
+');
+const runtimeJson = JSON.stringify(runtime).replace(/</g, '\\u003c');
+---
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {LOCALE_CODES.map((code) => (
+      <link rel="alternate" hreflang={code} href={abs(localePath(code, path))} />
+    ))}
+    <link rel="alternate" hreflang="x-default" href={abs(localePath(DEFAULT_LOCALE, path))} />
+    <script is:inline set:html={langRedirectInline}></script>
+    <slot name="head-early" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.nameFull} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:image:width" content={String(ogImageSize[0])} />
+    <meta property="og:image:height" content={String(ogImageSize[1])} />
+    <meta property="og:locale" content={ogLocale} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="theme-color" content={site.themeColor} />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <link rel="icon" type="image/x-icon" href={site.brand.favicon} />
+    <link rel="icon" type="image/png" sizes="512x512" href={site.brand.icon} />
+    <link rel="apple-touch-icon" href={site.brand.appleTouchIcon} />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;900&display=swap" rel="stylesheet" />
+    <slot name="head" />
+  </head>
+  <body class:list={[bodyClass, site.commissionsOpen ? 'commissions-open' : 'commissions-paused']}>
+    <a class="skip-link" href="#main">{t(lang, 'skip')}</a>
+    <SiteHeader lang={lang} path={path} isHome={isHome} />
+    <slot name="before-main" />
+    <main id="main">
+      <slot />
+    </main>
+    <SiteFooter lang={lang} />
+    <script is:inline type="application/json" id="runtime-strings" set:html={runtimeJson}></script>
+    <script>
+      import '../scripts/site-chrome.js';
+    </script>
+  </body>
+</html>

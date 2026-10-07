@@ -1,0 +1,11 @@
+---
+// 水深標記：區塊的結構標示（取代 01/02/03 編號），數字用 Cinzel
+import { t } from '../i18n/index.js';
+interface Props { lang: string; depth: number; zone: string }
+const { lang, depth, zone } = Astro.props;
+const n = depth.toLocaleString('en-US');
+---
+<p class="sounding">
+  <span class="sounding-depth">{n}<small>m</small></span>
+  <span class="sounding-zone">{t(lang, `zone.${zone}`)}</span>
+</p>

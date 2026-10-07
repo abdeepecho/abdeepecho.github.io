@@ -1,27 +1,23 @@
-/* 幽海工作室 DeepEcho: early language redirect (runs in <head>, before paint).
+/* 早期語言轉址：以 is:inline 放在 <head>，在畫面繪製前執行（不可使用 import）
  *
- * Every page lists its language versions as
- *   <link rel="alternate" hreflang="..." href="...">
- * and this script only ever redirects between those, so adding a language
- * (e.g. /ja/) needs no change here.
+ * 每頁都用 <link rel="alternate" hreflang="..."> 列出各語言版本，本程式只在這些版本之間轉址，
+ * 新增語言（例如 /ja/）不需要修改這裡。
  *
- * Rules
- *   1. ?lang=xx            -> remember xx and go to that version (drops ?lang)
- *   2. saved choice        -> on default-language pages only, go to the saved
- *                             language's version if different
- *   3. first visit only, Chinese pages only: if the browser lists no Chinese
- *      language, go to the English version once. Never repeats, never runs
- *      after an explicit choice, and never runs for crawlers.
+ * 規則
+ *   1. ?lang=xx      記住 xx 並前往該語言版本（去掉 ?lang）
+ *   2. 已存的選擇    只在預設語言（中文）頁面上，轉到所選語言的版本
+ *   3. 第一次造訪、而且瀏覽器語言清單中沒有中文：轉到英文版一次。
+ *      只做一次、使用者明確選過語言後不再執行、搜尋引擎爬蟲不轉址。
  */
 (function () {
   'use strict';
 
-  var STORE = 'deepecho-lang';        /* explicit choice (menu or ?lang=) */
-  var AUTO = 'deepecho-lang-auto';    /* first-visit redirect already decided */
+  var STORE = 'deepecho-lang';        /* 明確的選擇（選單或 ?lang=） */
+  var AUTO = 'deepecho-lang-auto';    /* 第一次造訪的自動轉址已決定過 */
   var DEFAULT = 'zh-Hant';
 
   function get(k) { try { return window.localStorage.getItem(k); } catch (e) { return null; } }
-  function set(k, v) { try { window.localStorage.setItem(k, v); } catch (e) { /* blocked */ } }
+  function set(k, v) { try { window.localStorage.setItem(k, v); } catch (e) { /* 被封鎖 */ } }
 
   var page = document.documentElement.getAttribute('lang') || DEFAULT;
   var alts = {};
@@ -31,20 +27,20 @@
     if (code !== 'x-default') alts[code] = links[i].getAttribute('href');
   }
 
-  /* "en-US" / "zh-TW" / "zh" -> a language that has a version of this page */
-  function match(code) {
-    if (!code) return null;
-    code = String(code).toLowerCase();
+  /* "en-US" / "zh-TW" / "zh" -> 這頁有的語言版本 */
+  function match(c) {
+    if (!c) return null;
+    c = String(c).toLowerCase();
     var k;
-    for (k in alts) if (k.toLowerCase() === code) return k;
-    var base = code.split('-')[0];
+    for (k in alts) if (k.toLowerCase() === c) return k;
+    var base = c.split('-')[0];
     for (k in alts) if (k.toLowerCase().split('-')[0] === base) return k;
     return null;
   }
 
   function go(lang) {
     if (!alts[lang] || lang === page) return false;
-    /* use only the path, so this also works on localhost / previews */
+    /* 只用路徑，所以本機預覽也能運作 */
     var path;
     try { path = new URL(alts[lang], window.location.href).pathname; } catch (e) { return false; }
     window.location.replace(window.location.origin + path + window.location.hash);
@@ -52,24 +48,23 @@
   }
 
   var fromUrl = null;
-  try { fromUrl = match(new URLSearchParams(window.location.search).get('lang')); } catch (e) { /* old browser */ }
+  try { fromUrl = match(new URLSearchParams(window.location.search).get('lang')); } catch (e) { /* 舊瀏覽器 */ }
   if (fromUrl) {
     set(STORE, fromUrl);
     if (!go(fromUrl) && window.history.replaceState) {
-      /* already on the right version: tidy the URL */
+      /* 已在正確版本：整理網址 */
       try {
         var u = new URL(window.location.href);
         u.searchParams.delete('lang');
         window.history.replaceState(window.history.state, '', u.pathname + u.search + u.hash);
-      } catch (e) { /* ignore */ }
+      } catch (e) { /* 略過 */ }
     }
     return;
   }
 
   if (/bot|crawl|spider|slurp|lighthouse|headless/i.test(navigator.userAgent || '')) return;
 
-  /* a saved choice only redirects away from the default-language pages, so a
-     shared /en/ (or later /ja/) link always opens in the language it points to */
+  /* 已存的選擇只會從預設語言頁轉走，所以分享出去的 /en/ 連結一定開成英文 */
   var saved = match(get(STORE));
   if (saved) { if (page === DEFAULT) go(saved); return; }
 

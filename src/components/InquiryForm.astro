@@ -1,0 +1,122 @@
+---
+// 委託表單：前端驗證、honeypot（_gotcha）、以 fetch 送到 Formspree 並在表單內顯示結果
+// 送出網址在 src/data/site.json 的 formEndpoint
+import site from '../data/site.json';
+import { t } from '../i18n/index.js';
+interface Props { lang: string }
+const { lang } = Astro.props;
+const types = ['game', 'ue5', 'anim', 'media', 'other'];
+const typeValues: Record<string, string> = { game: 'game', ue5: 'ue5', anim: 'animation', media: 'media', other: 'other' };
+const budgets = [
+  ['unsure', 'form.budget.unsure'],
+  ['lt100k', 'form.budget.1'],
+  ['100k-300k', 'form.budget.2'],
+  ['300k-1m', 'form.budget.3'],
+  ['gt1m', 'form.budget.4'],
+];
+---
+<form class="inquiry" id="inquiry" action={site.formEndpoint} method="POST" novalidate aria-labelledby="inquiry-title" data-endpoint={site.formEndpoint}>
+  <h3 class="inquiry-title" id="inquiry-title">{t(lang, 'form.title')}</h3>
+  <input type="hidden" name="_language" value={lang} />
+
+  <div class="field">
+    <label for="f-name">{t(lang, 'form.name')}<span class="req" aria-hidden="true">*</span></label>
+    <input id="f-name" name="name" type="text" autocomplete="organization" required aria-describedby="f-name-err" />
+    <p class="field-error" id="f-name-err" hidden></p>
+  </div>
+
+  <div class="field">
+    <label for="f-email">{t(lang, 'form.email')}<span class="req" aria-hidden="true">*</span></label>
+    <input id="f-email" name="email" type="email" autocomplete="email" inputmode="email" required aria-describedby="f-email-err" />
+    <p class="field-error" id="f-email-err" hidden></p>
+  </div>
+
+  <div class="field-row">
+    <div class="field">
+      <label for="f-type">{t(lang, 'form.type')}<span class="req" aria-hidden="true">*</span></label>
+      <select id="f-type" name="type" required aria-describedby="f-type-err">
+        <option value="">{t(lang, 'form.select')}</option>
+        {types.map((k) => <option value={typeValues[k]}>{t(lang, `form.type.${k}`)}</option>)}
+      </select>
+      <p class="field-error" id="f-type-err" hidden></p>
+    </div>
+    <div class="field">
+      <label for="f-budget">{t(lang, 'form.budget')}<span class="opt">{t(lang, 'form.optional')}</span></label>
+      <select id="f-budget" name="budget">
+        <option value="">{t(lang, 'form.select')}</option>
+        {budgets.map(([v, k]) => <option value={v}>{t(lang, k)}</option>)}
+      </select>
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="f-timeline">{t(lang, 'form.timeline')}<span class="opt">{t(lang, 'form.optional')}</span></label>
+    <input id="f-timeline" name="timeline" type="text" placeholder={t(lang, 'form.timeline.ph')} />
+  </div>
+
+  <div class="field">
+    <label for="f-details">{t(lang, 'form.details')}<span class="req" aria-hidden="true">*</span></label>
+    <textarea id="f-details" name="details" rows="6" required aria-describedby="f-details-err" placeholder={t(lang, 'form.details.ph')}></textarea>
+    <p class="field-error" id="f-details-err" hidden></p>
+  </div>
+
+  <div class="field">
+    <label for="f-links">{t(lang, 'form.links')}<span class="opt">{t(lang, 'form.optional')}</span></label>
+    <input id="f-links" name="links" type="text" inputmode="url" placeholder="https://" />
+  </div>
+
+  <!-- honeypot：真人看不到，機器人填了就略過 -->
+  <div class="hp" aria-hidden="true">
+    <label for="f-gotcha">Leave this field empty</label>
+    <input id="f-gotcha" type="text" name="_gotcha" tabindex="-1" autocomplete="off" />
+  </div>
+
+  <div class="inquiry-foot">
+    <button class="btn btn-lure inquiry-submit" type="submit">{t(lang, 'form.submit')}</button>
+    <p class="form-note"><span class="req" aria-hidden="true">*</span> {t(lang, 'form.required')}</p>
+  </div>
+  <p class="form-status" role="status" aria-live="polite"></p>
+</form>
+
+<style>
+  .inquiry { display: grid; gap: var(--space-5); }
+  .inquiry-title { font-family: var(--font-heading); font-weight: 900; font-size: var(--fs-xl); letter-spacing: 0.08em; }
+  .inquiry-title:lang(en) { letter-spacing: 0.01em; }
+  .field { display: grid; gap: var(--space-2); }
+  .field-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-5); }
+  label { font-size: var(--fs-sm); color: var(--ink); }
+  .req { color: var(--lure); margin-left: 0.2em; }
+  .opt { color: var(--ink-dim); margin-left: 0.3em; }
+  input, select, textarea {
+    width: 100%;
+    min-height: 48px;
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-sm);
+    background: rgba(3, 19, 34, 0.7);
+    color: var(--ink);
+    font: inherit;
+    font-size: var(--fs-base);
+    line-height: 1.5;
+    transition: border-color var(--dur-fast), box-shadow var(--dur-fast);
+  }
+  textarea { resize: vertical; min-height: 9rem; }
+  select { appearance: none; background-image: linear-gradient(45deg, transparent 50%, var(--ink-dim) 50%), linear-gradient(135deg, var(--ink-dim) 50%, transparent 50%); background-position: calc(100% - 20px) 52%, calc(100% - 15px) 52%; background-size: 5px 5px; background-repeat: no-repeat; padding-right: var(--space-7); }
+  select option { background: var(--water-deep); color: var(--ink); }
+  input::placeholder, textarea::placeholder { color: var(--ink-faint); }
+  input:hover, select:hover, textarea:hover { border-color: rgba(230, 242, 247, 0.5); }
+  input:focus-visible, select:focus-visible, textarea:focus-visible { outline: none; border-color: var(--glow); box-shadow: 0 0 0 1px var(--glow); }
+  [aria-invalid='true'] { border-color: #FF9C8A; }
+  .field-error { font-size: var(--fs-sm); color: #FFB4A6; }
+  .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+  .inquiry-foot { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4) var(--space-5); margin-top: var(--space-2); }
+  .form-note { font-size: var(--fs-sm); color: var(--ink-dim); }
+  .form-status { min-height: 1.5em; font-size: var(--fs-sm); }
+  .form-status:empty { display: none; }
+  .form-status:global(.is-ok) { color: var(--glow); }
+  .form-status:global(.is-error) { color: #FFB4A6; }
+  @media (max-width: 560px) {
+    .field-row { grid-template-columns: minmax(0, 1fr); }
+    .inquiry-submit { width: 100%; }
+  }
+</style>

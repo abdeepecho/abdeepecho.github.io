@@ -1,0 +1,151 @@
+---
+// 頂部導覽列：左側標誌，右側區塊連結、委託按鈕、語言選單與環境音開關
+import site from '../data/site.json';
+import { t, localePath } from '../i18n/index.js';
+import LanguageMenu from './LanguageMenu.astro';
+import SoundToggle from './SoundToggle.astro';
+
+interface Props {
+  lang: string;
+  path: string;
+  isHome?: boolean;
+}
+const { lang, path, isHome = false } = Astro.props;
+const open = site.commissionsOpen;
+// extra = 只出現在手機選單；whenOpen = 暫停接案時隱藏
+const items = [
+  { id: 'services', key: 'nav.services' },
+  { id: 'process', key: 'nav.process', extra: true, whenOpen: true },
+  { id: 'works', key: 'nav.works' },
+  { id: 'awards', key: 'nav.awards' },
+  { id: 'about', key: 'nav.about' },
+  { id: 'faq', key: 'nav.faq', extra: true, whenOpen: true },
+  { id: 'contact', key: 'nav.contact' },
+].filter((i) => open || !i.whenOpen);
+const home = localePath(lang, '/');
+const href = (id: string) => (isHome ? `#${id}` : `${home}#${id}`);
+---
+<header class="site-header">
+  <nav class="nav" aria-label={t(lang, 'nav.label')}>
+    <a class="brand" href={isHome ? '#top' : home} aria-label={t(lang, isHome ? 'brand.top' : 'brand.home')}>
+      <img class="brand-icon" src={site.brand.icon} width="36" height="36" alt="" decoding="async" />
+      <span class="brand-text" aria-hidden="true">
+        <span class="brand-zh" lang="zh-Hant">幽海工作室</span>
+        <span class="brand-en" lang="en">Deep Echo</span>
+      </span>
+    </a>
+
+    <button class="icon-btn menu-toggle" type="button" aria-expanded="false" aria-controls="site-menu" aria-label={t(lang, 'menu.open')}>
+      <span class="menu-icon" aria-hidden="true"><span></span><span></span></span>
+    </button>
+
+    <ul class="nav-links" id="site-menu">
+      {items.map((i) => (
+        <li class:list={[{ 'nav-extra': i.extra }]}>
+          <a href={href(i.id)} data-section={i.id}>{t(lang, i.key)}</a>
+        </li>
+      ))}
+      {open && (
+        <li class="nav-cta">
+          <a class="btn btn-sm" href={href('contact')}>{t(lang, 'nav.hire')}</a>
+        </li>
+      )}
+    </ul>
+
+    <div class="nav-tools">
+      <LanguageMenu lang={lang} path={path} />
+      <SoundToggle lang={lang} />
+    </div>
+  </nav>
+</header>
+
+<style>
+  .site-header {
+    position: fixed;
+    inset: 0 0 auto 0;
+    z-index: 20;
+    padding-top: env(safe-area-inset-top, 0px);
+    background: transparent;
+    border-bottom: 1px solid transparent;
+    transition: opacity 600ms var(--ease-out), background-color var(--dur-med), border-color var(--dur-med);
+  }
+  /* 捲動離開頂部後才加上底色，確保文字疊在內容上仍可讀 */
+  .site-header:global(.is-scrolled) { background: rgba(1, 7, 14, 0.88); border-bottom-color: var(--line); }
+  .nav {
+    display: flex;
+    align-items: center;
+    gap: var(--space-5);
+    height: var(--header-h);
+    padding-inline: var(--gutter);
+  }
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    color: var(--ink);
+    text-decoration: none;
+    margin-right: auto;
+    min-height: 44px;
+  }
+  .brand-icon { width: 36px; height: 36px; border-radius: 50%; }
+  .brand-text { display: flex; flex-direction: column; line-height: 1.1; }
+  .brand-zh { font-family: var(--font-heading); font-weight: 900; font-size: 1.0625rem; letter-spacing: 0.12em; }
+  .brand-en { font-family: var(--font-mark); font-size: 0.75rem; letter-spacing: 0.2em; color: var(--ink-dim); }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: clamp(var(--space-3), 2vw, var(--space-6));
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .nav-links a:not(.btn) {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding-inline: var(--space-1);
+    color: var(--ink);
+    text-decoration: none;
+    font-size: var(--fs-sm);
+    letter-spacing: 0.06em;
+    border-bottom: 1px solid transparent;
+    transition: color var(--dur-fast), border-color var(--dur-fast);
+  }
+  .nav-links a:not(.btn):hover { color: var(--glow); }
+  .nav-links a[aria-current='true'] { border-bottom-color: var(--glow); }
+  .nav-extra { display: none; }
+  .nav-tools { display: flex; align-items: center; gap: var(--space-1); }
+  .menu-toggle { display: none; }
+  .menu-icon { display: grid; gap: 7px; width: 22px; }
+  .menu-icon span { display: block; height: 1.5px; background: currentColor; transition: transform var(--dur-med) var(--ease-out); }
+
+  @media (max-width: 960px) {
+    .menu-toggle { display: inline-flex; order: 3; }
+    .nav { gap: var(--space-2); }
+    .nav-tools { order: 2; }
+    .nav-links {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
+      gap: var(--space-2);
+      padding: calc(var(--header-h) + var(--space-5)) var(--gutter) var(--space-8);
+      background: rgba(1, 7, 14, 0.97);
+      visibility: hidden;
+      opacity: 0;
+      transition: opacity var(--dur-med) var(--ease-out), visibility 0s linear var(--dur-med);
+    }
+    .nav-links a:not(.btn) { font-family: var(--font-heading); font-weight: 900; font-size: var(--fs-2xl); letter-spacing: 0.08em; }
+    .nav-extra { display: list-item; }
+    .nav-cta { margin-top: var(--space-5); }
+    :global(.menu-open) .nav-links { visibility: visible; opacity: 1; transition-delay: 0s; }
+    :global(.menu-open) .menu-icon span:first-child { transform: translateY(4.25px) rotate(45deg); }
+    :global(.menu-open) .menu-icon span:last-child { transform: translateY(-4.25px) rotate(-45deg); }
+  }
+  @media (max-width: 400px) {
+    .brand-text { display: none; }
+  }
+</style>

@@ -1,0 +1,136 @@
+---
+// 圓形潛艇舷窗：舷窗內緩慢交疊播放遊戲截圖（ken burns），按播放鍵才載入 YouTube（nocookie）
+import { t, pick } from '../i18n/index.js';
+interface Props { lang: string; game: any }
+const { lang, game } = Astro.props;
+const S = game.screenshots;
+const src = (n: number, w: number) => `${S.dir}${S.pattern.replace('{n}', String(n)).replace('{w}', String(w))}`;
+const shots = game.porthole.shots as number[];
+---
+<figure class="porthole" data-porthole data-yt={game.trailerYouTubeId} data-title={t(lang, 'video.title')} data-interval={game.porthole.secondsPerShot}>
+  <div class="porthole-frame">
+    <div class="porthole-glass" role="img" aria-label={t(lang, 'porthole.label')}>
+      {shots.map((n, i) => (
+        <img
+          class:list={['porthole-shot', { 'is-active': i === 0 }]}
+          src={src(n, S.widths[0])}
+          srcset={S.widths.map((w: number) => `${src(n, w)} ${w}w`).join(', ')}
+          sizes="(max-width: 760px) 90vw, 560px"
+          width={S.widths[0]}
+          height={Math.round(S.widths[0] * S.size[1] / S.size[0])}
+          alt=""
+          loading={i === 0 ? 'eager' : 'lazy'}
+          decoding="async"
+        />
+      ))}
+      <span class="porthole-glare" aria-hidden="true"></span>
+    </div>
+    <svg class="porthole-rivets" viewBox="0 0 100 100" aria-hidden="true">
+      {Array.from({ length: 12 }, (_, i) => {
+        const a = (i / 12) * Math.PI * 2;
+        return <circle cx={50 + Math.cos(a) * 47.2} cy={50 + Math.sin(a) * 47.2} r="0.95"></circle>;
+      })}
+    </svg>
+    <button class="porthole-play" type="button" aria-label={t(lang, 'video.play')}>
+      <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="32" cy="32" r="30"></circle><path d="M26 21l17 11-17 11z" fill="currentColor" stroke="none"></path></svg>
+    </button>
+  </div>
+  <figcaption class="porthole-caption">{t(lang, 'video.caption')}<span class="porthole-caption-sub">{pick(game.title, lang)}</span></figcaption>
+</figure>
+
+<style>
+  .porthole { margin: 0; display: flex; flex-direction: column; align-items: center; }
+  .porthole-frame {
+    position: relative;
+    width: min(100%, 34rem);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    padding: clamp(14px, 3.2%, 22px);
+    /* 鋼製外框 */
+    background:
+      radial-gradient(circle at 30% 22%, rgba(230, 242, 247, 0.28), rgba(230, 242, 247, 0) 42%),
+      conic-gradient(from 210deg, #1c2a33, #4b6170, #22323d, #5e7685, #1a2730, #3f5563, #1c2a33);
+    box-shadow:
+      0 30px 80px rgba(1, 7, 14, 0.7),
+      0 0 0 1px rgba(230, 242, 247, 0.12),
+      inset 0 0 0 1px rgba(1, 7, 14, 0.8);
+    transition: aspect-ratio var(--dur-med) var(--ease-out), border-radius var(--dur-med) var(--ease-out);
+  }
+  .porthole-glass {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 50%;
+    background: var(--water-abyss);
+    box-shadow: inset 0 0 40px rgba(1, 7, 14, 0.9), inset 0 0 0 3px rgba(1, 7, 14, 0.9);
+    isolation: isolate;
+    transition: border-radius var(--dur-med) var(--ease-out);
+  }
+  .porthole-shot {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transform: scale(1.04);
+    transition: opacity 1.4s ease, transform 0s linear 1.4s;
+  }
+  .porthole-shot.is-active {
+    opacity: 1;
+    transform: scale(1.16) translate(-1.5%, -1%);
+    transition: opacity 1.4s ease, transform var(--kb, 8s) linear;
+  }
+  .porthole-glare {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    border-radius: inherit;
+    background:
+      radial-gradient(ellipse 60% 40% at 28% 18%, rgba(230, 242, 247, 0.16), rgba(230, 242, 247, 0) 70%),
+      radial-gradient(circle at 50% 50%, rgba(1, 7, 14, 0) 55%, rgba(1, 7, 14, 0.55) 100%);
+  }
+  .porthole-rivets { position: absolute; inset: 0; width: 100%; height: 100%; fill: #8aa1ae; opacity: 0.8; pointer-events: none; }
+  .porthole-play {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 3;
+    width: clamp(64px, 16%, 88px);
+    height: clamp(64px, 16%, 88px);
+    transform: translate(-50%, -50%);
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(1, 7, 14, 0.35);
+    color: var(--ink);
+    cursor: pointer;
+    transition: color var(--dur-fast), background-color var(--dur-fast), box-shadow var(--dur-med);
+  }
+  .porthole-play svg { width: 100%; height: 100%; }
+  .porthole-play:hover { color: var(--glow); background: rgba(1, 7, 14, 0.55); }
+  .porthole-caption {
+    display: flex;
+    gap: var(--space-3);
+    align-items: baseline;
+    margin-top: var(--space-4);
+    font-size: var(--fs-sm);
+    color: var(--ink-dim);
+    letter-spacing: 0.06em;
+  }
+  .porthole-caption-sub { color: var(--ink); }
+
+  /* 播放時：舷窗展開成 16:9 */
+  .porthole.is-playing .porthole-frame { aspect-ratio: 16 / 9; border-radius: 20px; padding: 10px; }
+  .porthole.is-playing .porthole-glass { border-radius: 12px; }
+  .porthole.is-playing .porthole-play,
+  .porthole.is-playing .porthole-rivets { display: none; }
+  .porthole :global(.porthole-video) { position: absolute; inset: 0; z-index: 4; width: 100%; height: 100%; border: 0; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .porthole-shot, .porthole-shot.is-active { transition: none; transform: none; }
+    .porthole-frame, .porthole-glass { transition: none; }
+  }
+</style>

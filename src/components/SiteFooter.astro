@@ -1,0 +1,49 @@
+---
+// 頁尾：版權、社群連結、聯絡信箱
+import site from '../data/site.json';
+import { t } from '../i18n/index.js';
+interface Props { lang: string }
+const { lang } = Astro.props;
+---
+<footer class="site-footer">
+  <div class="footer-inner">
+    <p class="footer-copy">{t(lang, 'footer.copy')}</p>
+    <ul class="footer-socials" aria-label={t(lang, 'social.label')}>
+      {site.socials.map((s) => (
+        <li><a href={s.url} target="_blank" rel="noopener">{s.name}<span class="visually-hidden">{t(lang, 'common.newTab')}</span></a></li>
+      ))}
+    </ul>
+    <a class="footer-mail" href={`mailto:${site.email}`}>{site.email}</a>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    position: relative;
+    z-index: 2;
+    padding: var(--space-6) var(--gutter) calc(var(--space-7) + env(safe-area-inset-bottom, 0px));
+    border-top: 1px solid var(--line);
+    background: var(--water-hadal);
+    font-size: var(--fs-sm);
+    color: var(--ink-dim);
+  }
+  .footer-inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3) var(--space-6);
+    max-width: var(--content-max);
+    margin-inline: auto;
+  }
+  .footer-copy { margin: 0; }
+  .footer-socials { display: flex; flex-wrap: wrap; gap: 0 var(--space-4); margin: 0; padding: 0; list-style: none; }
+  .footer-socials a, .footer-mail {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    color: var(--ink-dim);
+    text-decoration: none;
+  }
+  .footer-socials a:hover, .footer-mail:hover { color: var(--glow); }
+</style>

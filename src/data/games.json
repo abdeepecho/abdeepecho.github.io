@@ -1,0 +1,248 @@
+[
+  {
+    "slug": "silent-wreckage",
+    "legacyPath": "/silent-wreckage.html",
+    "title": {
+      "zh-Hant": "寂靜沉輪",
+      "en": "Silent Wreckage"
+    },
+    "altTitle": {
+      "zh-Hant": "Silent Wreckage",
+      "en": "寂靜沉輪"
+    },
+    "accent": "#8EF0DE",
+    "meta": {
+      "title": {
+        "zh-Hant": "寂靜沉輪 Silent Wreckage｜幽海工作室 DeepEcho",
+        "en": "Silent Wreckage | DeepEcho"
+      },
+      "description": {
+        "zh-Hant": "《寂靜沉輪》Silent Wreckage：潛入沉沒於深海的郵輪，在敘事驅動的 3D 生存解謎恐怖中，揭開時空扭曲背後的真相。Demo 已在 Steam 上架。",
+        "en": "Silent Wreckage: dive into a sunken ocean liner lost in the deep sea and uncover the truth behind a distortion of time and space. The demo is available on Steam."
+      }
+    },
+    "ogImage": "/assets/games/silent-wreckage/og-silent-wreckage.jpg",
+    "headerImage": "/assets/games/silent-wreckage/header.webp",
+    "status": "demo",
+    "tagline": {
+      "zh-Hant": "潛入沉沒於深海的郵輪，在敘事驅動的 3D 生存解謎恐怖中，揭開時空扭曲背後的真相。",
+      "en": "Dive into a sunken ocean liner lost in the deep sea and uncover the truth behind a distortion of time and space."
+    },
+    "steamUrl": "https://store.steampowered.com/app/4641880/Silent_Wreckage/",
+    "trailerYouTubeId": "dH-0V-MFZM0",
+    "screenshots": {
+      "dir": "/assets/games/silent-wreckage/",
+      "count": 8,
+      "pattern": "ss-{n}-{w}.webp",
+      "widths": [
+        960,
+        1920
+      ],
+      "size": [
+        1920,
+        1080
+      ],
+      "gridVisible": 6
+    },
+    "porthole": {
+      "shots": [
+        1,
+        5,
+        2,
+        7,
+        4
+      ],
+      "secondsPerShot": 6
+    },
+    "music": [
+      {
+        "title": "Theme Song",
+        "time": "2:29",
+        "url": "https://www.youtube.com/watch?v=wKH95oht7cE"
+      },
+      {
+        "title": "Deep Down",
+        "time": "1:36",
+        "url": "https://www.youtube.com/watch?v=27G9bfqH4Vw"
+      },
+      {
+        "title": "The Under World",
+        "time": "2:01",
+        "url": "https://www.youtube.com/watch?v=Zk-l9Yo-oBU"
+      },
+      {
+        "title": "Monster",
+        "time": "2:37",
+        "url": "https://www.youtube.com/watch?v=NbA_UfoVG1Q"
+      },
+      {
+        "title": "Daughter",
+        "time": "1:46",
+        "url": "https://www.youtube.com/watch?v=4nAeG2_k__o"
+      },
+      {
+        "title": "Father (Rock Version)",
+        "time": "2:15",
+        "url": "https://www.youtube.com/watch?v=vDEPAwO9sTY"
+      }
+    ],
+    "musicMoreUrl": "https://www.youtube.com/@AbDeepEcho",
+    "awards": [
+      {
+        "year": 2026,
+        "kind": "win",
+        "name": {
+          "zh-Hant": "德國紅點設計大獎 App 類",
+          "en": "Red Dot Award, Apps"
+        },
+        "result": {
+          "zh-Hant": "紅點獎",
+          "en": "Red Dot"
+        }
+      },
+      {
+        "year": 2026,
+        "kind": "win",
+        "name": {
+          "zh-Hant": "放視大賞 PC 與主機遊戲組",
+          "en": "Vision Get Wild Award, PC & Console Games"
+        },
+        "result": {
+          "zh-Hant": "優選",
+          "en": "Honorable Mention"
+        }
+      },
+      {
+        "year": 2026,
+        "kind": "win",
+        "name": {
+          "zh-Hant": "青春設計節 遊戲設計組",
+          "en": "Youth Innovative Design Festival, Game Design"
+        },
+        "result": {
+          "zh-Hant": "優選",
+          "en": "Honorable Mention"
+        }
+      },
+      {
+        "year": 2026,
+        "kind": "selection",
+        "name": {
+          "zh-Hant": "SHIBA GAME AWARD 2026 SUMMER",
+          "en": "SHIBA GAME AWARD 2026 SUMMER"
+        },
+        "result": {
+          "zh-Hant": "二次審查入選",
+          "en": "Passed 2nd Screening"
+        }
+      },
+      {
+        "year": 2026,
+        "kind": "selection",
+        "name": {
+          "zh-Hant": "金點新秀設計獎",
+          "en": "Golden Pin Young Design Award"
+        },
+        "result": {
+          "zh-Hant": "入圍",
+          "en": "Finalist"
+        }
+      }
+    ],
+    "story": {
+      "zh-Hant": [
+        "《寂靜沉輪》是一款結合深海幽閉恐懼與虛擬氣體資源管理的第一人稱3D生存解謎恐怖遊戲。",
+        "在接獲失蹤女兒的訊息後，潛水員張益前往深海調查一艘沉沒的郵輪。然而在潛入後，他卻陷入時間與空間崩解的異常循環之中，船內結構在現實與幻象之間不斷變化，黑暗中也開始浮現詭異且具威脅的存在。",
+        "在探索過程中，張益必須在空氣逐漸耗盡的壓力下行動，同時拼湊散落於船內的線索。隨著調查深入，他逐漸發現這艘船並非單純的事故殘骸，而是隱藏著更深層且令人不安的真相。隨著謎團逐步揭開，他開始懷疑眼前的一切是否真實，以及引導他的女兒聲音，究竟是否來自她本人，還是另有其物。"
+      ],
+      "en": [
+        "Silent Wreckage is a first-person 3D survival horror puzzle game combining deep-sea claustrophobia with virtual gas resource management.",
+        "After receiving a message from his missing daughter, diver Zhang Yi ventures into the depths to investigate a sunken cruise ship. Upon entering, he becomes trapped in a distorted loop where time and space collapse, and the ship's structure shifts between reality and illusion. Strange and hostile entities begin to emerge from the darkness.",
+        "As he explores, Zhang Yi must manage his dwindling air supply while piecing together scattered clues throughout the vessel. Gradually, he uncovers that the ship is more than a simple wreck. It hides a deeper, unsettling truth. As the mystery unfolds, he begins to question what is real, and whether the voice of his daughter is truly guiding him, or something else entirely."
+      ]
+    },
+    "storyNote": {
+      "zh-Hant": "本作目前為畢業製作 Demo 版本，完整版將於尋求合作夥伴後持續開發。",
+      "en": "This is a graduation project demo. Full development will continue once we find partners."
+    },
+    "info": [
+      {
+        "key": "info.genre",
+        "value": {
+          "zh-Hant": "第一人稱恐怖解謎",
+          "en": "First-Person Horror Puzzle"
+        }
+      },
+      {
+        "key": "info.platform",
+        "value": {
+          "zh-Hant": "PC（Windows 10/11）",
+          "en": "PC (Windows 10/11)"
+        }
+      },
+      {
+        "key": "info.status",
+        "value": {
+          "zh-Hant": "Demo 已上架",
+          "en": "Demo available"
+        }
+      },
+      {
+        "key": "info.lang",
+        "value": {
+          "zh-Hant": "繁中、簡中、英文、日文、韓文",
+          "en": "English, Traditional Chinese, Simplified Chinese, Japanese, Korean"
+        }
+      },
+      {
+        "key": "info.dev",
+        "value": {
+          "zh-Hant": "DeepEcho",
+          "en": "DeepEcho"
+        }
+      }
+    ],
+    "features": [
+      {
+        "title": {
+          "zh-Hant": "氣體管理系統",
+          "en": "Gas Management System"
+        },
+        "desc": {
+          "zh-Hant": "透過潛水電腦即時調整「MI」與「NI」兩種虛構氣體的比例以維持生存。比例失衡將帶來幻覺、行動遲緩，甚至直接導致死亡。",
+          "en": "Use a diving computer to manage the ratio of two fictional gases, MI and NI, in real time. An imbalanced ratio can trigger hallucinations, slow movement, or even death."
+        }
+      },
+      {
+        "title": {
+          "zh-Hant": "雙重世界穿越",
+          "en": "Dual World Traversal"
+        },
+        "desc": {
+          "zh-Hant": "在特定場景中將氣體調至高 NI 比例，可穿越表、裡世界之間的縫隙，探索常規視野下無法到達的空間。",
+          "en": "In certain areas, shifting to a high-NI ratio lets you slip through rifts between two overlapping worlds and reach spaces invisible to normal vision."
+        }
+      },
+      {
+        "title": {
+          "zh-Hant": "沉浸式深海恐懼",
+          "en": "Immersive Deep-Sea Horror"
+        },
+        "desc": {
+          "zh-Hant": "極低能見度的水下環境、詭異的怪物追逐與混亂的船艙空間，在資源匱乏與心理壓力的夾擊下求生。",
+          "en": "Near-zero visibility, terrifying creature encounters and disorienting shipwreck environments keep you under constant psychological pressure."
+        }
+      },
+      {
+        "title": {
+          "zh-Hant": "高風險決策",
+          "en": "High-Stakes Decisions"
+        },
+        "desc": {
+          "zh-Hant": "MI 與 NI 過量或不足均會觸發負面效果，必須在緊張的探索中即時判斷。",
+          "en": "Both MI and NI carry negative side effects when overused. Make split-second decisions under extreme stress."
+        }
+      }
+    ]
+  }
+]

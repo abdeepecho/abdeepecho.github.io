@@ -1,0 +1,68 @@
+---
+// 地球語言選單：清單由 src/i18n/index.js 的 LOCALES 產生，新增語言不需要改這裡
+import { LOCALES, LOCALE_CODES, localePath, t } from '../i18n/index.js';
+
+interface Props {
+  lang: string;
+  path: string; // 不含語言前綴的路徑
+}
+const { lang, path } = Astro.props;
+const current = LOCALES[lang];
+---
+<div class="lang-menu" data-lang-menu>
+  <button class="icon-btn lang-toggle" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="lang-list" aria-label={t(lang, 'lang.change')}>
+    <svg class="globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3c2.6 2.5 3.9 5.5 3.9 9s-1.3 6.5-3.9 9c-2.6-2.5-3.9-5.5-3.9-9S9.4 5.5 12 3z"></path></svg>
+    <span class="lang-current" lang={lang} aria-hidden="true">{current.short}</span>
+  </button>
+  <ul class="lang-list" id="lang-list" role="menu" hidden aria-label={t(lang, 'lang.group')}>
+    {LOCALE_CODES.map((code) => (
+      <li role="none">
+        <a role="menuitemradio" tabindex="-1" data-lang={code} lang={code} hreflang={code} aria-checked={String(code === lang)} href={localePath(code, path)}>
+          <span>{LOCALES[code].name}</span>
+          <svg class="check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7"></path></svg>
+        </a>
+      </li>
+    ))}
+  </ul>
+</div>
+
+<style>
+  .lang-menu { position: relative; }
+  .lang-toggle { gap: var(--space-2); padding-inline: var(--space-3); width: auto; }
+  .globe { width: 20px; height: 20px; }
+  .lang-current { font-size: var(--fs-xs); letter-spacing: 0.04em; }
+  .lang-list {
+    position: absolute;
+    right: 0;
+    top: calc(100% + var(--space-2));
+    min-width: 11rem;
+    margin: 0;
+    padding: var(--space-2);
+    list-style: none;
+    background: rgba(3, 19, 34, 0.96);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-sm);
+    box-shadow: 0 18px 40px rgba(1, 7, 14, 0.6);
+    z-index: 30;
+  }
+  .lang-list a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    min-height: 44px;
+    padding: 0 var(--space-3);
+    border-radius: 4px;
+    color: var(--ink);
+    text-decoration: none;
+    font-size: var(--fs-sm);
+  }
+  .lang-list a:hover,
+  .lang-list a:focus-visible { background: rgba(142, 240, 222, 0.1); }
+  .check { width: 16px; height: 16px; color: var(--glow); visibility: hidden; }
+  .lang-list a[aria-checked='true'] .check { visibility: visible; }
+  @media (max-width: 560px) {
+    .lang-current { display: none; }
+    .lang-toggle { padding-inline: 0; width: 44px; }
+  }
+</style>

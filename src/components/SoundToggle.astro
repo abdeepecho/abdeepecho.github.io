@@ -1,0 +1,22 @@
+---
+// 環境音開關：預設靜音，選擇會記在 localStorage（由 site-chrome.js 處理）
+import { t } from '../i18n/index.js';
+interface Props { lang: string }
+const { lang } = Astro.props;
+---
+<button class="icon-btn sound-toggle" type="button" data-sound-toggle aria-pressed="false" aria-label={t(lang, 'sound.turnOn')}>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"></path>
+    <path class="wave wave-1" d="M15.5 9.2a4 4 0 0 1 0 5.6"></path>
+    <path class="wave wave-2" d="M18 6.8a7.4 7.4 0 0 1 0 10.4"></path>
+    <path class="mute" d="M16 9.5l5 5M21 9.5l-5 5"></path>
+  </svg>
+</button>
+
+<style>
+  .sound-toggle svg { width: 22px; height: 22px; }
+  .wave { display: none; }
+  .sound-toggle[aria-pressed='true'] .wave { display: inline; }
+  .sound-toggle[aria-pressed='true'] .mute { display: none; }
+  .sound-toggle[aria-pressed='true'] { color: var(--glow); }
+</style>

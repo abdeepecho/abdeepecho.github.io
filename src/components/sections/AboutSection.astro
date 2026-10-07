@@ -1,0 +1,49 @@
+---
+// 0 m 關於：兩三句介紹直接疊在場景上，不用卡片
+import site from '../../data/site.json';
+import { t } from '../../i18n/index.js';
+import Sounding from '../Sounding.astro';
+interface Props { lang: string }
+const { lang } = Astro.props;
+---
+<section class="band about" id="about" data-depth="0" data-zone="surface" aria-labelledby="about-title">
+  <Sounding lang={lang} depth={0} zone="surface" />
+  <div class="band-body">
+    <h2 class="h2" id="about-title">{t(lang, 'about.title')}</h2>
+    <p class="lead about-body">{t(lang, 'about.body')}</p>
+    <p class="about-meta">{t(lang, 'about.meta')}</p>
+
+    <h3 class="tools-title">{t(lang, 'tools.title')}</h3>
+    <ul class="tools">
+      {site.tools.map((tool) => (
+        <li><span class="tool-name" lang="en">{tool.name}</span><span class="tool-role">{t(lang, tool.key)}</span></li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .about-body { margin-top: var(--space-5); }
+  .about-meta { margin-top: var(--space-4); font-size: var(--fs-sm); color: var(--ink); letter-spacing: 0.08em; text-shadow: var(--text-shadow-body); }
+  .tools-title {
+    margin-top: var(--space-8);
+    font-family: var(--font-heading);
+    font-weight: 900;
+    font-size: var(--fs-md);
+    letter-spacing: 0.1em;
+    text-shadow: var(--text-shadow-body);
+  }
+  .tools {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(12.5rem, 1fr));
+    gap: var(--space-3) var(--space-6);
+    max-width: 46rem;
+    margin: var(--space-4) 0 0;
+    padding: 0;
+    list-style: none;
+    text-shadow: var(--text-shadow-body);
+  }
+  .tools li { display: flex; flex-direction: column; line-height: 1.5; }
+  .tool-name { font-weight: 700; font-size: var(--fs-base); }
+  .tool-role { font-size: var(--fs-sm); color: var(--ink); }
+</style>

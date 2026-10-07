@@ -1,0 +1,11 @@
+---
+// 遊戲作品頁（英文）：/en/games/<slug>/
+import games from '../../../data/games.json';
+import GamePage from '../../../components/GamePage.astro';
+
+export function getStaticPaths() {
+  return games.map((game) => ({ params: { slug: game.slug }, props: { game } }));
+}
+const { game } = Astro.props;
+---
+<GamePage lang="en" game={game} />
