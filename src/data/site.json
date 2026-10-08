@@ -21,9 +21,7 @@
     { "name": "Instagram", "url": "https://www.instagram.com/abdeepecho/" },
     { "name": "X", "url": "https://x.com/abdeepecho" },
     { "name": "Threads", "url": "https://www.threads.com/@abdeepecho" },
-    { "name": "YouTube", "url": "https://www.youtube.com/@AbDeepEcho" },
-    { "name": "Discord", "url": "https://discord.com/invite/gGQMdBzYJx" },
-    { "name": "Steam", "url": "https://store.steampowered.com/app/4641880/Silent_Wreckage/" }
+    { "name": "YouTube", "url": "https://www.youtube.com/@AbDeepEcho" }
   ],
   "services": [
     { "key": "svc.1", "icon": "gamepad" },

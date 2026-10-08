@@ -31,6 +31,7 @@ const work = (name: string) => (lang === 'zh-Hant' ? `《${name}》` : name);
       <div class="actions">
         <a class="btn btn-lure" href={game.steamUrl} target="_blank" rel="noopener">{t(lang, 'cta.demo')}<span class="visually-hidden">{t(lang, 'common.newTab')}</span></a>
         <a class="btn" href={game.steamUrl} target="_blank" rel="noopener">{t(lang, 'cta.wishlist')}<span class="visually-hidden">{t(lang, 'common.newTab')}</span></a>
+        {game.discordUrl && <a class="btn" href={game.discordUrl} target="_blank" rel="noopener">{t(lang, 'cta.discord')}<span class="visually-hidden">{t(lang, 'common.newTab')}</span></a>}
       </div>
     </div>
   </section>
