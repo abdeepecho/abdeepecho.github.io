@@ -74,11 +74,25 @@ const newTab = t(lang, 'common.newTab');
           </div>
           <p class="small dim note">{pick(game.storyNote, lang)}</p>
         </div>
-        <dl class="rows info" data-clear>
-          {game.info.map((row: any) => (
-            <div class="row"><dt class="small dim">{t(lang, row.key)}</dt><dd>{pick(row.value, lang)}</dd></div>
-          ))}
-        </dl>
+        <div class="gp-side">
+          <dl class="rows info" data-clear>
+            {game.info.map((row: any) => (
+              <div class="row"><dt class="small dim">{t(lang, row.key)}</dt><dd>{pick(row.value, lang)}</dd></div>
+            ))}
+          </dl>
+          {game.music?.length > 0 && (
+            <div class="music" data-clear>
+              <h3 class="h3">{t(lang, 'ost.title')}</h3>
+              <p class="small dim">{t(lang, 'ost.note')}</p>
+              <ol class="rows music-list">
+                {game.music.map((m: any) => (
+                  <li><a href={m.url} target="_blank" rel="noopener"><span lang="en">{m.title}</span><span class="dim">{m.time}</span><span class="visually-hidden">{newTab}</span></a></li>
+                ))}
+              </ol>
+              {game.musicMoreUrl && <a class="text-link music-more" href={game.musicMoreUrl} target="_blank" rel="noopener">{t(lang, 'ost.more')}<span class="visually-hidden">{newTab}</span></a>}
+            </div>
+          )}
+        </div>
       </div>
     </section>
 
@@ -223,6 +237,13 @@ const newTab = t(lang, 'common.newTab');
   .note { margin-top: var(--space-6); max-width: var(--measure); }
   .info { margin: calc(var(--fs-h2) * 1.35 + var(--space-7)) 0 0; }
   .info .row { display: grid; gap: var(--space-1); padding: var(--space-4) 0; }
+  /* 配樂：授權音樂，連到 YouTube 試聽 */
+  .music { margin-top: var(--space-7); }
+  .music .small { margin-top: var(--space-1); }
+  .music-list { margin-top: var(--space-3); }
+  .music-list a { display: flex; justify-content: space-between; gap: var(--space-4); min-height: 44px; align-items: center; text-decoration: none; font-size: var(--fs-small); }
+  .music-list a:hover { color: var(--glow); }
+  .music-more { display: inline-block; margin-top: var(--space-3); font-size: var(--fs-small); }
 
   /* ---- 遊戲特色：圖文左右交錯 ---- */
   .features { display: grid; gap: var(--space-8); padding: 0; list-style: none; }
