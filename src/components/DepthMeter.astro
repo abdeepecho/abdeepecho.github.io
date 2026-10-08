@@ -30,14 +30,14 @@ const { lang } = Astro.props;
   .dm-num {
     font-family: var(--font-mark);
     font-weight: 600;
-    font-size: 1.75rem;
+    font-size: var(--fs-h3);
     letter-spacing: 0.03em;
     font-variant-numeric: lining-nums tabular-nums;
     min-width: 4.2ch;
     text-align: right;
   }
-  .dm-unit { font-family: var(--font-mark); font-size: var(--fs-sm); color: var(--ink-dim); }
-  .dm-zone { font-size: var(--fs-xs); color: var(--glow); letter-spacing: 0.08em; line-height: 1.4; }
+  .dm-unit { font-family: var(--font-mark); font-weight: 600; font-size: var(--fs-small); color: var(--ink-dim); }
+  .dm-zone { font-size: var(--fs-small); font-weight: var(--fw-ui); color: var(--glow); line-height: 1.4; }
   .dm-track {
     position: relative;
     width: 2px;
@@ -71,8 +71,8 @@ const { lang } = Astro.props;
       background: rgba(1, 7, 14, 0.6);
       backdrop-filter: blur(6px);
     }
-    .dm-num { font-size: 1.0625rem; min-width: 0; }
-    .dm-unit { font-size: var(--fs-xs); }
+    .dm-num { font-size: var(--fs-small); min-width: 0; }
+
     .dm-track { display: none; }
   }
 </style>

@@ -1,0 +1,72 @@
+---
+// 作品列表頁（中英文共用）：/works/、/en/works/，可依類型篩選
+import games from '../data/games.json';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import DepthBackground from './DepthBackground.astro';
+import WorksGrid from './WorksGrid.astro';
+import { t } from '../i18n/index.js';
+interface Props { lang: string }
+const { lang } = Astro.props;
+const types = ['original', 'commission', 'animation'];
+---
+<BaseLayout lang={lang} path="/works/" title={t(lang, 'meta.works.title')} description={t(lang, 'meta.works.desc')} bodyClass="page-works">
+  <DepthBackground slot="before-main" keys={['midnight']} grade={0.62} />
+  <section class="section works-page" aria-labelledby="works-title">
+    <div class="section-inner">
+      <div class="section-head scrim">
+        <h1 class="h2" id="works-title">{t(lang, 'works.title')}</h1>
+        <p class="lead">{t(lang, 'works.intro')}</p>
+      </div>
+      <div class="section-body">
+        <div class="filters" role="toolbar" aria-label={t(lang, 'works.filter.label')} data-works-filter>
+          <button type="button" class="filter" aria-pressed="true" data-filter="all">{t(lang, 'works.filter.all')}</button>
+          {types.map((type) => (
+            <button type="button" class="filter" aria-pressed="false" data-filter={type}>{t(lang, `works.type.${type}`)}</button>
+          ))}
+        </div>
+        <WorksGrid lang={lang} games={games} headingTag="h2" />
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  // 類型篩選：沒有 JS 時顯示全部
+  const bar = document.querySelector<HTMLElement>('[data-works-filter]');
+  const cards = [...document.querySelectorAll<HTMLElement>('[data-works-grid] [data-type]')];
+  const placeholder = document.querySelector<HTMLElement>('[data-works-grid] .work-placeholder');
+  const empty = document.querySelector<HTMLElement>('[data-works-empty]');
+  bar?.addEventListener('click', (e) => {
+    const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-filter]');
+    if (!btn) return;
+    const f = btn.dataset.filter;
+    bar.querySelectorAll('[data-filter]').forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
+    let visible = 0;
+    cards.forEach((c) => {
+      const show = f === 'all' || c.dataset.type === f;
+      c.hidden = !show;
+      if (show) visible += 1;
+    });
+    if (placeholder) placeholder.hidden = f !== 'all';
+    if (empty) empty.hidden = visible > 0;
+  });
+</script>
+
+<style>
+  .works-page { padding-top: calc(var(--header-h) + var(--section-pad) / 2); min-height: 80vh; }
+  .filters { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-bottom: var(--space-6); }
+  .filter {
+    min-height: 40px;
+    padding: 0 var(--space-4);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-plate);
+    background: var(--panel);
+    color: var(--ink-dim);
+    font-size: var(--fs-small);
+    font-weight: var(--fw-ui);
+    cursor: pointer;
+    transition: border-color var(--dur-fast), color var(--dur-fast);
+  }
+  .filter:hover { color: var(--ink); border-color: var(--line-strong); }
+  .filter[aria-pressed='true'] { color: var(--ink); border-color: var(--glow); }
+</style>

@@ -1,6 +1,7 @@
 ---
-// 遊戲作品頁（中英文共用）：本輪先移植現行內容，使用共用的設計變數；改版待首頁風格確認後再做
+// 遊戲作品頁（中英文共用）：本輪移植現行內容並套用全站字級與節奏；改版待首頁風格確認後再做
 import BaseLayout from '../layouts/BaseLayout.astro';
+import TrailerPlayer from './TrailerPlayer.astro';
 import { t, pick, localePath } from '../i18n/index.js';
 interface Props { lang: string; game: any }
 const { lang, game } = Astro.props;
@@ -23,10 +24,10 @@ const work = (name: string) => (lang === 'zh-Hant' ? `《${name}》` : name);
     <img class="keyart-img" src={src(1, S.widths[1])} srcset={S.widths.map((w: number) => `${src(1, w)} ${w}w`).join(', ')} sizes="100vw" width={S.size[0]} height={S.size[1]} fetchpriority="high" decoding="async" alt="" />
     <div class="keyart-content">
       <p class="game-status"><span class="lure-dot" aria-hidden="true"></span>{t(lang, 'game.status')}</p>
-      <h1 class="game-title" id="game-title">{pick(game.title, lang)}</h1>
-      <p class="game-alt" lang={otherLang}>{pick(game.altTitle, lang)}</p>
-      <p class="game-subtitle">{t(lang, 'game.subtitle')}</p>
-      <p class="game-tagline">{pick(game.tagline, lang)}</p>
+      <h1 class="h2 game-title" id="game-title">{pick(game.title, lang)}</h1>
+      <p class="game-alt small" lang={otherLang}>{pick(game.altTitle, lang)}</p>
+      <p class="h3 game-subtitle">{t(lang, 'game.subtitle')}</p>
+      <p class="lead game-tagline">{pick(game.tagline, lang)}</p>
       <div class="actions">
         <a class="btn btn-lure" href={game.steamUrl} target="_blank" rel="noopener">{t(lang, 'cta.demo')}<span class="visually-hidden">{t(lang, 'common.newTab')}</span></a>
         <a class="btn" href={game.steamUrl} target="_blank" rel="noopener">{t(lang, 'cta.wishlist')}<span class="visually-hidden">{t(lang, 'common.newTab')}</span></a>
@@ -34,81 +35,86 @@ const work = (name: string) => (lang === 'zh-Hant' ? `《${name}》` : name);
     </div>
   </section>
 
-  <section class="gp-section award-strip" aria-labelledby="gp-awards-title">
-    <h2 class="visually-hidden" id="gp-awards-title">{t(lang, 'awards.title')}</h2>
-    <ul class="awards-list">
-      {game.awards.map((a: any) => (
-        <li><span class="as-year">{a.year}</span><span class="as-name">{pick(a.name, lang)}</span><span class="as-tag">{pick(a.result, lang)}</span></li>
-      ))}
-    </ul>
+  <section class="section" aria-labelledby="gp-awards-title">
+    <div class="section-inner">
+      <div class="section-head"><h2 class="h2" id="gp-awards-title">{t(lang, 'awards.title')}</h2></div>
+      <ul class="section-body rows gp-awards">
+        {game.awards.map((a: any) => (
+          <li class="gp-award">
+            <span class="gp-year">{a.year}</span>
+            <h3 class="h3">{pick(a.name, lang)}</h3>
+            <p class="gp-result"><span class:list={[a.kind === 'win' ? 'is-win' : 'dim']}>{pick(a.result, lang)}</span><span class="dim" aria-hidden="true"> · </span><span class="dim">{work(pick(game.title, lang))}</span></p>
+          </li>
+        ))}
+      </ul>
+    </div>
   </section>
 
-  <section class="gp-section" aria-labelledby="story-title">
-    <div class="gp-two">
+  <section class="section" aria-labelledby="story-title">
+    <div class="section-inner gp-two">
       <div>
         <h2 class="h2" id="story-title">{t(lang, 'story.title')}</h2>
         <div class="story">
-          {pick(game.story, lang).map((p: string) => <p class="lead">{p}</p>)}
+          {pick(game.story, lang).map((p: string) => <p>{p}</p>)}
         </div>
-        <p class="note">{pick(game.storyNote, lang)}</p>
+        <p class="small dim note">{pick(game.storyNote, lang)}</p>
       </div>
       <dl class="info">
         {game.info.map((row: any) => (
-          <div><dt>{t(lang, row.key)}</dt><dd>{pick(row.value, lang)}</dd></div>
+          <div><dt class="small dim">{t(lang, row.key)}</dt><dd>{pick(row.value, lang)}</dd></div>
         ))}
       </dl>
     </div>
   </section>
 
-  <section class="gp-section" aria-labelledby="features-title">
-    <h2 class="h2" id="features-title">{t(lang, 'feat.title')}</h2>
-    <ul class="features">
-      {game.features.map((f: any) => (
-        <li><h3>{pick(f.title, lang)}</h3><p>{pick(f.desc, lang)}</p></li>
-      ))}
-    </ul>
+  <section class="section" aria-labelledby="features-title">
+    <div class="section-inner">
+      <div class="section-head"><h2 class="h2" id="features-title">{t(lang, 'feat.title')}</h2></div>
+      <ul class="section-body features">
+        {game.features.map((f: any) => (
+          <li><h3 class="h3">{pick(f.title, lang)}</h3><p class="dim">{pick(f.desc, lang)}</p></li>
+        ))}
+      </ul>
+    </div>
   </section>
 
-  <section class="gp-section" aria-labelledby="gallery-title">
-    <h2 class="h2" id="gallery-title">{t(lang, 'gallery.title')}</h2>
-    <div class="showcase">
-      <div class="yt" data-yt={game.trailerYouTubeId} data-title={t(lang, 'video.title')}>
-        <img class="yt-poster" src={`https://i.ytimg.com/vi/${game.trailerYouTubeId}/hqdefault.jpg`} width="480" height="360" loading="lazy" decoding="async" alt="" />
-        <button class="yt-play" type="button" aria-label={t(lang, 'video.play')}>
-          <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="32" cy="32" r="30"></circle><path d="M26 21l17 11-17 11z" fill="currentColor" stroke="none"></path></svg>
-        </button>
+  <section class="section" aria-labelledby="gallery-title">
+    <div class="section-inner">
+      <div class="section-head"><h2 class="h2" id="gallery-title">{t(lang, 'gallery.title')}</h2></div>
+      <div class="section-body showcase">
+        <TrailerPlayer lang={lang} game={game} />
+        <div class="music">
+          <h3 class="h3">{t(lang, 'ost.title')}</h3>
+          <ol class="rows music-list">
+            {game.music.map((m: any) => (
+              <li><a href={m.url} target="_blank" rel="noopener"><span lang="en">{m.title}</span><span class="dim">{m.time}</span><span class="visually-hidden">{t(lang, 'common.newTab')}</span></a></li>
+            ))}
+          </ol>
+          <a class="text-link" href={game.musicMoreUrl} target="_blank" rel="noopener">{t(lang, 'ost.more')}<span class="visually-hidden">{t(lang, 'common.newTab')}</span></a>
+        </div>
       </div>
-      <div class="music">
-        <h3 class="music-title">{t(lang, 'ost.title')}</h3>
-        <ol class="music-list">
-          {game.music.map((m: any) => (
-            <li><a href={m.url} target="_blank" rel="noopener"><span lang="en">{m.title}</span><span class="music-time">{m.time}</span><span class="visually-hidden">{t(lang, 'common.newTab')}</span></a></li>
-          ))}
-        </ol>
-        <a class="music-more" href={game.musicMoreUrl} target="_blank" rel="noopener">{t(lang, 'ost.more')}<span class="visually-hidden">{t(lang, 'common.newTab')}</span></a>
-      </div>
+
+      <ul class="shots">
+        {shots.map((n, i) => (
+          <li hidden={i >= S.gridVisible}>
+            <button class="shot" type="button" data-shot={i}>
+              <img data-full={src(n, S.widths[1])} src={src(n, S.widths[0])} srcset={S.widths.map((w: number) => `${src(n, w)} ${w}w`).join(', ')} sizes="(max-width: 900px) 50vw, 380px" width={S.widths[0]} height={Math.round(S.widths[0] * S.size[1] / S.size[0])} loading="lazy" decoding="async" alt={t(lang, 'alt.screenshot', { n })} />
+              {i === S.gridVisible - 1 && hiddenCount > 0 && (
+                <span class="shot-more" aria-hidden="true"><span>+{hiddenCount}</span><span>{t(lang, 'gallery.more', { n: S.count })}</span></span>
+              )}
+            </button>
+          </li>
+        ))}
+      </ul>
+
+      <a class="text-link back-link" href={localePath(lang, '/works/')}>{t(lang, 'back')}</a>
     </div>
-
-    <ul class="shots">
-      {shots.map((n, i) => (
-        <li hidden={i >= S.gridVisible}>
-          <button class="shot" type="button" data-shot={i}>
-            <img data-full={src(n, S.widths[1])} src={src(n, S.widths[0])} srcset={S.widths.map((w: number) => `${src(n, w)} ${w}w`).join(', ')} sizes="(max-width: 900px) 50vw, 380px" width={S.widths[0]} height={Math.round(S.widths[0] * S.size[1] / S.size[0])} loading="lazy" decoding="async" alt={t(lang, 'alt.screenshot', { n })} />
-            {i === S.gridVisible - 1 && hiddenCount > 0 && (
-              <span class="shot-more" aria-hidden="true"><span class="shot-more-num">+{hiddenCount}</span><span>{t(lang, 'gallery.more', { n: S.count })}</span></span>
-            )}
-          </button>
-        </li>
-      ))}
-    </ul>
-
-    <a class="back-link" href={`${localePath(lang, '/')}#works`}>{t(lang, 'back')}</a>
   </section>
 
   <dialog class="lightbox" id="lightbox" aria-label={t(lang, 'lb.label')} slot="before-main">
     <figure class="lightbox-figure">
       <img class="lightbox-img" src={src(1, S.widths[1])} alt="" width={S.size[0]} height={S.size[1]} />
-      <figcaption class="lightbox-count" aria-live="polite"></figcaption>
+      <figcaption class="lightbox-count small" aria-live="polite"></figcaption>
     </figure>
     <button class="icon-btn lightbox-btn lightbox-close" type="button" aria-label={t(lang, 'lb.close')}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
     <button class="icon-btn lightbox-btn lightbox-prev" type="button" aria-label={t(lang, 'lb.prev')}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></button>
@@ -126,7 +132,7 @@ const work = (name: string) => (lang === 'zh-Hant' ? `《${name}》` : name);
     min-height: 92vh;
     display: flex;
     align-items: flex-end;
-    padding: calc(var(--header-h) + var(--space-8)) var(--gutter) var(--space-9);
+    padding: calc(var(--header-h) + var(--space-8)) var(--gutter) var(--space-8);
     overflow: hidden;
   }
   .keyart-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
@@ -135,67 +141,48 @@ const work = (name: string) => (lang === 'zh-Hant' ? `《${name}》` : name);
     position: absolute;
     inset: 0;
     z-index: 1;
-    background: linear-gradient(180deg, rgba(1, 7, 14, 0.35) 0%, rgba(1, 7, 14, 0.2) 40%, rgba(1, 7, 14, 0.92) 100%);
+    background: linear-gradient(180deg, rgba(1, 7, 14, 0.35) 0%, rgba(1, 7, 14, 0.25) 40%, rgba(1, 7, 14, 0.94) 100%);
   }
   .keyart-content { position: relative; z-index: 2; max-width: var(--content-max); width: 100%; margin-inline: auto; }
-  .game-status { display: inline-flex; align-items: center; gap: var(--space-3); font-size: var(--fs-sm); color: var(--lure); letter-spacing: 0.08em; }
-  .lure-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--lure); }
-  .game-title { margin-top: var(--space-4); font-family: var(--font-heading); font-weight: 900; font-size: var(--fs-display); line-height: 1.05; letter-spacing: 0.08em; }
-  .game-title:lang(en) { font-size: clamp(2.75rem, 1.4rem + 5vw, 5.25rem); letter-spacing: 0; }
-  .game-alt { margin-top: var(--space-2); font-family: var(--font-mark); font-size: var(--fs-lg); letter-spacing: 0.22em; color: var(--ink-dim); }
-  .game-alt:lang(zh-Hant) { font-family: var(--font-heading); font-weight: 900; }
-  .game-subtitle { margin-top: var(--space-5); font-family: var(--font-heading); font-weight: 900; font-size: var(--fs-xl); letter-spacing: 0.1em; color: var(--game-accent); }
-  .game-tagline { margin-top: var(--space-3); max-width: 32em; font-size: var(--fs-md); }
-  .actions { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-6); }
+  .game-status { display: inline-flex; align-items: center; gap: var(--space-2); font-size: var(--fs-small); font-weight: var(--fw-ui); color: var(--lure); }
+  .lure-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--lure); }
+  .game-title { margin-top: var(--space-4); }
+  .game-alt { color: var(--ink-dim); }
+  .game-subtitle { margin-top: var(--space-5); color: var(--game-accent); }
+  .game-tagline { margin-top: var(--space-3); }
+  .actions { display: flex; flex-wrap: wrap; gap: var(--space-4); margin-top: var(--space-6); }
 
-  .gp-section { position: relative; z-index: 2; max-width: var(--content-max); margin-inline: auto; padding: var(--space-9) var(--gutter); }
-  .award-strip { padding-block: var(--space-6); }
-  .awards-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: var(--space-4) var(--space-6); margin: 0; padding: 0; list-style: none; }
-  .awards-list li { display: grid; gap: var(--space-1); padding-top: var(--space-3); border-top: 1px solid var(--line); }
-  .as-year { font-family: var(--font-mark); font-size: var(--fs-sm); color: var(--ink-dim); }
-  .as-name { font-weight: 500; }
-  .as-tag { color: var(--glow); font-size: var(--fs-sm); }
+  .gp-awards { max-width: 56rem; }
+  .gp-award { display: grid; grid-template-columns: 5rem minmax(0, 1fr) minmax(0, 15rem); gap: var(--space-2) var(--space-5); align-items: baseline; padding: var(--space-5) 0; }
+  .gp-year { font-family: var(--font-mark); font-weight: 600; font-size: var(--fs-small); color: var(--ink-dim); }
+  .gp-result { text-align: right; }
+  .is-win { color: var(--lure); }
 
   .gp-two { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: var(--space-8); align-items: start; }
-  .story { display: grid; gap: var(--space-4); margin-top: var(--space-5); }
-  .story .lead { font-size: var(--fs-base); color: var(--ink); max-width: 38em; }
-  .note { margin-top: var(--space-5); font-size: var(--fs-sm); color: var(--ink-dim); }
-  .info { display: grid; gap: var(--space-4); margin: 0; padding: var(--space-5); border: 1px solid var(--line); border-radius: var(--radius-sm); }
-  .info dt { font-size: var(--fs-sm); color: var(--ink-dim); }
-  .info dd { margin: 0; }
+  .story { display: grid; gap: var(--space-4); margin-top: var(--space-5); max-width: var(--measure); }
+  .note { margin-top: var(--space-5); }
+  .info { display: grid; gap: var(--space-4); padding: var(--space-5); border: 1px solid var(--line); border-radius: var(--radius-sm); }
 
-  .features { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-7) var(--space-8); margin: var(--space-6) 0 0; padding: 0; list-style: none; }
-  .features h3 { font-family: var(--font-heading); font-weight: 900; font-size: var(--fs-xl); letter-spacing: 0.06em; color: var(--game-accent); }
-  .features p { margin-top: var(--space-2); color: var(--ink-dim); max-width: 30em; }
+  .features { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-6) var(--space-8); margin: 0; padding: 0; list-style: none; }
+  .features p { margin-top: var(--space-2); max-width: 30em; }
 
-  .showcase { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: var(--space-7); margin-top: var(--space-6); align-items: start; }
-  .yt { position: relative; aspect-ratio: 16 / 9; overflow: hidden; border-radius: var(--radius-sm); background: var(--water-deep); }
-  .yt-poster { width: 100%; height: 100%; object-fit: cover; }
-  .yt-play { position: absolute; left: 50%; top: 50%; width: 76px; height: 76px; transform: translate(-50%, -50%); padding: 0; border: 0; border-radius: 50%; background: rgba(1, 7, 14, 0.4); color: var(--ink); cursor: pointer; }
-  .yt-play:hover { color: var(--glow); }
-  .yt-play svg { width: 100%; height: 100%; }
-  .yt :global(.yt-frame) { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
-  .music-title { font-family: var(--font-heading); font-weight: 900; font-size: var(--fs-md); letter-spacing: 0.1em; }
-  .music-list { margin: var(--space-3) 0 0; padding: 0; list-style: none; }
-  .music-list a { display: flex; justify-content: space-between; gap: var(--space-4); min-height: 44px; align-items: center; border-bottom: 1px solid var(--line); text-decoration: none; font-size: var(--fs-sm); }
+  .showcase { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: var(--space-7); align-items: start; }
+  .music-list { margin-top: var(--space-3); }
+  .music-list a { display: flex; justify-content: space-between; gap: var(--space-4); min-height: 44px; align-items: center; text-decoration: none; font-size: var(--fs-small); }
   .music-list a:hover { color: var(--glow); }
-  .music-time { color: var(--ink-dim); }
-  .music-more { display: inline-flex; align-items: center; min-height: 44px; color: var(--ink-dim); font-size: var(--fs-sm); }
 
   .shots { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-3); margin: var(--space-7) 0 0; padding: 0; list-style: none; }
-  .shot { position: relative; display: block; width: 100%; padding: 0; border: 0; border-radius: var(--radius-sm); overflow: hidden; background: none; cursor: zoom-in; }
+  .shot { position: relative; display: block; width: 100%; padding: 0; border: 1px solid var(--line); border-radius: var(--radius-sm); overflow: hidden; background: none; cursor: zoom-in; }
   .shot img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; transition: transform var(--dur-med) var(--ease-out); }
   .shot:hover img { transform: scale(1.03); }
-  .shot-more { position: absolute; inset: 0; display: grid; place-content: center; gap: var(--space-1); text-align: center; background: rgba(1, 7, 14, 0.62); font-size: var(--fs-sm); }
-  .shot-more-num { font-family: var(--font-mark); font-size: var(--fs-2xl); }
-  .back-link { display: inline-flex; align-items: center; min-height: 44px; margin-top: var(--space-7); color: var(--ink); }
-  .back-link:hover { color: var(--glow); }
+  .shot-more { position: absolute; inset: 0; display: grid; place-content: center; gap: var(--space-1); text-align: center; background: rgba(1, 7, 14, 0.66); font-size: var(--fs-small); font-weight: var(--fw-ui); }
+  .back-link { margin-top: var(--space-7); }
 
-  .lightbox { width: 100vw; height: 100vh; max-width: none; max-height: none; margin: 0; padding: var(--space-8) var(--space-9); border: 0; background: rgba(1, 7, 14, 0.94); color: var(--ink); }
+  .lightbox { width: 100vw; height: 100vh; max-width: none; max-height: none; margin: 0; padding: var(--space-8); border: 0; background: rgba(1, 7, 14, 0.94); color: var(--ink); }
   .lightbox::backdrop { background: rgba(1, 7, 14, 0.8); }
-  .lightbox-figure { display: grid; place-items: center; gap: var(--space-3); height: 100%; margin: 0; }
+  .lightbox-figure { display: grid; place-items: center; gap: var(--space-3); height: 100%; }
   .lightbox-img { max-height: calc(100vh - 10rem); width: auto; object-fit: contain; }
-  .lightbox-count { font-size: var(--fs-sm); color: var(--ink-dim); }
+  .lightbox-count { color: var(--ink-dim); }
   .lightbox-btn { position: absolute; }
   .lightbox-close { top: var(--space-4); right: var(--space-4); }
   .lightbox-prev { left: var(--space-4); top: 50%; transform: translateY(-50%); }
@@ -206,5 +193,9 @@ const work = (name: string) => (lang === 'zh-Hant' ? `《${name}》` : name);
     .gp-two, .showcase, .features { grid-template-columns: minmax(0, 1fr); }
     .shots { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .lightbox { padding: var(--space-8) var(--space-3); }
+  }
+  @media (max-width: 760px) {
+    .gp-award { grid-template-columns: minmax(0, 1fr); gap: var(--space-1); }
+    .gp-result { text-align: left; }
   }
 </style>

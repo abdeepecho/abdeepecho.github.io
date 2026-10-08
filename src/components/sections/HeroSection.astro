@@ -1,10 +1,12 @@
 ---
-// 0 m 開場：聲納光波照出岩壁上的標誌，第二圈照出標語
+// 0 m 開場：聲納光波照出背景照片與工作室標誌，第二圈照出標語
 import site from '../../data/site.json';
 import { t } from '../../i18n/index.js';
 interface Props { lang: string }
 const { lang } = Astro.props;
 const B = site.brand;
+// 標語在逗號或句點後分成兩段，各自不斷行，避免手機上最後一個字單獨換行
+const sloganParts = t(lang, 'slogan').match(/[^，。.]+[，。.]?\s*/g) ?? [t(lang, 'slogan')];
 ---
 <section class="hero" id="top" data-depth="0" data-zone="surface">
   <div class="hero-content" data-reveal>
@@ -16,7 +18,7 @@ const B = site.brand;
       <span class="wordmark" lang="en">Deep Echo</span>
       <span class="wordmark-zh" lang="zh-Hant">幽海工作室</span>
     </h1>
-    <p class="slogan" data-reveal-late>{t(lang, 'slogan')}</p>
+    <p class="slogan" data-reveal-late>{sloganParts.map((part) => <span class="slogan-part">{part}</span>)}</p>
     <p class="hero-sub" data-reveal-late>{t(lang, 'hero.sub')}</p>
   </div>
   <span class="sonar-rings" aria-hidden="true"><span class="sonar-ring"></span><span class="sonar-ring"></span></span>
@@ -37,12 +39,13 @@ const B = site.brand;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: calc(var(--header-h) + var(--space-6)) var(--gutter) var(--space-9);
+    padding: calc(var(--header-h) + var(--space-6)) var(--gutter) var(--space-8);
     text-align: center;
-    overflow: hidden; /* 聲納光環很大，不能撐出水平捲軸 */
+    overflow: hidden;
     overflow: clip;
   }
   .hero-content {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -51,37 +54,34 @@ const B = site.brand;
     -webkit-mask-image: radial-gradient(circle at 50% var(--reveal-y, 35%), #000 calc(var(--reveal) - 60px), transparent var(--reveal));
     mask-image: radial-gradient(circle at 50% var(--reveal-y, 35%), #000 calc(var(--reveal) - 60px), transparent var(--reveal));
   }
-  .lockup {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin: 0;
-    font-weight: normal;
+  /* 標語後方的局部遮罩，照片再亮也讀得清楚 */
+  .hero-content::before {
+    content: '';
+    position: absolute;
+    inset: -4rem -6rem;
+    z-index: -1;
+    background: radial-gradient(closest-side, rgba(1, 7, 14, 0.55), rgba(1, 7, 14, 0.4) 60%, rgba(1, 7, 14, 0));
+    pointer-events: none;
   }
+  .lockup { display: flex; flex-direction: column; align-items: center; font-weight: normal; }
   .lockup-art {
     position: relative;
     display: grid;
     place-items: center;
-    width: clamp(280px, 44vw, 600px);
+    width: clamp(280px, 40vw, 560px);
     aspect-ratio: 1600 / 600;
   }
   .lockup-art > img { grid-area: 1 / 1; }
-  .lockup-glitch {
-    width: 100%;
-    opacity: 0.94;
-  }
-  .lockup-mark {
-    width: 38%;
-    position: relative;
-    filter: drop-shadow(0 6px 16px rgba(1, 7, 14, 0.55));
-  }
+  .lockup-glitch { width: 100%; opacity: 0.94; }
+  .lockup-mark { width: 38%; position: relative; }
+  /* 字標：官方標誌組合的一部分（Cinzel 只用在這裡與水深數字） */
   .wordmark {
     margin-top: var(--space-5);
     font-family: var(--font-mark);
     font-weight: 600;
-    font-size: clamp(1.5rem, 1rem + 2.2vw, 2.5rem);
-    letter-spacing: 0.32em;
-    padding-left: 0.32em;
+    font-size: var(--fs-h2);
+    letter-spacing: 0.3em;
+    padding-left: 0.3em;
     text-transform: uppercase;
     line-height: 1.1;
     color: #F4FAFC;
@@ -91,46 +91,31 @@ const B = site.brand;
     display: flex;
     align-items: center;
     gap: var(--space-3);
-    margin-top: var(--space-2);
+    margin-top: var(--space-3);
     font-family: var(--font-heading);
-    font-weight: 900;
-    font-size: var(--fs-md);
+    font-weight: var(--fw-heading);
+    font-size: var(--fs-body);
     letter-spacing: 0.42em;
     padding-left: 0.42em;
-    color: var(--ink);
-    text-shadow: var(--text-shadow-body);
+    line-height: 1.4;
   }
-  .wordmark-zh::before, .wordmark-zh::after {
-    content: '';
-    width: 2.2em;
-    height: 1px;
-    background: currentColor;
-    opacity: 0.6;
-  }
+  .wordmark-zh::before, .wordmark-zh::after { content: ''; width: 2.2em; height: 1px; background: currentColor; opacity: 0.6; }
   .wordmark-zh::after { margin-left: -0.42em; }
   .slogan {
     margin-top: var(--space-7);
     font-family: var(--font-heading);
-    font-weight: 900;
-    font-size: var(--fs-2xl);
-    letter-spacing: 0.18em;
-    padding-left: 0.18em;
-    color: var(--ink);
-    text-shadow: var(--text-shadow-body);
+    font-weight: var(--fw-heading);
+    font-size: var(--fs-display);
+    line-height: 1.25;
+    letter-spacing: var(--ls-heading);
   }
-  .slogan:lang(en) { letter-spacing: 0.06em; padding-left: 0; }
-  .hero-sub {
-    margin-top: var(--space-3);
-    font-size: var(--fs-base);
-    letter-spacing: 0.12em;
-    color: var(--ink);
-    text-shadow: var(--text-shadow-body);
-  }
-  .hero-sub:lang(en) { letter-spacing: 0.04em; }
+  .slogan-part { display: inline-block; white-space: nowrap; }
+  .slogan:lang(en) .slogan-part + .slogan-part { margin-left: 0.28em; }
+  .hero-sub { margin-top: var(--space-4); letter-spacing: 0.1em; }
+  .hero-sub:lang(en) { letter-spacing: 0.02em; }
 
   /* 聲納光環：以標誌中心擴散，開場時由 home.js 播放 */
-  /* 位置（標誌中心）由 home.js 設定 --ring-x / --ring-y；放在遮罩外面，光環才看得到 */
-  .sonar-rings { position: absolute; left: var(--ring-x, 50%); top: var(--ring-y, 35%); width: 0; height: 0; pointer-events: none; }
+  .sonar-rings { position: absolute; left: var(--ring-x, 50%); top: var(--ring-y, 35%); width: 0; height: 0; pointer-events: none; z-index: 1; }
   .sonar-ring {
     position: absolute;
     left: -50vmax;
@@ -139,7 +124,7 @@ const B = site.brand;
     height: 100vmax;
     border-radius: 50%;
     border: 1.5px solid var(--glow);
-    box-shadow: 0 0 24px rgba(142, 240, 222, 0.6), inset 0 0 24px rgba(142, 240, 222, 0.35);
+    box-shadow: 0 0 24px rgba(142, 240, 222, 0.5), inset 0 0 24px rgba(142, 240, 222, 0.3);
     opacity: 0;
     transform: scale(0);
   }
@@ -153,27 +138,17 @@ const B = site.brand;
     flex-direction: column;
     align-items: center;
     gap: var(--space-2);
-    min-width: 44px;
     padding: var(--space-2);
     color: var(--ink);
     text-decoration: none;
-    font-size: var(--fs-sm);
-    letter-spacing: 0.24em;
-    padding-left: calc(var(--space-2) + 0.24em);
-    text-shadow: var(--text-shadow-body);
+    font-size: var(--fs-small);
+    font-weight: var(--fw-ui);
+    letter-spacing: 0.2em;
     transition: opacity 700ms var(--ease-out);
   }
-  .dive-cue:lang(en) { letter-spacing: 0.08em; }
+  .dive-cue:lang(en) { letter-spacing: 0.06em; }
   .dive-line { position: relative; width: 1px; height: 52px; background: linear-gradient(var(--ink), rgba(230, 242, 247, 0)); }
-  .dive-weight {
-    position: absolute;
-    left: -3px;
-    top: 0;
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: var(--glow);
-  }
+  .dive-weight { position: absolute; left: -3px; top: 0; width: 7px; height: 7px; border-radius: 50%; background: var(--glow); }
   @media (prefers-reduced-motion: no-preference) {
     .dive-weight { animation: sink 2.8s var(--ease-out) infinite; }
   }
@@ -191,10 +166,11 @@ const B = site.brand;
     min-height: 44px;
     padding: 0 var(--space-4);
     border: 1px solid var(--line-strong);
-    border-radius: var(--radius-pill);
+    border-radius: var(--radius-plate);
     background: rgba(1, 7, 14, 0.5);
     color: var(--ink);
-    font-size: var(--fs-sm);
+    font-size: var(--fs-small);
+    font-weight: var(--fw-ui);
     cursor: pointer;
     display: none;
   }
@@ -210,8 +186,7 @@ const B = site.brand;
   [data-reveal-late] { transition: opacity 500ms var(--ease-out); }
 
   @media (max-width: 560px) {
-    .wordmark { letter-spacing: 0.22em; padding-left: 0.22em; }
+    .wordmark { letter-spacing: 0.2em; padding-left: 0.2em; }
     .wordmark-zh { letter-spacing: 0.3em; padding-left: 0.3em; }
-    .slogan { letter-spacing: 0.1em; padding-left: 0.1em; }
   }
 </style>

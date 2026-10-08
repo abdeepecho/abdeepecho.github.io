@@ -2,7 +2,6 @@
   "meta.home.title": "DeepEcho | Dive deep. Echo far.",
   "meta.home.desc": "Dive deep. Echo far. DeepEcho is an independent game and digital content studio from Taiwan, taking on commissions in game development, Unreal Engine 5 projects, 3D animation and media production.",
   "meta.ogLocale": "en_US",
-
   "skip": "Skip to main content",
   "nav.label": "Main menu",
   "brand.top": "DeepEcho, back to top",
@@ -14,7 +13,6 @@
   "sound.turnOn": "Turn ambient sound on",
   "sound.turnOff": "Turn ambient sound off",
   "common.newTab": "(opens in a new tab)",
-
   "nav.services": "Services",
   "nav.process": "Process",
   "nav.works": "Works",
@@ -23,14 +21,12 @@
   "nav.faq": "FAQ",
   "nav.contact": "Contact",
   "nav.hire": "Hire us",
-
   "hero.h1": "DeepEcho (幽海工作室)",
   "alt.logo": "DeepEcho logo",
   "slogan": "Dive deep. Echo far.",
   "hero.sub": "Games · UE5 · 3D Animation · Media",
   "hero.dive": "Dive",
   "intro.skip": "Skip intro",
-
   "zone.surface": "Sunlight zone",
   "zone.twilight": "Twilight zone",
   "zone.midnight": "Midnight zone",
@@ -39,11 +35,9 @@
   "zone.floor": "Trench floor",
   "depth.unit": "metres",
   "depth.sr": "Depth {depth} metres, {zone}",
-
   "about.title": "About the Studio",
   "about.body": "DeepEcho is an independent game and digital content studio from Taiwan, crafting immersive, atmospheric interactive experiences with Unreal Engine 5. Alongside our original games, we take on commissions in game development, UE5 projects, 3D animation and media production.",
   "about.meta": "Independent games and digital content, Taiwan",
-
   "tools.title": "Our Tools",
   "tools.ue": "Real-time & game dev",
   "tools.maya": "Modeling & animation",
@@ -51,34 +45,24 @@
   "tools.blender": "3D production",
   "tools.ae": "Motion graphics & compositing",
   "tools.ps": "Textures & visual design",
-
   "svc.title": "Services",
   "svc.intro": "From interactive games to animation, we build with Unreal Engine 5 at our core and turn your ideas into experiences people can play and watch.",
   "svc.1.title": "Game Development",
-  "svc.1.alt": "遊戲開發",
   "svc.1.desc": "Game development from prototype to release, covering gameplay, levels and systems.",
   "svc.2.title": "Unreal Engine 5 Projects",
-  "svc.2.alt": "UE5 專案",
   "svc.2.desc": "Interactive Unreal Engine 5 projects, real-time rendered environments and technical support.",
   "svc.3.title": "3D Animation",
-  "svc.3.alt": "3D 動畫",
   "svc.3.desc": "3D animation, cinematics and promotional videos.",
   "svc.4.title": "Media Production",
-  "svc.4.alt": "多媒體製作",
   "svc.4.desc": "Trailers, promotional assets and other media content.",
-
   "works.title": "Works",
   "works.more": "View project",
   "works.steam": "Steam store page",
   "video.title": "Silent Wreckage Demo Trailer",
   "video.play": "Play the Silent Wreckage demo trailer",
-  "video.caption": "Demo Trailer",
-  "porthole.label": "Scenes from Silent Wreckage",
   "ost.title": "Game Music",
   "ost.more": "More on YouTube",
-
   "awards.title": "Awards & Selections",
-
   "proc.title": "How We Work",
   "proc.intro": "From first contact to delivery, every step is clear.",
   "proc.1.title": "Discovery",
@@ -91,7 +75,6 @@
   "proc.4.desc": "Milestone-based delivery with reviews and revisions at every stage.",
   "proc.5.title": "Delivery & Support",
   "proc.5.desc": "We hand over the final work and agreed source files, with support after delivery.",
-
   "faq.title": "FAQ",
   "faq.intro": "Didn't find your answer? Just email us.",
   "faq.1.q": "How do you price projects?",
@@ -110,7 +93,6 @@
   "faq.7.a": "Yes, for example only 3D models, animation or UE5 technical support.",
   "faq.8.q": "Do you work remotely or with overseas clients?",
   "faq.8.a": "Yes. We work mainly by email, in Chinese or English, so every request and decision is kept in writing.",
-
   "contact.title": "Contact & Collaboration",
   "contact.lead": "For commissions, partnership proposals or press, drop us a line.",
   "contact.title.paused": "Contact",
@@ -118,7 +100,6 @@
   "contact.direct": "Contact directly",
   "social.label": "Social links",
   "status.paused": "We're not taking new commissions right now. Follow us for updates.",
-
   "form.title": "Project inquiry",
   "form.name": "Name or company",
   "form.email": "Email",
@@ -151,9 +132,7 @@
   "form.err.summary": "Some fields need attention. Please check the highlighted items.",
   "form.ok": "Thanks, we've received your inquiry and will reply by email.",
   "form.fail": "Something went wrong. Please try again later, or email {email}.",
-
   "footer.copy": "© 2026 幽海工作室 DeepEcho",
-
   "game.status": "Demo available on Steam",
   "game.subtitle": "Bringing stories up from the deep.",
   "cta.demo": "Play the free demo on Steam",
@@ -173,7 +152,22 @@
   "lb.prev": "Previous screenshot",
   "lb.next": "Next screenshot",
   "back": "Back to works",
-
   "redirect.moved": "This page has moved to a new address.",
-  "redirect.go": "Go to the new page"
+  "redirect.go": "Go to the new page",
+  "meta.works.title": "Works | DeepEcho",
+  "meta.works.desc": "Original games and production work by DeepEcho, an independent studio from Taiwan.",
+  "works.intro": "Our original titles.",
+  "works.all": "All works",
+  "works.placeholder.title": "More in development",
+  "works.placeholder.body": "New work will appear here. Follow us for updates.",
+  "works.filter.label": "Filter works",
+  "works.filter.all": "All",
+  "works.type.original": "Original games",
+  "works.type.commission": "Client work",
+  "works.type.animation": "3D animation",
+  "works.empty": "Nothing published in this category yet.",
+  "status.demo": "Demo available",
+  "awards.intro": "Awards and selections for our work.",
+  "trailer.play": "Play trailer",
+  "trailer.source": "YouTube"
 }

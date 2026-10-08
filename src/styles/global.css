@@ -1,4 +1,5 @@
-/* 全站基礎樣式：重設、排版、按鈕、水深標記與導索、焦點樣式 */
+/* 全站基礎樣式：重設、五階字級、區塊節奏、按鈕、焦點樣式
+   規則：font-size 只能用 --fs-display / --fs-h2 / --fs-h3 / --fs-body / --fs-small */
 *, *::before, *::after { box-sizing: border-box; }
 
 html {
@@ -18,45 +19,77 @@ body {
   background: var(--water-hadal);
   color: var(--ink);
   font-family: var(--font-body);
-  font-size: var(--fs-base);
+  font-size: var(--fs-body);
+  font-weight: var(--fw-body);
   line-height: var(--lh-body);
+  letter-spacing: var(--ls-body);
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
   overflow-x: clip;
 }
-:lang(en) body, body:lang(en) { line-height: var(--lh-body-latin); }
+html:lang(en) body { letter-spacing: 0; }
 
 img, svg, video, iframe { display: block; max-width: 100%; }
 img { height: auto; }
 a { color: inherit; }
-p { margin: 0; }
-h1, h2, h3, h4 { margin: 0; }
-button { font: inherit; color: inherit; }
+p, h1, h2, h3, h4, dl, dd, figure { margin: 0; }
+button, input, select, textarea { font: inherit; color: inherit; letter-spacing: inherit; }
 
-/* 標題：思源宋體 900，字距放寬，淡淡的冷光暈 */
-.h2 {
+/* ---- 字級角色 ---- */
+.h2, .h3 {
   font-family: var(--font-heading);
-  font-weight: 900;
-  font-size: var(--fs-3xl);
+  font-weight: var(--fw-heading);
   line-height: var(--lh-heading);
-  letter-spacing: var(--tracking-heading);
+  letter-spacing: var(--ls-heading);
   text-wrap: balance;
 }
-.h2:lang(en) { letter-spacing: 0.01em; }
-.lead {
-  max-width: var(--measure);
-  font-size: var(--fs-md);
-  color: var(--ink);
-  text-shadow: var(--text-shadow-body);
-}
+.h2 { font-size: var(--fs-h2); }
+.h3 { font-size: var(--fs-h3); }
+.lead { max-width: var(--measure); font-size: var(--fs-body); color: var(--ink); }
+.small { font-size: var(--fs-small); line-height: 1.6; }
 .dim { color: var(--ink-dim); }
 
-/* ---- 焦點：明顯可見 ---- */
-:focus-visible {
-  outline: 2px solid var(--glow);
-  outline-offset: 3px;
-  border-radius: 3px;
+/* ---- 區塊節奏：水深標記 → 標題 → 導言 → 內容，全站相同 ---- */
+.section {
+  position: relative;
+  z-index: 2;
+  padding: var(--section-pad) var(--gutter);
 }
+.section-inner { max-width: var(--content-max); margin-inline: auto; }
+.section-head { max-width: 46rem; }
+.section-head > .h2 { margin-top: var(--space-4); }
+.section-head > .h2:first-child { margin-top: 0; }
+.section-head > .lead { margin-top: var(--space-5); }
+.section-body { margin: var(--space-7) 0 0; }
+.section-sub { margin-top: var(--section-pad); }   /* 同一深度帶中的第二組標題 */
+
+/* 水深標記：取代區塊編號；數字用 Cinzel */
+.sounding {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  font-size: var(--fs-small);
+  font-weight: var(--fw-ui);
+  line-height: 1.6;
+  color: var(--glow);
+}
+.sounding-depth { font-family: var(--font-mark); font-weight: 600; letter-spacing: 0.04em; font-variant-numeric: lining-nums tabular-nums; }
+
+/* 局部遮罩：只在文字區塊後方加一點暗，讓照片上的文字維持 4.5:1 以上 */
+.scrim { position: relative; isolation: isolate; }
+.scrim::before {
+  content: '';
+  position: absolute;
+  inset: -1.5rem -2.5rem;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: 3rem;
+  background: rgba(var(--scrim), var(--scrim-a, 0.6));
+  filter: blur(36px);
+}
+
+/* ---- 焦點：明顯可見 ---- */
+:focus-visible { outline: 2px solid var(--glow); outline-offset: 3px; border-radius: 3px; }
 
 .skip-link {
   position: fixed;
@@ -65,8 +98,9 @@ button { font: inherit; color: inherit; }
   z-index: 100;
   padding: var(--space-2) var(--space-4);
   background: var(--glow);
-  color: var(--glow-ink);
-  font-weight: 700;
+  color: var(--water-hadal);
+  font-size: var(--fs-small);
+  font-weight: var(--fw-ui);
   border-radius: var(--radius-sm);
   transform: translateY(-200%);
 }
@@ -82,7 +116,7 @@ button { font: inherit; color: inherit; }
   border: 0;
 }
 
-/* ---- 按鈕：潛水電腦面板式，四角有刻度括號（呼應《寂靜沉輪》的潛水電腦介面）---- */
+/* ---- 按鈕：潛水電腦面板式，四角有刻度括號 ---- */
 .btn {
   --bracket: var(--glow);
   position: relative;
@@ -96,18 +130,16 @@ button { font: inherit; color: inherit; }
   border-radius: var(--radius-plate);
   background: rgba(1, 7, 14, 0.62);
   color: var(--ink);
-  font-family: var(--font-body);
-  font-size: var(--fs-sm);
-  font-weight: 500;
-  letter-spacing: 0.08em;
+  font-size: var(--fs-small);
+  font-weight: var(--fw-ui);
+  letter-spacing: 0.06em;
   line-height: 1.2;
   text-decoration: none;
   cursor: pointer;
   transition: border-color var(--dur-fast), background-color var(--dur-fast), color var(--dur-fast);
 }
-.btn:lang(en) { letter-spacing: 0.03em; }
-.btn::before,
-.btn::after {
+html:lang(en) .btn { letter-spacing: 0.02em; }
+.btn::before, .btn::after {
   content: '';
   position: absolute;
   width: 7px;
@@ -121,11 +153,10 @@ button { font: inherit; color: inherit; }
 .btn:hover { border-color: var(--ink-dim); }
 .btn:hover::before, .btn:hover::after { width: 12px; height: 12px; }
 .btn-sm { min-height: 40px; padding: 0 var(--space-4); }
-/* 主要按鈕：亮面面板 */
-.btn-primary { background: var(--ink); border-color: var(--ink); color: var(--water-hadal); font-weight: 700; }
+.btn-primary { background: var(--ink); border-color: var(--ink); color: var(--water-hadal); }
 .btn-primary:hover { background: #FFFFFF; border-color: #FFFFFF; }
 /* 燈籠魚：整頁唯一的暖色燈，只用在聯絡 */
-.btn-lure { --bracket: var(--lure); background: var(--lure); border-color: var(--lure); color: var(--lure-ink); font-weight: 700; }
+.btn-lure { --bracket: var(--lure); background: var(--lure); border-color: var(--lure); color: var(--lure-ink); }
 .btn-lure:hover { background: #F7D48F; border-color: #F7D48F; }
 .btn:disabled { opacity: 0.6; cursor: progress; }
 
@@ -140,112 +171,43 @@ button { font: inherit; color: inherit; }
   border-radius: var(--radius-pill);
   background: transparent;
   color: var(--ink);
+  font-size: var(--fs-small);
   cursor: pointer;
   transition: color var(--dur-fast), background-color var(--dur-fast);
 }
 .icon-btn:hover { color: var(--glow); background: rgba(142, 240, 222, 0.08); }
 
-/* ---- 頁面版型：左側導索欄 + 內容欄 ---- */
-.band {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  grid-template-columns: var(--rail-col) minmax(0, 1fr);
-  column-gap: clamp(var(--space-5), 3vw, var(--space-7));
-  max-width: calc(var(--content-max) + var(--rail-col));
-  margin-inline: auto;
-  padding: clamp(var(--space-9), 14vh, var(--space-10)) var(--gutter);
-}
-.band > .band-body { grid-column: 2; min-width: 0; }
-
-/* 水深標記：掛在導索上的刻度，取代區塊編號 */
-.sounding {
-  grid-column: 1;
-  align-self: start;
-  position: relative;
-  margin-top: 0.55em;
-  padding-right: var(--space-4);
-  text-align: right;
-  font-size: var(--fs-xs);
-  line-height: 1.4;
-  color: var(--ink-dim);
-}
-.sounding-depth {
-  display: block;
-  font-family: var(--font-mark);
-  font-size: var(--fs-xl);
-  font-weight: 600;
-  letter-spacing: 0.04em;
+/* 文字連結 */
+.text-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   color: var(--ink);
-  font-variant-numeric: lining-nums tabular-nums;
+  font-size: var(--fs-small);
+  font-weight: var(--fw-ui);
+  text-decoration: underline;
+  text-decoration-color: var(--line-strong);
+  text-underline-offset: 0.35em;
+  transition: color var(--dur-fast), text-decoration-color var(--dur-fast);
 }
-.sounding-depth small { font-size: 0.6em; margin-left: 0.2em; color: var(--ink-dim); }
-.sounding::after {
-  /* 刻度：從標記延伸到導索 */
-  content: '';
-  position: absolute;
-  right: calc(-1 * clamp(var(--space-5), 3vw, var(--space-7)) / 2);
-  top: 0.95em;
-  width: calc(var(--space-4) + clamp(var(--space-5), 3vw, var(--space-7)) / 2);
-  height: 1px;
-  background: var(--glow-line);
-}
-.sounding::before {
-  content: '';
-  position: absolute;
-  right: calc(-1 * clamp(var(--space-5), 3vw, var(--space-7)) / 2 - 3px);
-  top: calc(0.95em - 3px);
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--glow);
-}
+.text-link:hover { color: var(--glow); text-decoration-color: var(--glow); }
 
-/* 導索：從 0 m 一路垂到海溝底 */
-.descent-line {
-  position: absolute;
-  z-index: 1;
-  top: 100vh;
-  top: 100svh;
-  bottom: 0;
-  left: max(var(--gutter), calc((100% - var(--content-max) - var(--rail-col)) / 2 + var(--gutter)));
-  width: 0;
-  pointer-events: none;
+/* 暫停接案說明 */
+.paused-note {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--panel);
+  font-size: var(--fs-small);
+  color: var(--ink);
 }
-.descent-line::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: calc(var(--rail-col) + clamp(var(--space-5), 3vw, var(--space-7)) / 2);
-  width: 1px;
-  background: linear-gradient(to bottom, rgba(142, 240, 222, 0) 0, rgba(142, 240, 222, 0.28) 8%, rgba(142, 240, 222, 0.28) 92%, rgba(142, 240, 222, 0));
-}
+.paused-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--lure); flex: none; }
 
-@media (max-width: 760px) {
-  .band { grid-template-columns: minmax(0, 1fr); }
-  .band > .band-body { grid-column: 1; }
-  .sounding {
-    grid-column: 1;
-    display: flex;
-    align-items: baseline;
-    gap: var(--space-3);
-    margin: 0 0 var(--space-4);
-    padding: 0;
-    text-align: left;
-  }
-  .sounding-depth { font-size: var(--fs-lg); }
-  .sounding::before, .sounding::after { display: none; }
-  .descent-line { display: none; }
-}
-
-/* ---- WebGL 不可用或低效能：靜態漸層背景，越往下越暗 ---- */
-html.no-webgl body {
-  background: linear-gradient(180deg,
-    var(--water-surface) 0%,
-    var(--water-twilight) 14%,
-    var(--water-midnight) 32%,
-    var(--water-abyss) 52%,
-    var(--water-deep) 72%,
-    var(--water-hadal) 92%);
-}
+/* 清單列：獎項、流程、常見問題共用的安靜列表（髮絲線分隔） */
+.rows { padding: 0; list-style: none; border-top: 1px solid var(--line); }
+ul.rows:not(.section-body), ol.rows:not(.section-body) { margin: 0; }
+.rows > li, .rows > .row { border-bottom: 1px solid var(--line); }

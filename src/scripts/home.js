@@ -1,4 +1,4 @@
-// 首頁主程式：捲動下潛（水深計算）、深度計、潛水燈、聲納開場、海床獎項的燈光、舷窗、表單
+// 首頁主程式：捲動下潛（水深計算）、背景照片交疊、深度計、潛水燈、聲納開場、粒子層、表單
 import cfg from '../data/scene.json';
 import { S, audio } from './site-chrome.js';
 import { initInquiryForm } from './inquiry-form.js';
@@ -15,12 +15,16 @@ const smoothstep = (k) => k * k * (3 - 2 * k);
 
 const canvas = document.querySelector('[data-trench]');
 const veil = document.querySelector('[data-torch]');
+const torchLight = document.querySelector('[data-torch-light]');
+const bg = document.querySelector('[data-depth-bg]');
+const bgLayers = new Map([...document.querySelectorAll('[data-bg]')].map((el) => [el.dataset.bg, el]));
 const hud = {
   num: document.querySelector('[data-depth-num]'),
   zone: document.querySelector('[data-depth-zone]'),
   fill: document.querySelector('[data-depth-fill]'),
   dot: document.querySelector('[data-depth-dot]'),
 };
+if (torchLight) torchLight.style.setProperty('--torch-rgb', cfg.torchOverlay.lightColor);
 
 // ---------------------------------------------------------------
 // 水深：依各區塊在頁面上的位置（data-depth）換算目前水深
@@ -33,9 +37,8 @@ function measureAnchors() {
   maxScroll = Math.max(1, root.scrollHeight - vh);
   document.querySelectorAll('[data-depth]').forEach((el) => {
     const top = el.getBoundingClientRect().top + window.scrollY;
-    const depth = Number(el.dataset.depth);
     const pos = el.id === 'top' ? 0 : Math.max(0, top - vh * cfg.anchorViewportRatio);
-    list.push({ pos: Math.min(pos, maxScroll), depth });
+    list.push({ pos: Math.min(pos, maxScroll), depth: Number(el.dataset.depth) });
   });
   list.sort((a, b) => a.depth - b.depth);
   for (let i = 1; i < list.length; i++) list[i].pos = Math.max(list[i].pos, list[i - 1].pos);
@@ -52,17 +55,24 @@ function depthAtScroll(y) {
   }
   return anchors[anchors.length - 1].depth;
 }
-// 水深 → 場景位置 u 與該深度的暗度
+
+// 水深 → 所在深度帶 i 與往下一帶的進度 k（照片交疊只發生在進度後段）
 const bands = cfg.depthBands;
-function bandAtDepth(d) {
-  for (let i = 1; i < bands.length; i++) {
-    if (d <= bands[i].depth) {
-      const k = (d - bands[i - 1].depth) / (bands[i].depth - bands[i - 1].depth);
-      return { u: lerp(bands[i - 1].u, bands[i].u, k), darkness: lerp(bands[i - 1].darkness, bands[i].darkness, k) };
-    }
+const B = cfg.backgrounds;
+function bandState(d) {
+  let i = bands.length - 1, k = 0;
+  for (let j = 1; j < bands.length; j++) {
+    if (d < bands[j].depth) { i = j - 1; k = (d - bands[j - 1].depth) / (bands[j].depth - bands[j - 1].depth); break; }
   }
-  const last = bands[bands.length - 1];
-  return { u: last.u, darkness: last.darkness };
+  const next = bands[Math.min(i + 1, bands.length - 1)];
+  const cur = bands[i];
+  const fade = smoothstep(clamp01((k - B.crossfadeStart) / (1 - B.crossfadeStart)));
+  return {
+    cur, next, fade,
+    u: lerp(cur.u, next.u, k),
+    grade: lerp(cur.grade, next.grade, fade),
+    darkness: lerp(cur.darkness, next.darkness, k),
+  };
 }
 function zoneAt(d) {
   let key = cfg.zones[0].key;
@@ -70,8 +80,30 @@ function zoneAt(d) {
   return key;
 }
 
+// 背景照片：目前這一帶不透明，下一帶依進度淡入（DOM 順序在後的圖層疊在上面）
+let lastBgKey = '';
+function updateBackground(st, progress) {
+  if (!bg) return;
+  const curKey = st.cur.bg, nextKey = st.next.bg;
+  const key = `${curKey}|${nextKey}|${st.fade.toFixed(3)}`;
+  if (key !== lastBgKey) {
+    lastBgKey = key;
+    bgLayers.forEach((el, k) => {
+      let o = 0;
+      if (k === curKey) o = 1;
+      if (k === nextKey && nextKey !== curKey) o = st.fade;
+      el.style.opacity = o.toFixed(3);
+    });
+  }
+  bg.style.setProperty('--grade', st.grade.toFixed(3));
+  if (!reduceMotion) {
+    const py = `${(-progress * B.parallax).toFixed(2)}%`;
+    bgLayers.forEach((el) => el.style.setProperty('--py', py));
+  }
+}
+
 // ---------------------------------------------------------------
-// 場景：WebGL 不可用、低效能裝置 → 靜態漸層背景
+// 粒子層（three.js）：WebGL 不可用、低效能或減少動態 → 只留照片
 // ---------------------------------------------------------------
 let scene = null;
 function lowPower() {
@@ -85,11 +117,12 @@ function useFallback(reason) {
   if (scene) { scene.dispose(); scene = null; }
   root.classList.add('no-webgl');
   if (canvas) canvas.hidden = true;
-  if (reason) console.info(`[DeepEcho] 使用靜態背景：${reason}`);
+  if (reason) console.info(`[DeepEcho] 不使用粒子層：${reason}`);
 }
 async function initScene() {
   const params = new URLSearchParams(window.location.search);
   if (params.get('scene') === 'off') return useFallback('scene=off');
+  if (reduceMotion) return useFallback('prefers-reduced-motion');
   if (!canvas) return useFallback('no canvas');
   if (lowPower() && params.get('scene') !== 'on') return useFallback('low power device');
   try {
@@ -122,28 +155,7 @@ function torchPosition(time) {
 }
 
 // ---------------------------------------------------------------
-// 海床上的獎項：潛水燈越近越亮（--lit）
-// ---------------------------------------------------------------
-const finds = [...document.querySelectorAll('[data-find]')];
-let findsVisible = false;
-if (finds.length && 'IntersectionObserver' in window) {
-  new IntersectionObserver((entries) => { findsVisible = entries.some((e) => e.isIntersecting); })
-    .observe(document.querySelector('[data-finds]'));
-}
-function lightFinds(tx, ty) {
-  if (!findsVisible) return;
-  const R = (mobile ? cfg.torchOverlay.radiusMobile : cfg.torchOverlay.radius) * 1.3;
-  for (const el of finds) {
-    const r = el.getBoundingClientRect();
-    const cx = Math.max(r.left, Math.min(tx, r.right));
-    const cy = Math.max(r.top, Math.min(ty, r.bottom));
-    const d = Math.hypot(tx - cx, ty - cy);
-    el.style.setProperty('--lit', smoothstep(clamp01(1 - d / R)).toFixed(3));
-  }
-}
-
-// ---------------------------------------------------------------
-// 聲納開場：黑畫面 → 第一圈照出標誌 → 第二圈照出標語 → 燈亮、潛水燈啟動
+// 聲納開場：黑畫面 → 第一圈照出背景照片與標誌 → 第二圈照出標語 → 燈亮、潛水燈啟動
 // ---------------------------------------------------------------
 const hero = document.querySelector('.hero');
 const reveal = hero?.querySelector('[data-reveal]');
@@ -162,6 +174,8 @@ function introGeometry() {
   const heroBox = hero.getBoundingClientRect();
   hero.style.setProperty('--ring-x', `${cx - heroBox.left}px`);
   hero.style.setProperty('--ring-y', `${cy - heroBox.top}px`);
+  bg?.style.setProperty('--ring-cx', `${cx}px`);
+  bg?.style.setProperty('--ring-cy', `${cy}px`);
   return { r1, r2, sloganDist: slogan.top - cy, maxR: Math.hypot(window.innerWidth, window.innerHeight) };
 }
 
@@ -190,14 +204,17 @@ function removeSkipListeners() { skipEvents.forEach((ev) => window.removeEventLi
 
 function startIntro() {
   if (!hero || !reveal) return finishIntro();
+  intro.geo = introGeometry();
   root.classList.remove('intro-pending');
   root.classList.add('intro-running');
   intro.running = true;
   intro.start = performance.now();
-  intro.geo = introGeometry();
   intro.lightLevel = 0;
   scene?.setLightLevel(0);
   setReveal(0);
+  bg?.style.setProperty('--bg-r', '0px');
+  bg?.style.setProperty('--bg-after', '0');
+  bg?.style.setProperty('--bg-outer', '0');
   skipEvents.forEach((ev) => window.addEventListener(ev, onSkip, { capture: true, passive: true }));
   hero.querySelector('[data-intro-skip]')?.addEventListener('click', finishIntro);
 }
@@ -212,21 +229,29 @@ function tickIntro(now) {
   Son.introPings.forEach((p, i) => {
     if (t >= p.atMs && !intro.fired[i]) {
       intro.fired[i] = true;
-      scene?.ping();
       audio.ping(i === 0 ? 1 : 0.7);
     }
     const ring = rings[i];
-    if (!ring) return;
-    if (t >= p.atMs) {
-      const r = ringR(p.atMs);
-      const half = ring.offsetWidth / 2 || 1;
-      ring.style.transform = `scale(${(r / half).toFixed(4)})`;
-      ring.style.opacity = String(clamp01(1 - r / g.maxR) * 0.9);
-    }
+    if (!ring || t < p.atMs) return;
+    const r = ringR(p.atMs);
+    const half = ring.offsetWidth / 2 || 1;
+    ring.style.transform = `scale(${(r / half).toFixed(4)})`;
+    ring.style.opacity = String(clamp01(1 - r / g.maxR) * 0.9);
   });
 
-  // 遮罩半徑跟著光環走：第一圈只到標誌，第二圈揭開全部
+  // 背景照片：光環前緣最亮，掃過後留下微弱餘暉；第二圈外側維持第一圈的餘暉
   const p1 = Son.introPings[0], p2 = Son.introPings[1];
+  const pingIndex = p2 && t >= p2.atMs ? 1 : 0;
+  const ringNow = ringR(pingIndex === 1 ? p2.atMs : p1.atMs);
+  const lights = t >= Son.lightsUpAtMs ? smoothstep(clamp01((t - Son.lightsUpAtMs) / Son.lightsUpMs)) : 0;
+  const after = Math.max(Son.afterglow, lights);
+  if (bg && t >= p1.atMs) {
+    bg.style.setProperty('--bg-r', `${Math.round(ringNow)}px`);
+    bg.style.setProperty('--bg-after', after.toFixed(3));
+    bg.style.setProperty('--bg-outer', pingIndex === 1 ? after.toFixed(3) : lights.toFixed(3));
+  }
+
+  // 內容遮罩跟著光環：第一圈只到標誌，第二圈揭開標語
   let rev = 0;
   if (t >= p1.atMs) rev = Math.min(g.r1, ringR(p1.atMs));
   if (p2 && t >= p2.atMs) {
@@ -236,50 +261,9 @@ function tickIntro(now) {
   }
   setReveal(rev);
 
-  // 燈亮
-  if (t >= Son.lightsUpAtMs) {
-    intro.lightLevel = smoothstep(clamp01((t - Son.lightsUpAtMs) / Son.lightsUpMs));
-    scene?.setLightLevel(intro.lightLevel);
-  }
+  intro.lightLevel = lights;
+  scene?.setLightLevel(lights);
   if (t >= Son.introEndMs) finishIntro();
-}
-
-// ---------------------------------------------------------------
-// 舷窗：截圖輪播與點擊播放預告片
-// ---------------------------------------------------------------
-function initPorthole() {
-  const box = document.querySelector('[data-porthole]');
-  if (!box) return;
-  const shots = [...box.querySelectorAll('.porthole-shot')];
-  const seconds = Number(box.dataset.interval) || 6;
-  box.style.setProperty('--kb', `${seconds + 1.4}s`);
-  let idx = 0, timer = 0, inView = false, playing = false;
-  const next = () => {
-    shots[idx].classList.remove('is-active');
-    idx = (idx + 1) % shots.length;
-    shots[idx].classList.add('is-active');
-  };
-  const sync = () => {
-    clearInterval(timer);
-    if (inView && !document.hidden && !playing && !reduceMotion && shots.length > 1) timer = setInterval(next, seconds * 1000);
-  };
-  new IntersectionObserver((en) => { inView = en[0].isIntersecting; sync(); }).observe(box);
-  document.addEventListener('visibilitychange', sync);
-
-  box.querySelector('.porthole-play')?.addEventListener('click', () => {
-    playing = true;
-    sync();
-    const iframe = document.createElement('iframe');
-    iframe.className = 'porthole-video';
-    iframe.src = `https://www.youtube-nocookie.com/embed/${encodeURIComponent(box.dataset.yt)}?autoplay=1`;
-    iframe.title = box.dataset.title || 'YouTube';
-    iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
-    iframe.allowFullscreen = true;
-    iframe.referrerPolicy = 'strict-origin-when-cross-origin';
-    box.classList.add('is-playing');
-    box.querySelector('.porthole-glass').appendChild(iframe);
-    iframe.focus();
-  });
 }
 
 // 常見問題：一次只展開一題
@@ -309,8 +293,9 @@ function frame(now) {
   tickIntro(now);
 
   const depth = depthAtScroll(window.scrollY);
-  const band = bandAtDepth(depth);
+  const st = bandState(depth);
   const progress = clamp01(window.scrollY / maxScroll);
+  updateBackground(st, progress);
 
   // 深度計
   const d = Math.round(depth);
@@ -327,19 +312,24 @@ function frame(now) {
   hud.fill.style.height = `${(progress * 100).toFixed(2)}%`;
   hud.dot.style.transform = `translateY(${(progress * hud.fill.parentElement.clientHeight).toFixed(1)}px)`;
 
-  // 潛水燈與遮光
+  // 潛水燈：燈外遮暗、燈內提亮，都隨深度增加
   const torch = torchPosition(time);
   const lightLevel = intro.done ? 1 : intro.lightLevel;
+  const O = cfg.torchOverlay;
+  const deep = clamp01(st.u / 0.64);
   if (veil) {
     veil.style.setProperty('--tx', `${torch.x.toFixed(1)}px`);
     veil.style.setProperty('--ty', `${torch.y.toFixed(1)}px`);
-    veil.style.setProperty('--dark', (band.darkness * lightLevel).toFixed(3));
-    veil.style.setProperty('--veil', scene ? '0' : (1 - lightLevel).toFixed(3));
+    veil.style.setProperty('--dark', (st.darkness * lightLevel).toFixed(3));
   }
-  lightFinds(torch.x, torch.y);
+  if (torchLight) {
+    torchLight.style.setProperty('--tx', `${torch.x.toFixed(1)}px`);
+    torchLight.style.setProperty('--ty', `${torch.y.toFixed(1)}px`);
+    torchLight.style.setProperty('--light', (lerp(O.lightTop, O.lightDeep, deep) * lightLevel).toFixed(3));
+  }
 
   if (scene) {
-    scene.setTarget(band.u);
+    scene.setTarget(st.u);
     scene.setPointer((torch.x / window.innerWidth) * 2 - 1, -((torch.y / window.innerHeight) * 2 - 1));
     scene.render(dt, time);
     watchPerformance(dt);
@@ -347,7 +337,7 @@ function frame(now) {
   raf = requestAnimationFrame(frame);
 }
 
-// 低效能偵測：連續太慢就先降解析度，再慢就改用靜態背景
+// 低效能偵測：連續太慢就先降解析度，再慢就關掉粒子層
 function watchPerformance(dt) {
   if (!intro.done) return;
   frameTimes.push(dt * 1000);
@@ -382,16 +372,12 @@ async function boot() {
   if ('ResizeObserver' in window) new ResizeObserver(() => measureAnchors()).observe(document.body);
   document.fonts?.ready.then(measureAnchors);
 
-  initPorthole();
   initFaq();
   initInquiryForm(document.getElementById('inquiry'));
 
   const wantsIntro = root.classList.contains('intro-pending');
   await initScene();
-  if (scene) {
-    const b = bandAtDepth(depthAtScroll(window.scrollY));
-    scene.jumpTo(b.u);
-  }
+  scene?.jumpTo(bandState(depthAtScroll(window.scrollY)).u);
   if (wantsIntro && !intro.done) startIntro();
   else finishIntro();
   startLoop();

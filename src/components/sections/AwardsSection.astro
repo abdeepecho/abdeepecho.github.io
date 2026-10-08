@@ -1,26 +1,31 @@
 ---
-// 4,000 m 獲獎：像散落在海床上的物件，潛水燈照到時更亮（只用文字，不放獎項標誌）
-// 只放已查證的獎項，資料在 src/data/games.json
+// 4,000 m 獲獎：安靜的清單，一列一個獎項，以髮絲線分隔
+// 得獎與入圍只差在結果文字的顏色（得獎 --lure，入圍 --ink-dim）；只放已查證的獎項
 import games from '../../data/games.json';
 import { t, pick } from '../../i18n/index.js';
 import Sounding from '../Sounding.astro';
 interface Props { lang: string }
 const { lang } = Astro.props;
-const finds = games.flatMap((g) => (g.awards ?? []).map((a) => ({ ...a, game: pick(g.title, lang) })));
+const awards = games.flatMap((g) => (g.awards ?? []).map((a) => ({ ...a, game: pick(g.title, lang) })));
 const work = (name: string) => (lang === 'zh-Hant' ? `《${name}》` : name);
 ---
-<section class="band awards" id="awards" data-depth="4000" data-zone="abyss" aria-labelledby="awards-title">
-  <Sounding lang={lang} depth={4000} zone="abyss" />
-  <div class="band-body">
-    <h2 class="h2" id="awards-title">{t(lang, 'awards.title')}</h2>
-    <ul class="finds" data-finds>
-      {finds.map((a) => (
-        <li class:list={['find', `find-${a.kind}`]} data-find>
-          <span class="find-light" aria-hidden="true"></span>
-          <p class="find-year">{a.year}</p>
-          <p class="find-result">{pick(a.result, lang)}</p>
-          <h3 class="find-name" lang={/^[\x00-\x7F]+$/.test(pick(a.name, lang)) ? 'en' : undefined}>{pick(a.name, lang)}</h3>
-          <p class="find-work">{work(a.game)}</p>
+<section class="section awards" id="awards" data-depth="4000" data-zone="abyss" aria-labelledby="awards-title">
+  <div class="section-inner">
+    <div class="section-head scrim">
+      <Sounding lang={lang} depth={4000} zone="abyss" />
+      <h2 class="h2" id="awards-title">{t(lang, 'awards.title')}</h2>
+      <p class="lead">{t(lang, 'awards.intro')}</p>
+    </div>
+    <ul class="section-body rows award-rows">
+      {awards.map((a) => (
+        <li class="award-row">
+          <span class="award-year">{a.year}</span>
+          <h3 class="h3 award-name" lang={/^[\x00-\x7F]+$/.test(pick(a.name, lang)) ? 'en' : undefined}>{pick(a.name, lang)}</h3>
+          <p class="award-result">
+            <span class:list={['result', a.kind === 'win' ? 'is-win' : 'is-selection']}>{pick(a.result, lang)}</span>
+            <span aria-hidden="true"> · </span>
+            <span>{work(a.game)}</span>
+          </p>
         </li>
       ))}
     </ul>
@@ -28,69 +33,19 @@ const work = (name: string) => (lang === 'zh-Hant' ? `《${name}》` : name);
 </section>
 
 <style>
-  .awards .band-body { position: relative; }
-  .finds {
+  .award-rows { max-width: 56rem; background: var(--panel); }
+  .award-row {
     display: grid;
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    gap: var(--space-6) var(--space-5);
-    margin: var(--space-8) 0 0;
-    padding: 0;
-    list-style: none;
+    grid-template-columns: 5rem minmax(0, 1fr) minmax(0, 15rem);
+    align-items: baseline;
+    gap: var(--space-2) var(--space-5);
+    padding: var(--space-5) var(--space-5);
   }
-  /* 散落在海床上：每件物品的位置與高度都不同 */
-  .find { grid-column: span 6; }
-  .find:nth-child(1) { grid-column: 1 / span 5; }
-  .find:nth-child(2) { grid-column: 7 / span 5; margin-top: var(--space-9); }
-  .find:nth-child(3) { grid-column: 3 / span 5; margin-top: calc(-1 * var(--space-6)); }
-  .find:nth-child(4) { grid-column: 9 / span 4; margin-top: var(--space-7); }
-  .find:nth-child(5) { grid-column: 1 / span 5; margin-top: calc(-1 * var(--space-4)); }
-
-  .find {
-    --lit: 0;
-    position: relative;
-    padding: var(--space-5) var(--space-5) var(--space-6);
-    color: var(--ink-dim);
-  }
-  /* 燈光照到的光圈，強度由 home.js 依潛水燈距離設定 --lit */
-  .find-light {
-    position: absolute;
-    inset: -30% -20%;
-    z-index: -1;
-    border-radius: 50%;
-    background: radial-gradient(closest-side, rgba(226, 247, 255, 0.13), rgba(142, 240, 222, 0.05) 55%, rgba(142, 240, 222, 0) 100%);
-    opacity: calc(0.25 + var(--lit) * 0.75);
-    pointer-events: none;
-  }
-  .find-year {
-    font-family: var(--font-mark);
-    font-size: var(--fs-sm);
-    letter-spacing: 0.2em;
-    color: var(--ink-dim);
-  }
-  .find-result {
-    margin-top: var(--space-1);
-    font-family: var(--font-heading);
-    font-weight: 900;
-    font-size: var(--fs-2xl);
-    letter-spacing: 0.1em;
-    line-height: 1.3;
-    color: color-mix(in srgb, var(--ink) calc(55% + var(--lit) * 45%), var(--ink-dim));
-  }
-  .find-result:lang(en) { letter-spacing: 0.01em; font-size: var(--fs-xl); }
-  .find-selection .find-result { font-size: var(--fs-xl); }
-  .find-name {
-    margin-top: var(--space-2);
-    font-size: var(--fs-base);
-    font-weight: 500;
-    line-height: 1.6;
-    color: color-mix(in srgb, var(--ink) calc(40% + var(--lit) * 60%), var(--ink-dim));
-  }
-  .find-work { margin-top: var(--space-1); font-size: var(--fs-sm); color: var(--ink-dim); }
-
-
+  .award-year { font-family: var(--font-mark); font-weight: 600; font-size: var(--fs-small); color: var(--ink-dim); font-variant-numeric: lining-nums tabular-nums; }
+  .award-result { color: var(--ink-dim); text-align: right; }
+  .result.is-win { color: var(--lure); }
   @media (max-width: 760px) {
-    .finds { grid-template-columns: minmax(0, 1fr); gap: var(--space-4); margin-top: var(--space-6); }
-    .find:nth-child(n) { grid-column: 1; margin-top: 0; margin-left: 0; }
-    .find:nth-child(even) { margin-left: 12%; }
+    .award-row { grid-template-columns: minmax(0, 1fr); gap: var(--space-1); padding: var(--space-5) var(--space-4); }
+    .award-result { text-align: left; }
   }
 </style>

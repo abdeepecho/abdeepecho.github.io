@@ -1,0 +1,117 @@
+---
+// 作品卡片格線：資料來自 src/data/games.json（type = original / commission / animation）
+// 首頁最多顯示 limit 張；只有一件作品時，第一張卡片放寬成兩欄，旁邊放「更多作品開發中」
+import { t, pick, localePath } from '../i18n/index.js';
+interface Props {
+  lang: string;
+  games: any[];
+  limit?: number;
+  headingTag?: 'h2' | 'h3';
+  placeholder?: boolean;
+}
+const { lang, games, limit = games.length, headingTag = 'h3', placeholder = true } = Astro.props;
+const shown = games.slice(0, limit);
+const featured = shown.length === 1;
+const otherLang = lang === 'en' ? 'zh-Hant' : 'en';
+const Heading = headingTag;
+const cover = (g: any) => {
+  const S = g.screenshots;
+  const src = (w: number) => `${S.dir}${S.pattern.replace('{n}', String(g.cover.shot)).replace('{w}', String(w))}`;
+  return { src: src(S.widths[0]), srcset: S.widths.map((w: number) => `${src(w)} ${w}w`).join(', '), w: S.widths[0], h: Math.round(S.widths[0] * S.size[1] / S.size[0]) };
+};
+---
+<ul class:list={['works-grid', { 'is-featured': featured }]} data-works-grid>
+  {shown.map((g) => {
+    const c = cover(g);
+    return (
+      <li class="work-card" data-type={g.type}>
+        <a class="work-link" href={localePath(lang, `/games/${g.slug}/`)}>
+          <div class="work-cover">
+            <img src={c.src} srcset={c.srcset} sizes={featured ? '(max-width: 1024px) 100vw, 640px' : '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 360px'} width={c.w} height={c.h} loading="lazy" decoding="async" alt={pick(g.cover.alt, lang)} />
+          </div>
+          <div class="work-text">
+            <p class="work-meta">
+              {g.statusKey && <span class="work-status"><span class="lure-dot" aria-hidden="true"></span>{t(lang, g.statusKey)}</span>}
+              <span>{t(lang, `works.type.${g.type}`)}</span>
+            </p>
+            <Heading class="h3 work-title">{pick(g.title, lang)}</Heading>
+            <p class="work-alt" lang={otherLang}>{pick(g.altTitle, lang)}</p>
+            <p class="work-desc">{pick(g.tagline, lang)}</p>
+            <span class="work-more">{t(lang, 'works.more')}</span>
+          </div>
+        </a>
+      </li>
+    );
+  })}
+  {placeholder && (
+    <li class="work-card work-placeholder">
+      <div class="work-text">
+        <p class="h3 work-title">{t(lang, 'works.placeholder.title')}</p>
+        <p class="work-desc dim">{t(lang, 'works.placeholder.body')}</p>
+      </div>
+    </li>
+  )}
+</ul>
+<p class="works-empty dim" data-works-empty hidden>{t(lang, 'works.empty')}</p>
+
+<style>
+  .works-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-6);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .work-card {
+    position: relative;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: var(--panel);
+    overflow: hidden;
+    transition: border-color var(--dur-med) var(--ease-out);
+  }
+  .work-card:has(.work-link:hover), .work-card:has(.work-link:focus-visible) { border-color: var(--line-strong); }
+  .work-link { display: flex; flex-direction: column; height: 100%; color: inherit; text-decoration: none; }
+  .work-link:focus-visible { outline-offset: -3px; }
+  .work-cover { aspect-ratio: 16 / 9; overflow: hidden; background: var(--water-deep); }
+  .work-cover img { width: 100%; height: 100%; object-fit: cover; transition: transform 600ms var(--ease-out); }
+  .work-link:hover .work-cover img { transform: scale(1.03); }
+  .work-text { display: flex; flex-direction: column; flex: 1; padding: var(--space-5) var(--space-5) var(--space-6); }
+  .work-meta { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-4); font-size: var(--fs-small); font-weight: var(--fw-ui); color: var(--ink-dim); }
+  .work-status { display: inline-flex; align-items: center; gap: var(--space-2); color: var(--lure); }
+  .lure-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--lure); }
+  .work-title { margin-top: var(--space-3); }
+  .work-alt { font-size: var(--fs-small); color: var(--ink-dim); }
+  .work-desc { margin-top: var(--space-3); }
+  .work-more {
+    margin-top: auto;
+    padding-top: var(--space-5);
+    font-size: var(--fs-small);
+    font-weight: var(--fw-ui);
+    text-decoration: underline;
+    text-decoration-color: var(--line-strong);
+    text-underline-offset: 0.35em;
+  }
+  .work-link:hover .work-more { color: var(--glow); text-decoration-color: var(--glow); }
+  .work-placeholder { background: rgba(1, 7, 14, 0.45); border-style: dashed; }
+  .work-placeholder .work-text { justify-content: center; }
+  .work-placeholder .work-title { margin-top: 0; }
+  .works-empty { margin-top: var(--space-6); }
+
+  /* 只有一件作品：卡片橫向放寬成兩欄 */
+  .is-featured .work-card:first-child { grid-column: span 2; }
+  .is-featured .work-card:first-child .work-link { flex-direction: row; }
+  .is-featured .work-card:first-child .work-cover { flex: 0 0 58%; aspect-ratio: auto; min-height: 100%; }
+
+  @media (max-width: 1024px) {
+    .works-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .is-featured .work-card { grid-column: span 2; }
+    .is-featured .work-card:first-child .work-link { flex-direction: column; }
+    .is-featured .work-card:first-child .work-cover { flex: none; aspect-ratio: 16 / 9; min-height: 0; }
+  }
+  @media (max-width: 640px) {
+    .works-grid { grid-template-columns: minmax(0, 1fr); }
+    .works-grid .work-card, .works-grid.is-featured .work-card:first-child { grid-column: auto; }
+  }
+</style>

@@ -1,0 +1,71 @@
+---
+// 背景照片層：每個深度帶一張照片，固定在畫面後方，由 home.js 依捲動交疊淡入
+// 照片的路徑與尺寸來自 src/data/backgrounds.generated.json（tools/make-backgrounds.py 產生）
+import manifest from '../data/backgrounds.generated.json';
+import scene from '../data/scene.json';
+
+interface Props {
+  keys?: string[];      // 要放哪些照片；預設依深度帶順序全部
+  grade?: number;       // 靜態頁面的壓暗程度（首頁由 home.js 控制）
+}
+const order = [...new Set(scene.depthBands.map((b) => b.bg))];
+const { keys = order, grade = scene.depthBands[0].grade } = Astro.props;
+const images = manifest.images as Record<string, any>;
+const srcset = (base: string, files: any[]) => files.map((f) => `${base}${f.file} ${f.width}w`).join(', ');
+---
+<div class="depth-bg" data-depth-bg aria-hidden="true" style={`--grade: ${grade}; --grade-color: ${scene.backgrounds.gradeColor}`}>
+  {keys.map((key, i) => {
+    const im = images[key];
+    const largest = im.landscape[0];
+    return (
+      <picture class:list={['bg-layer', { 'is-first': i === 0 }]} data-bg={key}>
+        <source media="(max-aspect-ratio: 4/5)" srcset={srcset(im.base, im.portrait)} sizes="100vw" />
+        <img
+          src={`${im.base}${im.landscape[im.landscape.length - 1].file}`}
+          srcset={srcset(im.base, im.landscape)}
+          sizes="100vw"
+          width={largest.width}
+          height={largest.height}
+          alt=""
+          decoding="async"
+          loading={i === 0 ? 'eager' : 'lazy'}
+          fetchpriority={i === 0 ? 'high' : 'low'}
+        />
+      </picture>
+    );
+  })}
+  <div class="bg-grade"></div>
+</div>
+
+<style>
+  .depth-bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    background: var(--water-hadal);
+    pointer-events: none;
+  }
+  .bg-layer {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+  }
+  .bg-layer.is-first { opacity: 1; }
+  .bg-layer img {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 106%;   /* 多 6% 給視差位移 */
+    object-fit: cover;
+    transform: translate3d(0, var(--py, 0%), 0);
+    will-change: transform, opacity;
+  }
+  .bg-grade {
+    position: absolute;
+    inset: 0;
+    background: var(--grade-color);
+    opacity: var(--grade);
+  }
+</style>

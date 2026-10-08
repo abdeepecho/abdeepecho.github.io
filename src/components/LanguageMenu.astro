@@ -30,7 +30,7 @@ const current = LOCALES[lang];
   .lang-menu { position: relative; }
   .lang-toggle { gap: var(--space-2); padding-inline: var(--space-3); width: auto; }
   .globe { width: 20px; height: 20px; }
-  .lang-current { font-size: var(--fs-xs); letter-spacing: 0.04em; }
+  .lang-current { font-size: var(--fs-small); font-weight: var(--fw-ui); letter-spacing: 0.04em; }
   .lang-list {
     position: absolute;
     right: 0;
@@ -55,7 +55,7 @@ const current = LOCALES[lang];
     border-radius: 4px;
     color: var(--ink);
     text-decoration: none;
-    font-size: var(--fs-sm);
+    font-size: var(--fs-small);
   }
   .lang-list a:hover,
   .lang-list a:focus-visible { background: rgba(142, 240, 222, 0.1); }

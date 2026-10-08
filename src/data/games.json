@@ -10,6 +10,7 @@
       "zh-Hant": "Silent Wreckage",
       "en": "寂靜沉輪"
     },
+    "type": "original",
     "accent": "#8EF0DE",
     "meta": {
       "title": {
@@ -23,13 +24,29 @@
     },
     "ogImage": "/assets/games/silent-wreckage/og-silent-wreckage.jpg",
     "headerImage": "/assets/games/silent-wreckage/header.webp",
+    "cover": {
+      "shot": 1,
+      "alt": {
+        "zh-Hant": "《寂靜沉輪》遊戲畫面",
+        "en": "Scene from Silent Wreckage"
+      }
+    },
     "status": "demo",
+    "statusKey": "status.demo",
     "tagline": {
       "zh-Hant": "潛入沉沒於深海的郵輪，在敘事驅動的 3D 生存解謎恐怖中，揭開時空扭曲背後的真相。",
       "en": "Dive into a sunken ocean liner lost in the deep sea and uncover the truth behind a distortion of time and space."
     },
     "steamUrl": "https://store.steampowered.com/app/4641880/Silent_Wreckage/",
-    "trailerYouTubeId": "dH-0V-MFZM0",
+    "trailer": {
+      "youtubeId": "dH-0V-MFZM0",
+      "duration": "0:58",
+      "posterShot": 4,
+      "title": {
+        "zh-Hant": "《寂靜沉輪》Demo 預告片",
+        "en": "Silent Wreckage Demo Trailer"
+      }
+    },
     "screenshots": {
       "dir": "/assets/games/silent-wreckage/",
       "count": 8,
@@ -43,16 +60,6 @@
         1080
       ],
       "gridVisible": 6
-    },
-    "porthole": {
-      "shots": [
-        1,
-        5,
-        2,
-        7,
-        4
-      ],
-      "secondsPerShot": 6
     },
     "music": [
       {

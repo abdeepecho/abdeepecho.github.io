@@ -89,8 +89,8 @@ const href = (id: string) => (isHome ? `#${id}` : `${home}#${id}`);
   }
   .brand-icon { width: 36px; height: 36px; border-radius: 50%; }
   .brand-text { display: flex; flex-direction: column; line-height: 1.1; }
-  .brand-zh { font-family: var(--font-heading); font-weight: 900; font-size: 1.0625rem; letter-spacing: 0.12em; }
-  .brand-en { font-family: var(--font-mark); font-size: 0.75rem; letter-spacing: 0.2em; color: var(--ink-dim); }
+  .brand-zh { font-family: var(--font-heading); font-weight: var(--fw-heading); font-size: var(--fs-body); letter-spacing: 0.12em; }
+  .brand-en { font-family: var(--font-mark); font-weight: 600; font-size: var(--fs-small); letter-spacing: 0.16em; color: var(--ink-dim); line-height: 1.2; }
 
   .nav-links {
     display: flex;
@@ -107,7 +107,8 @@ const href = (id: string) => (isHome ? `#${id}` : `${home}#${id}`);
     padding-inline: var(--space-1);
     color: var(--ink);
     text-decoration: none;
-    font-size: var(--fs-sm);
+    font-size: var(--fs-small);
+    font-weight: var(--fw-ui);
     letter-spacing: 0.06em;
     border-bottom: 1px solid transparent;
     transition: color var(--dur-fast), border-color var(--dur-fast);
@@ -138,7 +139,7 @@ const href = (id: string) => (isHome ? `#${id}` : `${home}#${id}`);
       opacity: 0;
       transition: opacity var(--dur-med) var(--ease-out), visibility 0s linear var(--dur-med);
     }
-    .nav-links a:not(.btn) { font-family: var(--font-heading); font-weight: 900; font-size: var(--fs-2xl); letter-spacing: 0.08em; }
+    .nav-links a:not(.btn) { font-family: var(--font-heading); font-weight: var(--fw-heading); font-size: var(--fs-h3); letter-spacing: var(--ls-heading); }
     .nav-extra { display: list-item; }
     .nav-cta { margin-top: var(--space-5); }
     :global(.menu-open) .nav-links { visibility: visible; opacity: 1; transition-delay: 0s; }

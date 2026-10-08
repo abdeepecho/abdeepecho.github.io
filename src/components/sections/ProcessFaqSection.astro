@@ -1,36 +1,38 @@
 ---
 // 6,000 m 合作流程與常見問題（暫停接案時整段不輸出）
-// 流程是真正的先後順序，所以這裡才用編號
+// 和獲獎同樣的安靜清單；流程是真正的先後順序，所以有步驟編號
 import site from '../../data/site.json';
 import { t } from '../../i18n/index.js';
 import Sounding from '../Sounding.astro';
 interface Props { lang: string }
 const { lang } = Astro.props;
 ---
-<section class="band process" id="process" data-depth="6000" data-zone="hadal" aria-labelledby="process-title">
-  <Sounding lang={lang} depth={6000} zone="hadal" />
-  <div class="band-body pf-grid">
-    <div class="pf-process">
+<section class="section process" id="process" data-depth="6000" data-zone="hadal" aria-labelledby="process-title">
+  <div class="section-inner">
+    <div class="section-head scrim">
+      <Sounding lang={lang} depth={6000} zone="hadal" />
       <h2 class="h2" id="process-title">{t(lang, 'proc.title')}</h2>
-      <p class="lead dim">{t(lang, 'proc.intro')}</p>
-      <ol class="steps">
-        {site.processSteps.map((key, i) => (
-          <li class="step">
-            <span class="step-num" aria-hidden="true">{i + 1}</span>
-            <h3 class="step-title">{t(lang, `${key}.title`)}</h3>
-            <p class="step-desc">{t(lang, `${key}.desc`)}</p>
-          </li>
-        ))}
-      </ol>
+      <p class="lead">{t(lang, 'proc.intro')}</p>
     </div>
+    <ol class="section-body rows steps">
+      {site.processSteps.map((key, i) => (
+        <li class="step">
+          <span class="step-num" aria-hidden="true">{i + 1}</span>
+          <h3 class="h3">{t(lang, `${key}.title`)}</h3>
+          <p class="step-desc">{t(lang, `${key}.desc`)}</p>
+        </li>
+      ))}
+    </ol>
 
-    <div class="pf-faq" id="faq">
-      <h2 class="h2 faq-title">{t(lang, 'faq.title')}</h2>
-      <p class="lead dim">{t(lang, 'faq.intro')}</p>
-      <div class="faq" data-accordion>
+    <div class="section-sub" id="faq">
+      <div class="section-head scrim">
+        <h2 class="h2">{t(lang, 'faq.title')}</h2>
+        <p class="lead">{t(lang, 'faq.intro')}</p>
+      </div>
+      <div class="section-body rows faq" data-accordion>
         {site.faq.map((key) => (
-          <details class="faq-item">
-            <summary><span>{t(lang, `${key}.q`)}</span><span class="faq-icon" aria-hidden="true"></span></summary>
+          <details class="row faq-item">
+            <summary><span class="h3">{t(lang, `${key}.q`)}</span><span class="faq-icon" aria-hidden="true"></span></summary>
             <p>{t(lang, `${key}.a`)}</p>
           </details>
         ))}
@@ -40,63 +42,25 @@ const { lang } = Astro.props;
 </section>
 
 <style>
-  .pf-grid {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: var(--space-9) clamp(var(--space-7), 6vw, var(--space-10));
-    align-items: start;
-  }
-  .lead.dim { margin-top: var(--space-4); color: var(--ink-dim); font-size: var(--fs-base); }
-  .faq-title { font-size: var(--fs-2xl); }
-
-  /* 流程：沿著一條垂直的線往下，像導索上的停留點 */
-  .steps { position: relative; margin: var(--space-7) 0 0; padding: 0; list-style: none; }
-  .steps::before {
-    content: '';
-    position: absolute;
-    left: 15px;
-    top: 16px;
-    bottom: 16px;
-    width: 1px;
-    background: var(--glow-line);
-  }
+  .steps, .faq { max-width: 56rem; background: var(--panel); }
   .step {
-    position: relative;
     display: grid;
-    grid-template-columns: 32px minmax(0, 1fr);
-    column-gap: var(--space-5);
-    padding-bottom: var(--space-6);
+    grid-template-columns: 5rem minmax(0, 1fr);
+    gap: var(--space-2) var(--space-5);
+    padding: var(--space-5);
   }
-  .step:last-child { padding-bottom: 0; }
-  .step-num {
-    grid-row: 1 / span 2;
-    display: grid;
-    place-items: center;
-    width: 32px;
-    height: 32px;
-    border: 1px solid var(--glow-line);
-    border-radius: 50%;
-    background: var(--water-hadal);
-    font-family: var(--font-mark);
-    font-size: var(--fs-sm);
-    color: var(--glow);
-  }
-  .step-title { font-family: var(--font-heading); font-weight: 900; font-size: var(--fs-lg); letter-spacing: 0.08em; line-height: 1.5; }
-  .step-title:lang(en) { letter-spacing: 0.01em; }
-  .step-desc { margin-top: var(--space-1); color: var(--ink-dim); }
+  .step-num { grid-row: 1 / span 2; font-size: var(--fs-small); font-weight: var(--fw-ui); color: var(--glow); line-height: 2.2; }
+  .step-desc { color: var(--ink-dim); max-width: var(--measure); }
 
-  .faq { margin-top: var(--space-6); border-top: 1px solid var(--line); }
-  .faq-item { border-bottom: 1px solid var(--line); }
   .faq-item summary {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: var(--space-4);
     min-height: 56px;
-    padding: var(--space-3) 0;
+    padding: var(--space-4) var(--space-5);
     cursor: pointer;
     list-style: none;
-    font-weight: 500;
   }
   .faq-item summary::-webkit-details-marker { display: none; }
   .faq-item summary:hover { color: var(--glow); }
@@ -113,9 +77,10 @@ const { lang } = Astro.props;
   }
   .faq-icon::after { transform: rotate(90deg); }
   .faq-item[open] .faq-icon::after { transform: rotate(0deg); }
-  .faq-item p { padding: 0 0 var(--space-5); max-width: 36em; color: var(--ink-dim); }
-
-  @media (max-width: 960px) {
-    .pf-grid { grid-template-columns: minmax(0, 1fr); }
+  .faq-item p { padding: 0 var(--space-5) var(--space-5); max-width: var(--measure); color: var(--ink-dim); }
+  @media (max-width: 760px) {
+    .step { grid-template-columns: 2rem minmax(0, 1fr); padding: var(--space-5) var(--space-4); }
+    .faq-item summary { padding-inline: var(--space-4); }
+    .faq-item p { padding-inline: var(--space-4); }
   }
 </style>

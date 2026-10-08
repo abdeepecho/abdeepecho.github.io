@@ -1,4 +1,4 @@
-// 遊戲作品頁：截圖燈箱（<dialog>）與點擊後才載入的 YouTube 影片
+// 遊戲作品頁：截圖燈箱（<dialog>）；預告片由 TrailerPlayer.astro 處理
 function initLightbox() {
   const lightbox = document.getElementById('lightbox');
   const shots = [...document.querySelectorAll('.shot')];
@@ -36,21 +36,4 @@ function initLightbox() {
   });
 }
 
-function initVideo() {
-  document.querySelectorAll('.yt[data-yt]').forEach((box) => {
-    box.querySelector('.yt-play')?.addEventListener('click', () => {
-      const iframe = document.createElement('iframe');
-      iframe.className = 'yt-frame';
-      iframe.src = `https://www.youtube-nocookie.com/embed/${encodeURIComponent(box.dataset.yt)}?autoplay=1`;
-      iframe.title = box.dataset.title || 'YouTube';
-      iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
-      iframe.allowFullscreen = true;
-      iframe.referrerPolicy = 'strict-origin-when-cross-origin';
-      box.appendChild(iframe);
-      iframe.focus();
-    });
-  });
-}
-
 initLightbox();
-initVideo();

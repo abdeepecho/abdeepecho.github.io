@@ -1,5 +1,6 @@
 /* 幽海工作室 設計變數：所有顏色、字體、字級、間距都從這裡取用
-   頁面一律使用變數；遊戲頁用 --game-accent 覆寫主題色 */
+   字級只有五階（display、h2、h3、body、small），頁面不得出現其他字級
+   遊戲頁用 --game-accent 覆寫主題色 */
 :root {
   /* 水色：由淺到深，對應各深度帶 */
   --water-surface: #1D6A8F;   /* 0 m 表層帶 */
@@ -9,69 +10,62 @@
   --water-deep: #031322;      /* 6,000 m 超深淵帶 */
   --water-hadal: #01070E;     /* 10,994 m 海溝底部 */
 
-  /* 光：冷光是生物發光、深度計與焦點；燈籠魚只給最重要的一兩個行動 */
+  /* 光：冷光是深度標記、深度計與焦點；燈籠魚只給最重要的行動與得獎結果 */
   --glow: #8EF0DE;
-  --glow-soft: rgba(142, 240, 222, 0.18);
   --glow-line: rgba(142, 240, 222, 0.35);
   --lure: #F2C46D;
   --lure-ink: #241703;
-  --glow-ink: #02141B;
 
-  /* 文字：--ink-dim 只用在深色背景（1,000 m 以下），維持 4.5:1 以上 */
+  /* 文字 */
   --ink: #E6F2F7;
   --ink-dim: #A9C6D4;
-  --ink-faint: #7F9DAD;       /* 只用在非必要的裝飾文字 */
-  --rock: #415564;
   --line: rgba(230, 242, 247, 0.16);
   --line-strong: rgba(230, 242, 247, 0.32);
-  --scrim: rgba(1, 7, 14, 0.55);
+  --panel: rgba(1, 7, 14, 0.72);   /* 卡片、表單底色 */
+  --scrim: 1, 7, 14;                /* 文字區塊後方的局部遮罩色（RGB） */
 
-  /* 字體：每個都有系統字體備援 */
-  --font-heading: 'Noto Serif TC', 'Source Han Serif TC', 'PMingLiU', 'Songti TC', serif;
-  --font-body: 'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', 'Heiti TC', system-ui, sans-serif;
-  --font-mark: 'Cinzel', 'Trajan Pro', 'Times New Roman', serif;
+  /* 字體：三種角色，各有系統字體備援 */
+  --font-heading: 'Noto Serif TC', 'Source Han Serif TC', 'PMingLiU', 'Songti TC', serif;   /* 只用在標題，700 */
+  --font-body: 'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', 'Heiti TC', system-ui, sans-serif; /* 內文 400、介面 500 */
+  --font-mark: 'Cinzel', 'Trajan Pro', 'Times New Roman', serif;   /* 只用在 DEEP ECHO 字標與水深數字 */
 
-  /* 字級：依古典字級表 12 14 16 18 21 24 36 48 60 72 */
-  --fs-xs: 0.8125rem;   /* 13 */
-  --fs-sm: 0.875rem;    /* 14 */
-  --fs-base: 1.0625rem; /* 17 */
-  --fs-md: 1.1875rem;   /* 19 */
-  --fs-lg: 1.3125rem;   /* 21 */
-  --fs-xl: 1.5rem;      /* 24 */
-  --fs-2xl: clamp(1.75rem, 1.2rem + 2.2vw, 2.25rem);   /* 28 → 36 */
-  --fs-3xl: clamp(2.25rem, 1.4rem + 3.4vw, 3.75rem);   /* 36 → 60 */
-  --fs-display: clamp(3.5rem, 1.6rem + 8vw, 7.5rem);   /* 56 → 120 */
+  --fw-body: 400;
+  --fw-ui: 500;
+  --fw-heading: 700;
 
-  --lh-body: 1.9;       /* 中文內文 */
-  --lh-body-latin: 1.65;
-  --lh-heading: 1.25;
-  --tracking-heading: 0.06em;
-  /* 標題不加光暈；內文只留很小的深色陰影，確保疊在場景上可讀 */
-  --text-shadow-body: 0 0 2px rgba(1, 7, 14, 0.9), 0 1px 4px rgba(1, 7, 14, 0.6);
+  /* 字級：五階，桌機 / 手機 */
+  --fs-display: 4rem;      /* 64：只用在開場標語 */
+  --fs-h2: 2.5rem;         /* 40：所有區塊標題 */
+  --fs-h3: 1.375rem;       /* 22：服務、卡片、獎項、流程、常見問題的標題 */
+  --fs-body: 1.0625rem;    /* 17：所有段落、說明、表單 */
+  --fs-small: 0.875rem;    /* 14：水深標記、標籤、說明文字、頁尾 */
 
-  /* 間距：8 的倍數 */
+  --lh-body: 1.85;
+  --lh-heading: 1.35;
+  --ls-heading: 0.04em;
+  --ls-body: 0.02em;       /* 英文頁為 0 */
+
+  /* 間距：8 的倍數；區塊節奏全站相同 */
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;
-  --space-4: 1rem;
-  --space-5: 1.5rem;
-  --space-6: 2rem;
-  --space-7: 3rem;
+  --space-4: 1rem;      /* 水深標記 → 標題 */
+  --space-5: 1.5rem;    /* 標題 → 導言 */
+  --space-6: 2rem;      /* 項目之間 */
+  --space-7: 3rem;      /* 導言 → 內容 */
   --space-8: 4rem;
-  --space-9: 6rem;
-  --space-10: 8rem;
+  --section-pad: 10rem; /* 區塊上下留白 */
 
   /* 版面 */
-  --gutter: clamp(1rem, 4vw, 3.5rem);   /* 左右留白 */
-  --rail-col: clamp(5.5rem, 9vw, 8.5rem); /* 導索與水深標記的欄寬 */
-  --content-max: 72rem;
-  --measure: 34em;
+  --gutter: clamp(1rem, 5vw, 4rem);
+  --content-max: 70rem;  /* 1120 */
+  --measure: 36em;
   --header-h: 4.5rem;
 
   /* 形狀與動態 */
   --radius-pill: 999px;
   --radius-sm: 4px;
-  --radius-plate: 2px;  /* 潛水電腦面板式按鈕 */
+  --radius-plate: 2px;
   --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
   --dur-fast: 160ms;
   --dur-med: 320ms;
@@ -79,4 +73,15 @@
   --game-accent: var(--glow);
 
   color-scheme: dark;
+}
+
+@media (max-width: 760px) {
+  :root {
+    --fs-display: 2.5rem;   /* 40 */
+    --fs-h2: 1.875rem;      /* 30 */
+    --fs-h3: 1.1875rem;     /* 19 */
+    --fs-body: 1rem;        /* 16 */
+    --fs-small: 0.8125rem;  /* 13 */
+    --section-pad: 6rem;    /* 96 */
+  }
 }

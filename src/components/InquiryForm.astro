@@ -16,7 +16,7 @@ const budgets = [
 ];
 ---
 <form class="inquiry" id="inquiry" action={site.formEndpoint} method="POST" novalidate aria-labelledby="inquiry-title" data-endpoint={site.formEndpoint}>
-  <h3 class="inquiry-title" id="inquiry-title">{t(lang, 'form.title')}</h3>
+  <h3 class="h3 inquiry-title" id="inquiry-title">{t(lang, 'form.title')}</h3>
   <input type="hidden" name="_language" value={lang} />
 
   <div class="field">
@@ -79,43 +79,41 @@ const budgets = [
 </form>
 
 <style>
-  .inquiry { display: grid; gap: var(--space-5); }
-  .inquiry-title { font-family: var(--font-heading); font-weight: 900; font-size: var(--fs-xl); letter-spacing: 0.08em; }
-  .inquiry-title:lang(en) { letter-spacing: 0.01em; }
+  .inquiry { display: grid; gap: var(--space-5); padding: var(--space-6); border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--panel); }
   .field { display: grid; gap: var(--space-2); }
   .field-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-5); }
-  label { font-size: var(--fs-sm); color: var(--ink); }
+  label { font-size: var(--fs-small); font-weight: var(--fw-ui); color: var(--ink); }
   .req { color: var(--lure); margin-left: 0.2em; }
-  .opt { color: var(--ink-dim); margin-left: 0.3em; }
+  .opt { color: var(--ink-dim); margin-left: 0.3em; font-weight: var(--fw-body); }
   input, select, textarea {
     width: 100%;
     min-height: 48px;
     padding: var(--space-3) var(--space-4);
     border: 1px solid var(--line-strong);
     border-radius: var(--radius-sm);
-    background: rgba(3, 19, 34, 0.7);
+    background: rgba(3, 19, 34, 0.85);
     color: var(--ink);
-    font: inherit;
-    font-size: var(--fs-base);
+    font-size: var(--fs-body);
     line-height: 1.5;
     transition: border-color var(--dur-fast), box-shadow var(--dur-fast);
   }
   textarea { resize: vertical; min-height: 9rem; }
   select { appearance: none; background-image: linear-gradient(45deg, transparent 50%, var(--ink-dim) 50%), linear-gradient(135deg, var(--ink-dim) 50%, transparent 50%); background-position: calc(100% - 20px) 52%, calc(100% - 15px) 52%; background-size: 5px 5px; background-repeat: no-repeat; padding-right: var(--space-7); }
   select option { background: var(--water-deep); color: var(--ink); }
-  input::placeholder, textarea::placeholder { color: var(--ink-faint); }
+  input::placeholder, textarea::placeholder { color: #8FAFBF; }
   input:hover, select:hover, textarea:hover { border-color: rgba(230, 242, 247, 0.5); }
   input:focus-visible, select:focus-visible, textarea:focus-visible { outline: none; border-color: var(--glow); box-shadow: 0 0 0 1px var(--glow); }
   [aria-invalid='true'] { border-color: #FF9C8A; }
-  .field-error { font-size: var(--fs-sm); color: #FFB4A6; }
+  .field-error { font-size: var(--fs-small); color: #FFB4A6; }
   .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
   .inquiry-foot { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4) var(--space-5); margin-top: var(--space-2); }
-  .form-note { font-size: var(--fs-sm); color: var(--ink-dim); }
-  .form-status { min-height: 1.5em; font-size: var(--fs-sm); }
+  .form-note { font-size: var(--fs-small); color: var(--ink-dim); }
+  .form-status { font-size: var(--fs-small); }
   .form-status:empty { display: none; }
   .form-status:global(.is-ok) { color: var(--glow); }
   .form-status:global(.is-error) { color: #FFB4A6; }
   @media (max-width: 560px) {
+    .inquiry { padding: var(--space-5) var(--space-4); }
     .field-row { grid-template-columns: minmax(0, 1fr); }
     .inquiry-submit { width: 100%; }
   }

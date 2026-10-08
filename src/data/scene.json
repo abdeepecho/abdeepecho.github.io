@@ -1,13 +1,13 @@
 {
-  "_說明": "海溝場景的所有可調數值。改這個檔案即可調整，不需改程式。顏色用 #RRGGBB；depth 單位公尺；u 是鏡頭在海溝中的位置（0 = 海面，1 = 海溝底）。",
+  "_說明": "首頁下潛場景的所有可調數值。改這個檔案即可調整，不需改程式。depth 單位公尺；grade = 照片壓暗程度（0 原圖，1 全黑）；darkness = 潛水燈以外區域的遮光；u = 粒子場景中鏡頭的位置（0 海面，1 海溝底）。",
 
   "depthBands": [
-    { "depth": 0,     "u": 0.0,  "zone": "surface",  "water": "#1D6A8F", "fog": 0.022, "darkness": 0.2 },
-    { "depth": 200,   "u": 0.2,  "zone": "twilight", "water": "#0E3D5C", "fog": 0.022, "darkness": 0.22 },
-    { "depth": 1000,  "u": 0.42, "zone": "midnight", "water": "#0A2C47", "fog": 0.026, "darkness": 0.34 },
-    { "depth": 4000,  "u": 0.64, "zone": "abyss",    "water": "#06213A", "fog": 0.032, "darkness": 0.5 },
-    { "depth": 6000,  "u": 0.82, "zone": "hadal",    "water": "#031322", "fog": 0.038, "darkness": 0.58 },
-    { "depth": 10994, "u": 1.0,  "zone": "floor",    "water": "#01070E", "fog": 0.045, "darkness": 0.64 }
+    { "depth": 0,     "u": 0.0,  "zone": "surface",  "bg": "surface",  "grade": 0.28, "darkness": 0.0 },
+    { "depth": 200,   "u": 0.2,  "zone": "twilight", "bg": "twilight", "grade": 0.42, "darkness": 0.12 },
+    { "depth": 1000,  "u": 0.42, "zone": "midnight", "bg": "midnight", "grade": 0.5,  "darkness": 0.25 },
+    { "depth": 4000,  "u": 0.64, "zone": "abyss",    "bg": "abyss",    "grade": 0.72, "darkness": 0.38 },
+    { "depth": 6000,  "u": 0.82, "zone": "hadal",    "bg": "abyss",    "grade": 0.84, "darkness": 0.48 },
+    { "depth": 10994, "u": 1.0,  "zone": "floor",    "bg": "floor",    "grade": 0.74, "darkness": 0.55 }
   ],
   "zones": [
     { "from": 0, "key": "surface" },
@@ -19,61 +19,52 @@
   ],
   "anchorViewportRatio": 0.14,
 
+  "backgrounds": {
+    "_說明": "背景照片。來源檔在 sourceDir，執行 python tools/make-backgrounds.py 會輸出 WebP 到 outDir，並寫出 src/data/backgrounds.generated.json（實際尺寸）。focus = 裁切時保留的焦點（0–1，x 與 y）。換照片：改 file 後重跑腳本。",
+    "sourceDir": "assets/source/backgrounds",
+    "outDir": "public/assets/bg",
+    "landscapeAspect": [16, 10],
+    "landscapeWidths": [1920, 1280, 768],
+    "portraitAspect": [9, 16],
+    "portraitWidths": [1080, 720],
+    "quality": 80,
+    "crossfadeStart": 0.6,
+    "parallax": 5,
+    "gradeColor": "#01070E",
+    "images": [
+      { "key": "surface",  "file": "cg-10519065.jpg", "focus": [0.5, 0.55], "portraitFocus": [0.62, 0.5] },
+      { "key": "twilight", "file": "cg-10519066.jpg", "focus": [0.5, 0.5],  "portraitFocus": [0.68, 0.5] },
+      { "key": "midnight", "file": "cg-33042384.jpg", "focus": [0.5, 0.42], "portraitFocus": [0.5, 0.45] },
+      { "key": "abyss",    "file": "cg-10519029.jpg", "focus": [0.5, 0.5],  "portraitFocus": [0.42, 0.5] },
+      { "key": "floor",    "file": "cg-35252461.jpg", "focus": [0.5, 0.36], "portraitFocus": [0.5, 0.4] }
+    ]
+  },
+
   "camera": {
     "fov": 60,
     "descent": 126,
     "follow": 0.08,
     "pointerFollow": 0.07,
-    "tiltAtFloor": 0.45,
     "swayX": 0.9
   },
 
-  "trench": {
-    "top": 30,
-    "bottom": -150,
-    "halfWidthTop": 18,
-    "halfWidthBottom": 7,
-    "wallSegments": [150, 260],
-    "wallSegmentsMobile": [70, 130],
-    "floorSegments": [60, 80],
-    "rockColor": "#415564",
-    "sedimentColor": "#8C9A9B",
-    "seed": 50
-  },
-
-  "light": {
-    "hemiSky": "#9FDCF0",
-    "hemiGround": "#04101A",
-    "hemiIntensity": 1.2,
-    "hemiFloor": 0.12,
-    "sunColor": "#9FE6FF",
-    "sunIntensity": 1.6,
-    "torchColor": "#E2F7FF",
-    "torchIntensityTop": 6,
-    "torchIntensityDeep": 70,
-    "torchDistance": 80,
-    "torchAngle": 0.42,
-    "torchPenumbra": 0.6,
-    "torchDecay": 1,
-    "exposure": 0.92
-  },
-
-  "rays": { "count": 7, "xRange": [4, 22], "color": "#C4F1FF", "opacityMin": 0.05, "opacityRange": 0.07, "fadeOutU": 0.32 },
-
   "particles": {
-    "snow":    { "desktop": 1800, "mobile": 600, "speed": 0.25, "size": 0.16, "color": "#CFE8F2", "opacity": 0.55 },
-    "bubbles": { "desktop": 160,  "mobile": 60,  "speedMin": 1.2, "speedMax": 3.8, "size": 0.2, "color": "#E6F6FF", "opacityTop": 0.6, "opacityDeep": 0.25 },
-    "glow":    { "desktop": 26,   "mobile": 12,  "colors": ["#8EF0DE", "#9FD8FF", "#B8A6FF"], "size": 0.9, "appearFromU": 0.25, "fullAtU": 0.55 }
+    "snow":    { "desktop": 1400, "mobile": 450, "speed": 0.25, "size": 0.16, "color": "#CFE8F2", "opacity": 0.5, "spreadX": 34, "top": 30, "bottom": -150 },
+    "bubbles": { "desktop": 120,  "mobile": 45,  "speedMin": 1.2, "speedMax": 3.8, "size": 0.2, "color": "#E6F6FF", "opacityTop": 0.55, "opacityDeep": 0.2 },
+    "glow":    { "desktop": 26,   "mobile": 12,  "colors": ["#8EF0DE", "#9FD8FF", "#B8A6FF"], "size": 0.9, "appearFromU": 0.3, "fullAtU": 0.6, "spreadX": 14 }
   },
 
-  "torchOverlay": { "radius": 300, "radiusMobile": 200, "swaySpeed": [0.35, 0.23], "swayAmount": [0.35, 0.15] },
+  "torchOverlay": {
+    "radius": 300,
+    "radiusMobile": 200,
+    "swaySpeed": [0.35, 0.23],
+    "swayAmount": [0.35, 0.15],
+    "lightColor": "190, 236, 255",
+    "lightTop": 0.0,
+    "lightDeep": 0.22
+  },
 
   "sonar": {
-    "color": "#8EF0DE",
-    "ringWidth": 1.1,
-    "speed": 48,
-    "maxRadius": 90,
-    "strength": 0.75,
     "introPings": [
       { "atMs": 350, "revealTo": "logo" },
       { "atMs": 1500, "revealTo": "all" }
@@ -81,14 +72,8 @@
     "lightsUpAtMs": 2300,
     "lightsUpMs": 900,
     "introEndMs": 3000,
-    "domRingMs": 1500
-  },
-
-  "textures": {
-    "_說明": "背景素材集中設定；核准的公有領域照片放進 public/images/bg/ 後填入路徑即可。null = 使用程序化岩石。",
-    "rockMap": null,
-    "rockRepeat": [6, 10],
-    "fallbackBackground": null
+    "domRingMs": 1500,
+    "afterglow": 0.35
   },
 
   "performance": {
