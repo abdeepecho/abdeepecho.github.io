@@ -75,7 +75,7 @@ button, input, select, textarea { font: inherit; color: inherit; letter-spacing:
 }
 .sounding-depth { font-family: var(--font-mark); font-weight: 600; letter-spacing: 0.04em; font-variant-numeric: lining-nums tabular-nums; }
 
-/* 局部遮罩：只在文字區塊後方加一點暗，讓照片上的文字維持 4.5:1 以上 */
+/* 局部遮罩：只在文字區塊後方加一點暗，讓背景上的文字維持 4.5:1 以上 */
 .scrim { position: relative; isolation: isolate; }
 .scrim::before {
   content: '';

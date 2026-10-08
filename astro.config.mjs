@@ -10,8 +10,6 @@ export default defineConfig({
   // 用 HTML 規則壓縮空白，避免中英文混排時行內空白被吃掉（v7 預設為 'jsx'）
   compressHTML: true,
   devToolbar: { enabled: false },
-  // three.js 以動態載入獨立成一個 chunk（約 140 KB gzip），放寬警告門檻
-  vite: { build: { chunkSizeWarningLimit: 700 } },
   integrations: [
     sitemap({
       // 舊網址轉址頁與 Google 驗證檔不列入 sitemap

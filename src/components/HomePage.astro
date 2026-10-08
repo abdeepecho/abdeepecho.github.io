@@ -1,8 +1,8 @@
 ---
-// 首頁（中英文共用）：往下捲動就是往海溝下潛，每個區塊是一個深度帶，各有自己的背景照片
+// 首頁（中英文共用）：往下捲動就是往海溝下潛，每個區塊是一個深度帶；背景是聲納等高線畫出的海溝
 import site from '../data/site.json';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import DepthBackground from './DepthBackground.astro';
+import ContourBackground from './ContourBackground.astro';
 import DepthMeter from './DepthMeter.astro';
 import HeroSection from './sections/HeroSection.astro';
 import AboutSection from './sections/AboutSection.astro';
@@ -34,10 +34,7 @@ const { lang } = Astro.props;
   </script>
 
   <Fragment slot="before-main">
-    <DepthBackground />
-    <div class="torch-light" data-torch-light aria-hidden="true"></div>
-    <canvas class="particles" data-trench aria-hidden="true"></canvas>
-    <div class="torch-veil" data-torch aria-hidden="true"></div>
+    <ContourBackground />
     <DepthMeter lang={lang} />
   </Fragment>
 
@@ -56,34 +53,7 @@ const { lang } = Astro.props;
 
 <style is:global>
   .page-home main { position: relative; }
-  .particles {
-    position: fixed;
-    inset: 0;
-    z-index: 1;
-    width: 100%;
-    height: 100%;
-    display: block;
-    pointer-events: none;
-  }
-  /* 潛水燈：在照片上局部提亮（越深越明顯），燈外依深度遮暗 */
-  .torch-light {
-    position: fixed;
-    inset: 0;
-    z-index: 1;
-    pointer-events: none;
-    mix-blend-mode: screen;
-    background: radial-gradient(circle var(--torch-r, 300px) at var(--tx, 50%) var(--ty, 40%), rgba(var(--torch-rgb, 190, 236, 255), var(--light, 0)) 0%, rgba(var(--torch-rgb, 190, 236, 255), 0) 70%);
-  }
-  .torch-veil {
-    position: fixed;
-    inset: 0;
-    z-index: 1;
-    pointer-events: none;
-    background: radial-gradient(circle var(--torch-r, 300px) at var(--tx, 50%) var(--ty, 40%), rgba(1, 7, 14, 0) 0%, rgba(1, 7, 14, 0) 35%, rgba(1, 7, 14, var(--dark, 0)) 100%);
-  }
-  @media (max-width: 760px) { .torch-veil, .torch-light { --torch-r: 200px; } }
-
-  /* 開場：先全黑，聲納光環掃過時照出背景照片 */
+  /* 開場：先全黑，聲納光環掃過時照出背景海溝 */
   html.intro-pending .depth-bg { opacity: 0; }
   html.intro-running .depth-bg {
     -webkit-mask-image: radial-gradient(circle at var(--ring-cx, 50%) var(--ring-cy, 40%), rgba(0, 0, 0, var(--bg-after, 0)) calc(var(--bg-r, 0px) - 280px), #000 calc(var(--bg-r, 0px) - 40px), rgba(0, 0, 0, var(--bg-outer, 0)) var(--bg-r, 0px));

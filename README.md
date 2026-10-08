@@ -1,6 +1,6 @@
 # 幽海工作室 DeepEcho 官網
 
-Astro + three.js 靜態網站，部署在 GitHub Pages：https://abdeepecho.github.io/
+Astro 靜態網站，部署在 GitHub Pages：https://abdeepecho.github.io/
 
 - 繁體中文在 `/`，英文在 `/en/`
 - 首頁是「往海溝下潛」：捲動 = 下潛，每個區塊是一個深度帶（0 m、200 m、1,000 m、4,000 m、6,000 m、10,994 m）
@@ -25,7 +25,7 @@ npm run preview   # 預覽 dist/ http://localhost:4321（或 --port 指定）
 | 介面文字（中文／英文） | `src/i18n/zh-Hant.json`、`src/i18n/en.json` |
 | 信箱、社群連結、服務、工具、流程、常見問題清單、表單網址、接案開關 | `src/data/site.json` |
 | 遊戲資料：名稱、簡介、截圖、配樂、獎項、特色、Steam 連結 | `src/data/games.json` |
-| 下潛場景：深度對照、每帶背景照片與壓暗程度、粒子數量與速度、潛水燈、聲納、環境音 | `src/data/scene.json` |
+| 下潛場景：深度對照、背景海溝（地形、線條、鏡頭、回聲）、聲納開場、環境音 | `src/data/scene.json` |
 | 顏色、字體、字級、間距 | `src/styles/tokens.css` |
 
 ## 字級規則
@@ -66,21 +66,14 @@ npm run preview   # 預覽 dist/ http://localhost:4321（或 --port 指定）
 
 改之前，GitHub Pages 仍然直接發布 master 分支的檔案（舊網站）。
 
-## 背景照片
+## 背景海溝
 
-每個深度帶一張照片（Pexels 授權，紀錄在 `assets/source/LICENSES.md`），原始檔在 `assets/source/backgrounds/`。
-換照片或調整裁切：改 `src/data/scene.json` 的 `backgrounds.images`（檔名、焦點、portraitFocus），然後執行
-
-```
-python tools/make-backgrounds.py
-```
-
-會輸出 `public/assets/bg/*.webp`（桌機 1920／1280／768 與手機直式版本）並更新 `src/data/backgrounds.generated.json`。需要 Python 3 與 Pillow。
-每帶的壓暗程度在 `depthBands[].grade`。three.js 只負責海雪、氣泡與發光生物；WebGL 不可用或「減少動態」時只顯示照片。
+首頁與作品頁的背景是程式即時畫出的聲納等高線海溝（`src/scripts/contour-trench.js`，2D canvas，不需要 WebGL、沒有圖片）。
+所有可調數值在 `src/data/scene.json` 的 `contour`：岩壁陡度、蜿蜒、稜線起伏、線的間距與亮度、鏡頭路徑、回聲間隔等，每一組都有中文說明。
+每個深度帶對應的鏡頭位置在 `depthBands[].u`（0 海面，1 海溝底）。
 
 ## 偵錯
 
-- `?scene=off`：關閉粒子層（模擬 WebGL 不可用）
-- `?scene=on`：低效能裝置也強制開啟粒子層
+- `?scene=off`：關閉背景海溝，只留漸層
 - `?lang=en` / `?lang=zh-Hant`：切換並記住語言
 - 重新看開場：清除瀏覽器 localStorage 的 `deepecho-intro-seen`

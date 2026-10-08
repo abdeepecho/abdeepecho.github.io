@@ -1,0 +1,52 @@
+---
+// 背景：聲納等高線海溝，固定在畫面後方
+// 首頁由 home.js 依捲動驅動；其他頁面傳入 at（0 海面 – 1 海溝底），畫一個固定深度的靜態鏡頭
+// 沒有 JS 時只顯示深色漸層
+interface Props { at?: number }
+const { at } = Astro.props;
+---
+<div class="depth-bg" data-depth-bg aria-hidden="true" data-at={at}>
+  <canvas class="contour" data-contour></canvas>
+</div>
+
+{at !== undefined && (
+  <script>
+    import cfg from '../data/scene.json';
+    import { createContourTrench } from '../scripts/contour-trench.js';
+    const host = document.querySelector<HTMLElement>('[data-depth-bg][data-at]');
+    const canvas = host?.querySelector<HTMLCanvasElement>('[data-contour]');
+    if (host && canvas) {
+      const mobile = window.matchMedia('(max-width: 760px), (pointer: coarse)').matches;
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const trench = createContourTrench(canvas, cfg.contour, { mobile, reduceMotion });
+      trench.jumpTo(Number(host.dataset.at));
+      let last = performance.now();
+      const frame = (now: number) => {
+        trench.render(Math.min((now - last) / 1000, 0.05), now / 1000);
+        last = now;
+        if (!reduceMotion && !document.hidden) requestAnimationFrame(frame);
+      };
+      requestAnimationFrame(frame);
+      document.addEventListener('visibilitychange', () => { if (!document.hidden && !reduceMotion) { last = performance.now(); requestAnimationFrame(frame); } });
+      window.addEventListener('resize', () => { trench.resize(); if (reduceMotion) trench.render(0, 0); });
+    }
+  </script>
+)}
+
+<style>
+  .depth-bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+    background: linear-gradient(180deg, var(--water-twilight, #0e3d5c) 0%, var(--water-abyss, #06213a) 55%, var(--water-hadal, #01070e) 100%);
+  }
+  .contour {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+</style>

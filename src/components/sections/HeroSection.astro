@@ -1,5 +1,5 @@
 ---
-// 0 m 開場：聲納光波照出背景照片與工作室標誌，第二圈照出標語
+// 0 m 開場：聲納光波照出背景海溝與工作室標誌，第二圈照出標語
 import site from '../../data/site.json';
 import { t } from '../../i18n/index.js';
 interface Props { lang: string }
@@ -49,12 +49,16 @@ const sloganParts = t(lang, 'slogan').match(/[^，。.]+[，。.]?\s*/g) ?? [t(l
     display: flex;
     flex-direction: column;
     align-items: center;
-    /* 開場遮罩：以標誌中心為圓心，半徑由 home.js 控制 */
     --reveal: 200vmax;
+  }
+  /* 開場遮罩：以標誌中心為圓心，半徑由 home.js 控制；只在開場期間套用，
+     否則遮罩會把下面延伸出去的柔和底色裁成方框 */
+  :global(html.intro-pending) .hero-content,
+  :global(html.intro-running) .hero-content {
     -webkit-mask-image: radial-gradient(circle at 50% var(--reveal-y, 35%), #000 calc(var(--reveal) - 60px), transparent var(--reveal));
     mask-image: radial-gradient(circle at 50% var(--reveal-y, 35%), #000 calc(var(--reveal) - 60px), transparent var(--reveal));
   }
-  /* 標語後方的局部遮罩，照片再亮也讀得清楚 */
+  /* 標語後方的局部遮罩，背景再亮也讀得清楚 */
   .hero-content::before {
     content: '';
     position: absolute;

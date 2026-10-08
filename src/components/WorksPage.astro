@@ -2,7 +2,7 @@
 // 作品列表頁（中英文共用）：/works/、/en/works/，可依類型篩選
 import games from '../data/games.json';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import DepthBackground from './DepthBackground.astro';
+import ContourBackground from './ContourBackground.astro';
 import WorksGrid from './WorksGrid.astro';
 import { t } from '../i18n/index.js';
 interface Props { lang: string }
@@ -10,7 +10,7 @@ const { lang } = Astro.props;
 const types = ['original', 'commission', 'animation'];
 ---
 <BaseLayout lang={lang} path="/works/" title={t(lang, 'meta.works.title')} description={t(lang, 'meta.works.desc')} bodyClass="page-works">
-  <DepthBackground slot="before-main" keys={['midnight']} grade={0.62} />
+  <ContourBackground slot="before-main" at={0.5} />
   <section class="section works-page" aria-labelledby="works-title">
     <div class="section-inner">
       <div class="section-head scrim">

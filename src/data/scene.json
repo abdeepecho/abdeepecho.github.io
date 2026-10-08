@@ -1,73 +1,146 @@
 {
-  "_說明": "首頁下潛場景的所有可調數值。改這個檔案即可調整，不需改程式。depth 單位公尺；grade = 照片壓暗程度（0 原圖，1 全黑）；darkness = 潛水燈以外區域的遮光；u = 粒子場景中鏡頭的位置（0 海面，1 海溝底）。",
-
+  "_說明": "首頁下潛場景的所有可調數值。改這個檔案即可調整，不需改程式。depth 單位公尺；u = 背景海溝中鏡頭的位置（0 海面，1 海溝底）。",
   "depthBands": [
-    { "depth": 0,     "u": 0.0,  "zone": "surface",  "bg": "surface",  "grade": 0.28, "darkness": 0.0 },
-    { "depth": 200,   "u": 0.2,  "zone": "twilight", "bg": "twilight", "grade": 0.42, "darkness": 0.12 },
-    { "depth": 1000,  "u": 0.42, "zone": "midnight", "bg": "midnight", "grade": 0.5,  "darkness": 0.25 },
-    { "depth": 4000,  "u": 0.64, "zone": "abyss",    "bg": "abyss",    "grade": 0.72, "darkness": 0.38 },
-    { "depth": 6000,  "u": 0.82, "zone": "hadal",    "bg": "abyss",    "grade": 0.84, "darkness": 0.48 },
-    { "depth": 10994, "u": 1.0,  "zone": "floor",    "bg": "floor",    "grade": 0.74, "darkness": 0.55 }
+    {
+      "depth": 0,
+      "u": 0.0,
+      "zone": "surface"
+    },
+    {
+      "depth": 200,
+      "u": 0.2,
+      "zone": "twilight"
+    },
+    {
+      "depth": 1000,
+      "u": 0.42,
+      "zone": "midnight"
+    },
+    {
+      "depth": 4000,
+      "u": 0.64,
+      "zone": "abyss"
+    },
+    {
+      "depth": 6000,
+      "u": 0.82,
+      "zone": "hadal"
+    },
+    {
+      "depth": 10994,
+      "u": 1.0,
+      "zone": "floor"
+    }
   ],
   "zones": [
-    { "from": 0, "key": "surface" },
-    { "from": 200, "key": "twilight" },
-    { "from": 1000, "key": "midnight" },
-    { "from": 4000, "key": "abyss" },
-    { "from": 6000, "key": "hadal" },
-    { "from": 10900, "key": "floor" }
+    {
+      "from": 0,
+      "key": "surface"
+    },
+    {
+      "from": 200,
+      "key": "twilight"
+    },
+    {
+      "from": 1000,
+      "key": "midnight"
+    },
+    {
+      "from": 4000,
+      "key": "abyss"
+    },
+    {
+      "from": 6000,
+      "key": "hadal"
+    },
+    {
+      "from": 10900,
+      "key": "floor"
+    }
   ],
   "anchorViewportRatio": 0.14,
-
-  "backgrounds": {
-    "_說明": "背景照片。來源檔在 sourceDir，執行 python tools/make-backgrounds.py 會輸出 WebP 到 outDir，並寫出 src/data/backgrounds.generated.json（實際尺寸）。focus = 裁切時保留的焦點（0–1，x 與 y）。換照片：改 file 後重跑腳本。",
-    "sourceDir": "assets/source/backgrounds",
-    "outDir": "public/assets/bg",
-    "landscapeAspect": [16, 10],
-    "landscapeWidths": [1920, 1280, 768],
-    "portraitAspect": [9, 16],
-    "portraitWidths": [1080, 720],
-    "quality": 80,
-    "crossfadeStart": 0.6,
-    "parallax": 5,
-    "gradeColor": "#01070E",
-    "images": [
-      { "key": "surface",  "file": "cg-10519065.jpg", "focus": [0.5, 0.55], "portraitFocus": [0.62, 0.5] },
-      { "key": "twilight", "file": "cg-10519066.jpg", "focus": [0.5, 0.5],  "portraitFocus": [0.68, 0.5] },
-      { "key": "midnight", "file": "cg-33042384.jpg", "focus": [0.5, 0.42], "portraitFocus": [0.5, 0.45] },
-      { "key": "abyss",    "file": "cg-10519029.jpg", "focus": [0.5, 0.5],  "portraitFocus": [0.42, 0.5] },
-      { "key": "floor",    "file": "cg-35252461.jpg", "focus": [0.5, 0.36], "portraitFocus": [0.5, 0.4] }
-    ]
+  "contour": {
+    "_說明": "背景的聲納等高線海溝（src/scripts/contour-trench.js）。單位是場景裡的長度，沒有真實尺寸；先小幅調整再看效果。",
+    "terrain": {
+      "_說明": "slope：溝底往前每 1 單位下降多少（越大越陡地往下沉）。wallHeight：岩壁高度。rimDistance：中線到溝緣的距離（越小岩壁越陡）。plainSlope：溝緣外海床平原的坡度。meander：海溝左右蜿蜒的幅度（大、小兩種彎）。widthVariation：海溝寬窄變化（0–0.5）。ridges：岩壁稜線起伏（大、中、細三層）。",
+      "slope": 0.5,
+      "wallHeight": 24,
+      "rimDistance": 23,
+      "plainSlope": 0.16,
+      "meander": [
+        9,
+        3.2
+      ],
+      "widthVariation": 0.22,
+      "ridges": [
+        3.4,
+        1.5,
+        0.5
+      ]
+    },
+    "camera": {
+      "_說明": "travel：從海面捲到海溝底，鏡頭往前走多遠。diveEnd：捲到哪裡（0–1）完成「從上方俯瞰 → 潛入溝內」。heightStart/heightEnd：鏡頭離溝底的高度。pitchStart/pitchEnd：往下看的角度（弧度）。focal：鏡頭焦距（越大越窄、越近）。follow：捲動時鏡頭跟上的速度。",
+      "travel": 250,
+      "diveEnd": 0.42,
+      "heightStart": 42,
+      "heightEnd": 8,
+      "pitchStart": 0.78,
+      "pitchEnd": 0.4,
+      "focal": 0.95,
+      "follow": 0.08
+    },
+    "lines": {
+      "_說明": "spacing：等高線間距（越小越密）。opacity：線的亮度。deepDim：越深越暗的程度（0–1）。width：線寬（px）。farDistance：畫到多遠。sampleStep：每條線的取樣間距（越小越平滑、越耗效能）。",
+      "spacing": 1.5,
+      "opacity": 0.4,
+      "deepDim": 0.5,
+      "width": 1.1,
+      "farDistance": 95,
+      "sampleStep": 0.8
+    },
+    "echo": {
+      "_說明": "聲納回聲：每隔幾秒一道沿海溝往前掃的亮帶。",
+      "everySeconds": 9,
+      "opacity": 0.3
+    },
+    "fog": {
+      "_說明": "海溝遠端的霧：radius 相對畫面短邊，strength 0–1。",
+      "radius": 0.3,
+      "strength": 0.7
+    },
+    "textFade": 0.45,
+    "torch": {
+      "_說明": "潛水燈：游標附近的線變亮（只有滑鼠）。",
+      "radius": 220,
+      "radiusMobile": 160,
+      "strength": 0.55
+    },
+    "glow": 0.85,
+    "snow": {
+      "desktop": 140,
+      "mobile": 70
+    },
+    "colors": {
+      "surface": "#0E3D5C",
+      "abyss": "#06213A",
+      "hadal": "#01070E",
+      "floor": "#000307",
+      "line": "#8EF0DE",
+      "echo": "#BEFFF0",
+      "torch": "#E6FFFA"
+    },
+    "maxPixelRatio": 1.5
   },
-
-  "camera": {
-    "fov": 60,
-    "descent": 126,
-    "follow": 0.08,
-    "pointerFollow": 0.07,
-    "swayX": 0.9
-  },
-
-  "particles": {
-    "snow":    { "desktop": 1400, "mobile": 450, "speed": 0.25, "size": 0.16, "color": "#CFE8F2", "opacity": 0.5, "spreadX": 34, "top": 30, "bottom": -150 },
-    "bubbles": { "desktop": 120,  "mobile": 45,  "speedMin": 1.2, "speedMax": 3.8, "size": 0.2, "color": "#E6F6FF", "opacityTop": 0.55, "opacityDeep": 0.2 },
-    "glow":    { "desktop": 26,   "mobile": 12,  "colors": ["#8EF0DE", "#9FD8FF", "#B8A6FF"], "size": 0.9, "appearFromU": 0.3, "fullAtU": 0.6, "spreadX": 14 }
-  },
-
-  "torchOverlay": {
-    "radius": 300,
-    "radiusMobile": 200,
-    "swaySpeed": [0.35, 0.23],
-    "swayAmount": [0.35, 0.15],
-    "lightColor": "190, 236, 255",
-    "lightTop": 0.0,
-    "lightDeep": 0.22
-  },
-
   "sonar": {
     "introPings": [
-      { "atMs": 350, "revealTo": "logo" },
-      { "atMs": 1500, "revealTo": "all" }
+      {
+        "atMs": 350,
+        "revealTo": "logo"
+      },
+      {
+        "atMs": 1500,
+        "revealTo": "all"
+      }
     ],
     "lightsUpAtMs": 2300,
     "lightsUpMs": 900,
@@ -75,7 +148,6 @@
     "domRingMs": 1500,
     "afterglow": 0.35
   },
-
   "performance": {
     "maxPixelRatio": 1.5,
     "mobileMaxPixelRatio": 1.25,
@@ -84,10 +156,13 @@
     "slowFrameMs": 50,
     "sampleFrames": 90
   },
-
   "audio": {
     "masterGain": 0.5,
-    "droneFreqs": [41.2, 41.7, 61.8],
+    "droneFreqs": [
+      41.2,
+      41.7,
+      61.8
+    ],
     "droneGain": 0.22,
     "noiseGain": 0.3,
     "filterHz": 240,
