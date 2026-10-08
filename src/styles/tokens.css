@@ -22,7 +22,6 @@
   --line: rgba(230, 242, 247, 0.16);
   --line-strong: rgba(230, 242, 247, 0.32);
   --panel: rgba(1, 7, 14, 0.72);   /* 卡片、表單底色 */
-  --scrim: 1, 7, 14;                /* 文字區塊後方的局部遮罩色（RGB） */
 
   /* 字體：三種角色，各有系統字體備援 */
   --font-heading: 'Noto Serif TC', 'Source Han Serif TC', 'PMingLiU', 'Songti TC', serif;   /* 只用在標題，700 */

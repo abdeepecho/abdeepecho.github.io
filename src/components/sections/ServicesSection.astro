@@ -15,7 +15,7 @@ const icons: Record<string, string> = {
 ---
 <section class="section services" id="services" data-depth="200" data-zone="twilight" aria-labelledby="services-title">
   <div class="section-inner">
-    <div class="section-head scrim">
+    <div class="section-head" data-clear>
       <Sounding lang={lang} depth={200} zone="twilight" />
       <h2 class="h2" id="services-title">{t(lang, 'svc.title')}</h2>
       <p class="lead">{t(lang, 'svc.intro')}</p>
@@ -23,7 +23,7 @@ const icons: Record<string, string> = {
         <p class="paused-note" role="note"><span class="paused-dot" aria-hidden="true"></span>{t(lang, 'status.paused')}</p>
       )}
     </div>
-    <ul class="section-body svc-list scrim">
+    <ul class="section-body svc-list" data-clear>
       {site.services.map((s) => (
         <li class="svc">
           <svg class="svc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={icons[s.icon]}></svg>

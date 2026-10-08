@@ -8,13 +8,13 @@ const { lang } = Astro.props;
 ---
 <section class="section about" id="about" data-depth="0" data-zone="surface" aria-labelledby="about-title">
   <div class="section-inner">
-    <div class="section-head scrim">
+    <div class="section-head" data-clear>
       <Sounding lang={lang} depth={0} zone="surface" />
       <h2 class="h2" id="about-title">{t(lang, 'about.title')}</h2>
       <p class="lead">{t(lang, 'about.body')}</p>
       <p class="small about-meta">{t(lang, 'about.meta')}</p>
     </div>
-    <div class="section-body scrim tools-block">
+    <div class="section-body tools-block" data-clear>
       <h3 class="h3">{t(lang, 'tools.title')}</h3>
       <ul class="tools">
         {site.tools.map((tool) => (

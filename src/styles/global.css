@@ -75,19 +75,6 @@ button, input, select, textarea { font: inherit; color: inherit; letter-spacing:
 }
 .sounding-depth { font-family: var(--font-mark); font-weight: 600; letter-spacing: 0.04em; font-variant-numeric: lining-nums tabular-nums; }
 
-/* 局部遮罩：只在文字區塊後方加一點暗，讓背景上的文字維持 4.5:1 以上 */
-.scrim { position: relative; isolation: isolate; }
-.scrim::before {
-  content: '';
-  position: absolute;
-  inset: -1.5rem -2.5rem;
-  z-index: -1;
-  pointer-events: none;
-  border-radius: 3rem;
-  background: rgba(var(--scrim), var(--scrim-a, 0.6));
-  filter: blur(36px);
-}
-
 /* ---- 焦點：明顯可見 ---- */
 :focus-visible { outline: 2px solid var(--glow); outline-offset: 3px; border-radius: 3px; }
 

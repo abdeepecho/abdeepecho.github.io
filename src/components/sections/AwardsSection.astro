@@ -11,7 +11,7 @@ const work = (name: string) => (lang === 'zh-Hant' ? `《${name}》` : name);
 ---
 <section class="section awards" id="awards" data-depth="4000" data-zone="abyss" aria-labelledby="awards-title">
   <div class="section-inner">
-    <div class="section-head scrim">
+    <div class="section-head" data-clear>
       <Sounding lang={lang} depth={4000} zone="abyss" />
       <h2 class="h2" id="awards-title">{t(lang, 'awards.title')}</h2>
       <p class="lead">{t(lang, 'awards.intro')}</p>

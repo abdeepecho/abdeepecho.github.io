@@ -108,7 +108,14 @@
       "radius": 0.3,
       "strength": 0.7
     },
-    "textFade": 0.45,
+    "clear": {
+      "_說明": "文字與圖片後方的留白：這些區塊後面的等高線會淡出，不加暗色底。selector：哪些區塊（CSS 選擇器）。strength：淡出程度（0 不處理，1 完全清空）；手機文字幾乎佔滿畫面，所以另用 strengthMobile。padding：往外多留多少（px）。feather：邊緣柔和的範圍（px）。首頁開場的標誌與標語不在其中，讓海溝完整露出。",
+      "selector": "[data-clear], .work-card, .award-rows, .steps, .faq, .inquiry, .contact-side, .filters, .depth-meter",
+      "strength": 0.9,
+      "strengthMobile": 0.55,
+      "padding": 28,
+      "feather": 56
+    },
     "torch": {
       "_說明": "潛水燈：游標附近的線變亮（只有滑鼠）。",
       "radius": 220,

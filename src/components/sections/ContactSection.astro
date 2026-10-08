@@ -11,7 +11,7 @@ const open = site.commissionsOpen;
 ---
 <section class="section contact" id="contact" data-depth="10994" data-zone="floor" aria-labelledby="contact-title">
   <div class="section-inner">
-    <div class="section-head scrim">
+    <div class="section-head" data-clear>
       <Sounding lang={lang} depth={10994} zone="floor" />
       <h2 class="h2" id="contact-title">{t(lang, open ? 'contact.title' : 'contact.title.paused')}</h2>
       <p class="lead">{t(lang, open ? 'contact.lead' : 'contact.lead.paused')}</p>

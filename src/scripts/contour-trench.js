@@ -1,7 +1,7 @@
 // 聲納等高線海溝（2D canvas）：一條往前、往下延伸的 V/U 形海溝，兩側接海床平原
 // 高度 h(x,z) = floorY(z) + G(與中線的距離)；等高線 = h 等於固定值的線，
 // 從左壁繞過溝底接到右壁，一層層 V 字，這是看得出「谷」的關鍵。
-// 每條等高線是一整條連續路徑、固定透明度；遠處的霧、文字欄、潛水燈都用整片遮罩處理，線不會斷。
+// 每條等高線是一整條連續路徑、固定透明度；遠處的霧、文字與圖片後方的留白、潛水燈都用整片遮罩處理，線不會斷。
 // 所有可調數值在 src/data/scene.json 的 contour。
 
 const clamp01 = (v) => Math.min(1, Math.max(0, v));
@@ -60,11 +60,20 @@ export function createContourTrench(canvas, C, { mobile = false, reduceMotion = 
     return true;
   }
 
+  // 留白區：文字與圖片後方的線淡出（不加暗色底）。在 1/8 解析度的小畫布上畫方塊再模糊，放大後邊緣自然柔和
+  const Q = 8;
+  const zc = document.createElement('canvas');
+  const zx = zc.getContext('2d');
+  let zoneEls = [];
+  const refreshZones = () => { zoneEls = C.clear ? [...document.querySelectorAll(C.clear.selector)] : []; };
+  refreshZones();
+
   let maxDpr = C.maxPixelRatio;
   function resize() {
     W = window.innerWidth; H = window.innerHeight;
     DPR = Math.min(window.devicePixelRatio || 1, maxDpr);
     for (const c of [canvas, lc]) { c.width = Math.round(W * DPR); c.height = Math.round(H * DPR); }
+    zc.width = Math.ceil(W / Q); zc.height = Math.ceil(H / Q);
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
     lx.setTransform(DPR, 0, 0, DPR, 0, 0);
   }
@@ -171,14 +180,35 @@ export function createContourTrench(canvas, C, { mobile = false, reduceMotion = 
     fog.addColorStop(1, 'rgba(0,0,0,0)');
     lx.fillStyle = fog;
     lx.fillRect(0, 0, W, H);
-    // 文字欄後方的線淡一些（桌機左欄；開場的置中標誌不需要）
-    if (!mobile && u > 0.01) {
-      const tg = lx.createLinearGradient(0, 0, W * 0.62, 0);
-      tg.addColorStop(0, 'rgba(0,0,0,0)');
-      tg.addColorStop(0.15, `rgba(0,0,0,${C.textFade * Math.min(1, u * 12)})`);
-      tg.addColorStop(1, 'rgba(0,0,0,0)');
-      lx.fillStyle = tg;
-      lx.fillRect(0, 0, W, H);
+    // 留白區：文字與圖片後方的線淡出
+    const clearStrength = C.clear ? (mobile ? C.clear.strengthMobile : C.clear.strength) : 0;
+    if (zoneEls.length && clearStrength > 0) {
+      const pad = C.clear.padding;
+      zx.setTransform(1, 0, 0, 1, 0, 0);
+      zx.filter = 'none';
+      zx.clearRect(0, 0, zc.width, zc.height);
+      zx.fillStyle = '#000';
+      let any = false;
+      for (const el of zoneEls) {
+        const r = el.getBoundingClientRect();
+        if (r.bottom < -pad || r.top > H + pad || r.width === 0) continue;
+        zx.fillRect((r.left - pad) / Q, (r.top - pad) / Q, (r.width + pad * 2) / Q, (r.height + pad * 2) / Q);
+        any = true;
+      }
+      if (any) {
+        if ('filter' in zx) {               // 在小畫布上再模糊一次，讓邊緣更柔
+          zx.filter = `blur(${C.clear.feather / Q}px)`;
+          zx.globalCompositeOperation = 'copy';
+          zx.drawImage(zc, 0, 0);
+          zx.globalCompositeOperation = 'source-over';
+          zx.filter = 'none';
+        }
+        lx.globalCompositeOperation = 'destination-out';
+        lx.globalAlpha = clearStrength;
+        lx.imageSmoothingEnabled = true;
+        lx.drawImage(zc, 0, 0, zc.width * Q, zc.height * Q);
+        lx.globalAlpha = 1;
+      }
     }
     // 潛水燈：照到的線變亮
     if (pointer.on && light > 0) {
@@ -223,5 +253,6 @@ export function createContourTrench(canvas, C, { mobile = false, reduceMotion = 
     setPointer(x, y) { pointer.x = x; pointer.y = y; pointer.on = true; },
     setLightLevel(v) { light = clamp01(v); },
     lowerQuality() { maxDpr = 1; resize(); },
+    refreshZones,
   };
 }
