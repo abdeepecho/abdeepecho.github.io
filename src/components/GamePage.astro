@@ -12,11 +12,13 @@ const { lang, game } = Astro.props;
 const S = game.screenshots;
 const shotSrc = (n: number, w: number) => `${S.dir}${S.pattern.replace('{n}', String(n)).replace('{w}', String(w))}`;
 const imgSrc = (name: string, w: number) => `${S.dir}${name}-${w}.webp`;
-const srcset = (name: string) => S.widths.map((w: number) => `${imgSrc(name, w)} ${w}w`).join(', ');
+const srcset = (name: string, widths: number[] = S.widths) => widths.map((w: number) => `${imgSrc(name, w)} ${w}w`).join(', ');
 const shots = Array.from({ length: S.count }, (_, i) => i + 1);
 const otherLang = lang === 'en' ? 'zh-Hant' : 'en';
 const title = pick(game.title, lang);
 const K = game.keyart;
+const kWidths: number[] = K.widths ?? S.widths;
+const kPortrait = K.size[1] > K.size[0];   // 直式海報：右欄變窄，圖片依原比例
 const awards = game.awards ?? [];
 const topAward = awards.find((a: any) => a.kind === 'win') ?? awards[0];
 const newTab = t(lang, 'common.newTab');
@@ -33,7 +35,7 @@ const newTab = t(lang, 'common.newTab');
 
   <div class="game" style={`--game-accent: ${game.accent}`}>
     <section class="gp-hero" aria-labelledby="game-title">
-      <div class="gp-hero-inner">
+      <div class:list={['gp-hero-inner', { 'is-portrait': kPortrait }]}>
         <div class="gp-hero-text" data-clear>
           <p class="game-status"><span class="lure-dot" aria-hidden="true"></span>{t(lang, 'game.status')}</p>
           <h1 class="game-title" id="game-title">{title}</h1>
@@ -49,7 +51,7 @@ const newTab = t(lang, 'common.newTab');
           )}
         </div>
         <figure class="gp-keyart" data-clear>
-          <img src={imgSrc(K.image, S.widths[0])} srcset={srcset(K.image)} sizes="(max-width: 900px) 100vw, 680px" width={K.size[0]} height={K.size[1]} fetchpriority="high" decoding="async" alt={pick(K.alt, lang)} />
+          <img src={imgSrc(K.image, kWidths[0])} srcset={srcset(K.image, kWidths)} sizes={kPortrait ? '(max-width: 900px) 280px, 440px' : '(max-width: 900px) 100vw, 680px'} width={K.size[0]} height={K.size[1]} fetchpriority="high" decoding="async" alt={pick(K.alt, lang)} />
         </figure>
       </div>
     </section>
@@ -212,7 +214,8 @@ const newTab = t(lang, 'common.newTab');
     overflow: hidden;
     background: var(--water-hadal);
   }
-  .gp-keyart img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }   /* 主視覺含標題字，完整顯示不裁切 */
+  .gp-keyart img { width: 100%; height: auto; }   /* 主視覺含標題字，依原比例完整顯示不裁切 */
+  .gp-hero-inner.is-portrait { grid-template-columns: minmax(0, 1fr) minmax(0, 440px); }
 
   /* ---- 故事與資訊 ---- */
   .gp-story { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: var(--space-8); align-items: start; }
@@ -278,8 +281,9 @@ const newTab = t(lang, 'common.newTab');
   .lightbox-btn svg { width: 26px; height: 26px; }
 
   @media (max-width: 900px) {
-    .gp-hero-inner { grid-template-columns: minmax(0, 1fr); gap: var(--space-6); }
+    .gp-hero-inner, .gp-hero-inner.is-portrait { grid-template-columns: minmax(0, 1fr); gap: var(--space-6); }
     .gp-keyart { order: -1; }
+    .is-portrait .gp-keyart { width: min(72%, 280px); justify-self: center; }   /* 手機：海報不佔滿，標題與按鈕能在第一屏出現 */
     .gp-story { grid-template-columns: minmax(0, 1fr); gap: var(--space-7); }
     .info { margin-top: 0; }
     .feature, .feature:nth-child(even) { grid-template-columns: minmax(0, 1fr); gap: var(--space-5); }

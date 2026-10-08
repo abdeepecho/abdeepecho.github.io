@@ -32,14 +32,19 @@
       }
     },
     "keyart": {
-      "image": "kv-main",
+      "_說明": "開場主視覺。widths：實際輸出的寬度（檔名 <image>-<寬>.webp）；size：原始尺寸，直式會自動改成左文右圖的窄欄。",
+      "image": "poster",
+      "widths": [
+        720,
+        1414
+      ],
       "size": [
-        1920,
-        1080
+        1414,
+        2000
       ],
       "alt": {
-        "zh-Hant": "《寂靜沉輪》主視覺：海面上一名少女的側臉剪影，剪影中是紅光照亮的沉船走廊",
-        "en": "Silent Wreckage key visual: a girl in silhouette above the sea, filled with the red-lit corridor of the sunken ship"
+        "zh-Hant": "《寂靜沉輪》海報：海面上一名少女的側臉剪影，剪影中是紅光照亮的沉船走廊",
+        "en": "Silent Wreckage poster: a girl in silhouette above the sea, filled with the red-lit corridor of the sunken ship"
       }
     },
     "status": "demo",
