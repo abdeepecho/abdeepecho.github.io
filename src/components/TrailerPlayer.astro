@@ -1,25 +1,25 @@
 ---
-// 預告片播放器：16:9 細框、海報圖、左下角小播放鍵；點擊後才載入 youtube-nocookie
+// 預告片播放器：16:9 細框、海報圖、左下角圓形播放鍵（畫面上不放文字）；片名與長度放在下方說明列
+// 海報：trailer.poster（<dir><poster>-<寬>.webp），沒有時用第 posterShot 張截圖；點擊後才載入 youtube-nocookie
 import { t, pick } from '../i18n/index.js';
 interface Props { lang: string; game: any }
 const { lang, game } = Astro.props;
 const tr = game.trailer;
 const S = game.screenshots;
-const src = (w: number) => `${S.dir}${S.pattern.replace('{n}', String(tr.posterShot)).replace('{w}', String(w))}`;
+const src = (w: number) => (tr.poster ? `${S.dir}${tr.poster}-${w}.webp` : `${S.dir}${S.pattern.replace('{n}', String(tr.posterShot)).replace('{w}', String(w))}`);
 const title = pick(tr.title, lang);
 ---
 <figure class="trailer" data-trailer={tr.youtubeId} data-title={title}>
   <div class="trailer-frame">
-    <img class="trailer-poster" src={src(S.widths[0])} srcset={S.widths.map((w: number) => `${src(w)} ${w}w`).join(', ')} sizes="(max-width: 900px) 100vw, 760px" width={S.size[0]} height={S.size[1]} loading="lazy" decoding="async" alt="" />
+    <img class="trailer-poster" src={src(S.widths[0])} srcset={S.widths.map((w: number) => `${src(w)} ${w}w`).join(', ')} sizes="(max-width: 1200px) 100vw, 1120px" width={S.size[0]} height={S.size[1]} loading="lazy" decoding="async" alt="" />
     <button class="trailer-play" type="button" aria-label={`${t(lang, 'trailer.play')}${lang === 'en' ? ': ' : '：'}${title}`}>
       <span class="trailer-icon" aria-hidden="true">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 7l9 5-9 5z" fill="currentColor"></path></svg>
       </span>
-      <span class="trailer-label" aria-hidden="true">{t(lang, 'trailer.play')}<span class="trailer-time">{tr.duration}</span></span>
     </button>
   </div>
   <figcaption class="trailer-caption">
-    <span>{title}</span>
+    <span>{title}<span class="trailer-time">{tr.duration}</span></span>
     <span class="dim">{t(lang, 'trailer.source')}</span>
   </figcaption>
 </figure>
@@ -38,11 +38,9 @@ const title = pick(tr.title, lang);
     position: absolute;
     left: var(--space-5);
     bottom: var(--space-5);
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-3);
     padding: 0;
     border: 0;
+    border-radius: 50%;
     background: none;
     color: var(--ink);
     cursor: pointer;
@@ -50,25 +48,16 @@ const title = pick(tr.title, lang);
   .trailer-icon {
     display: grid;
     place-items: center;
-    width: 56px;
-    height: 56px;
-    border: 1px solid rgba(230, 242, 247, 0.6);
+    width: 64px;
+    height: 64px;
+    border: 1px solid rgba(230, 242, 247, 0.7);
     border-radius: 50%;
-    background: rgba(1, 7, 14, 0.55);
-    transition: border-color var(--dur-fast), background-color var(--dur-fast);
+    background: rgba(1, 7, 14, 0.6);
+    transition: border-color var(--dur-fast), color var(--dur-fast);
   }
-  .trailer-icon svg { width: 22px; height: 22px; margin-left: 2px; }
-  .trailer-play:hover .trailer-icon { border-color: var(--ink); background: rgba(1, 7, 14, 0.8); }
-  .trailer-label {
-    display: inline-flex;
-    gap: var(--space-2);
-    padding: var(--space-1) var(--space-3);
-    border-radius: var(--radius-sm);
-    background: rgba(1, 7, 14, 0.55);
-    font-size: var(--fs-small);
-    font-weight: var(--fw-ui);
-  }
-  .trailer-time { color: var(--ink-dim); font-variant-numeric: tabular-nums; }
+  .trailer-icon svg { width: 22px; height: 22px; margin-left: 3px; }
+  .trailer-play:hover .trailer-icon { border-color: var(--game-accent); color: var(--game-accent); }
+  .trailer-time { margin-left: var(--space-3); color: var(--ink-dim); font-variant-numeric: tabular-nums; }
   .trailer-frame :global(.trailer-video) { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
   .trailer-caption {
     display: flex;

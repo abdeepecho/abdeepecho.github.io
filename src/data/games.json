@@ -31,6 +31,17 @@
         "en": "Scene from Silent Wreckage"
       }
     },
+    "keyart": {
+      "image": "kv-dive",
+      "size": [
+        1920,
+        1440
+      ],
+      "alt": {
+        "zh-Hant": "潛水員從海面的光下往黑暗深處下潛（前導片畫面）",
+        "en": "A diver sinks from the light at the surface into the dark below (trailer still)"
+      }
+    },
     "status": "demo",
     "statusKey": "status.demo",
     "tagline": {
@@ -46,7 +57,8 @@
       "title": {
         "zh-Hant": "《寂靜沉輪》Demo 預告片",
         "en": "Silent Wreckage Demo Trailer"
-      }
+      },
+      "poster": "trailer-poster"
     },
     "screenshots": {
       "dir": "/assets/games/silent-wreckage/",
@@ -59,42 +71,8 @@
       "size": [
         1920,
         1080
-      ],
-      "gridVisible": 6
+      ]
     },
-    "music": [
-      {
-        "title": "Theme Song",
-        "time": "2:29",
-        "url": "https://www.youtube.com/watch?v=wKH95oht7cE"
-      },
-      {
-        "title": "Deep Down",
-        "time": "1:36",
-        "url": "https://www.youtube.com/watch?v=27G9bfqH4Vw"
-      },
-      {
-        "title": "The Under World",
-        "time": "2:01",
-        "url": "https://www.youtube.com/watch?v=Zk-l9Yo-oBU"
-      },
-      {
-        "title": "Monster",
-        "time": "2:37",
-        "url": "https://www.youtube.com/watch?v=NbA_UfoVG1Q"
-      },
-      {
-        "title": "Daughter",
-        "time": "1:46",
-        "url": "https://www.youtube.com/watch?v=4nAeG2_k__o"
-      },
-      {
-        "title": "Father (Rock Version)",
-        "time": "2:15",
-        "url": "https://www.youtube.com/watch?v=vDEPAwO9sTY"
-      }
-    ],
-    "musicMoreUrl": "https://www.youtube.com/@AbDeepEcho",
     "awards": [
       {
         "year": 2026,
@@ -219,6 +197,11 @@
         "desc": {
           "zh-Hant": "透過潛水電腦即時調整「MI」與「NI」兩種虛構氣體的比例以維持生存。比例失衡將帶來幻覺、行動遲緩，甚至直接導致死亡。",
           "en": "Use a diving computer to manage the ratio of two fictional gases, MI and NI, in real time. An imbalanced ratio can trigger hallucinations, slow movement, or even death."
+        },
+        "image": "feat-gas",
+        "alt": {
+          "zh-Hant": "一綠一藍兩支氣瓶",
+          "en": "Two gas tanks, one green and one blue"
         }
       },
       {
@@ -229,6 +212,11 @@
         "desc": {
           "zh-Hant": "在特定場景中將氣體調至高 NI 比例，可穿越表、裡世界之間的縫隙，探索常規視野下無法到達的空間。",
           "en": "In certain areas, shifting to a high-NI ratio lets you slip through rifts between two overlapping worlds and reach spaces invisible to normal vision."
+        },
+        "image": "feat-otherworld",
+        "alt": {
+          "zh-Hant": "紅色壁紙的郵輪客房走廊",
+          "en": "A red-papered corridor of cabins on the liner"
         }
       },
       {
@@ -239,6 +227,11 @@
         "desc": {
           "zh-Hant": "極低能見度的水下環境、詭異的怪物追逐與混亂的船艙空間，在資源匱乏與心理壓力的夾擊下求生。",
           "en": "Near-zero visibility, terrifying creature encounters and disorienting shipwreck environments keep you under constant psychological pressure."
+        },
+        "image": "feat-collapse",
+        "alt": {
+          "zh-Hant": "崩落的碎片在水中翻湧",
+          "en": "Debris tumbling through the water"
         }
       },
       {
@@ -249,6 +242,11 @@
         "desc": {
           "zh-Hant": "MI 與 NI 過量或不足均會觸發負面效果，必須在緊張的探索中即時判斷。",
           "en": "Both MI and NI carry negative side effects when overused. Make split-second decisions under extreme stress."
+        },
+        "image": "feat-hallucination",
+        "alt": {
+          "zh-Hant": "視線出現重影，雙手扭曲變形",
+          "en": "Doubled vision: the diver's hands warp and smear"
         }
       }
     ]

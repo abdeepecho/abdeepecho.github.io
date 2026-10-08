@@ -24,17 +24,17 @@ npm run preview   # 預覽 dist/ http://localhost:4321（或 --port 指定）
 |---|---|
 | 介面文字（中文／英文） | `src/i18n/zh-Hant.json`、`src/i18n/en.json` |
 | 信箱、社群連結、服務、工具、流程、常見問題清單、表單網址、接案開關 | `src/data/site.json` |
-| 遊戲資料：名稱、簡介、截圖、配樂、獎項、特色、Steam 連結 | `src/data/games.json` |
+| 遊戲資料：名稱、簡介、主視覺、預告片、截圖、獎項、特色與配圖、Steam 與 Discord 連結 | `src/data/games.json` |
 | 下潛場景：深度對照、背景海溝（地形、線條、鏡頭、回聲）、聲納開場、環境音 | `src/data/scene.json` |
 | 顏色、字體、字級、間距 | `src/styles/tokens.css` |
 
 ## 字級規則
 
-全站只有五階字級（`tokens.css`）：`--fs-display`（只用在開場標語）、`--fs-h2`（所有區塊標題）、`--fs-h3`（卡片、服務、獎項、流程、常見問題標題）、`--fs-body`（所有內文）、`--fs-small`（標籤、說明、頁尾）。標題用 Noto Serif TC 700，內文 Noto Sans TC 400／500，Cinzel 只用在 DEEP ECHO 字標與水深數字。新增樣式時不要寫其他 font-size。
+全站只有五階字級（`tokens.css`）：`--fs-display`（只用在首頁開場標語與遊戲頁的遊戲名稱）、`--fs-h2`（所有區塊標題）、`--fs-h3`（卡片、服務、獎項、流程、常見問題標題）、`--fs-body`（所有內文）、`--fs-small`（標籤、說明、頁尾）。標題用 Noto Serif TC 700，內文 Noto Sans TC 400／500，Cinzel 只用在 DEEP ECHO 字標與水深數字。新增樣式時不要寫其他 font-size。
 
 新增語言：在 `src/i18n/` 加一個 `<語言>.json`，並在 `src/i18n/index.js` 的 `LOCALES` 加一筆，再新增對應的 `src/pages/<prefix>/` 頁面。語言選單、hreflang 與 sitemap 會自動帶入。
 
-新增遊戲：在 `src/data/games.json` 加一筆，圖片放到 `public/assets/games/<slug>/`。
+新增遊戲：在 `src/data/games.json` 加一筆，圖片放到 `public/assets/games/<slug>/`。主視覺（`keyart.image`）、特色配圖（`features[].image`）、預告片海報（`trailer.poster`）都寫檔名前綴，實際檔案是 `<前綴>-960.webp` 與 `<前綴>-1920.webp`。遊戲頁不在圖片上疊文字，也不加暗色漸層。
 
 ## 接案開關
 
