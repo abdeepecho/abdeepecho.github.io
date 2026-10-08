@@ -32,14 +32,14 @@
       }
     },
     "keyart": {
-      "image": "kv-dive",
+      "image": "kv-main",
       "size": [
         1920,
-        1440
+        1080
       ],
       "alt": {
-        "zh-Hant": "潛水員從海面的光下往黑暗深處下潛（前導片畫面）",
-        "en": "A diver sinks from the light at the surface into the dark below (trailer still)"
+        "zh-Hant": "《寂靜沉輪》主視覺：海面上一名少女的側臉剪影，剪影中是紅光照亮的沉船走廊",
+        "en": "Silent Wreckage key visual: a girl in silhouette above the sea, filled with the red-lit corridor of the sunken ship"
       }
     },
     "status": "demo",

@@ -212,7 +212,7 @@ const newTab = t(lang, 'common.newTab');
     overflow: hidden;
     background: var(--water-hadal);
   }
-  .gp-keyart img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+  .gp-keyart img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }   /* 主視覺含標題字，完整顯示不裁切 */
 
   /* ---- 故事與資訊 ---- */
   .gp-story { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: var(--space-8); align-items: start; }
@@ -280,7 +280,6 @@ const newTab = t(lang, 'common.newTab');
   @media (max-width: 900px) {
     .gp-hero-inner { grid-template-columns: minmax(0, 1fr); gap: var(--space-6); }
     .gp-keyart { order: -1; }
-    .gp-keyart img { aspect-ratio: 16 / 10; }
     .gp-story { grid-template-columns: minmax(0, 1fr); gap: var(--space-7); }
     .info { margin-top: 0; }
     .feature, .feature:nth-child(even) { grid-template-columns: minmax(0, 1fr); gap: var(--space-5); }
