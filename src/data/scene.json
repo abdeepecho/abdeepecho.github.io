@@ -76,8 +76,8 @@
       "follow": 0.08
     },
     "lines": {
-      "_說明": "每 100 m 一條等高線，每 500 m 一條加粗的計曲線（間距在 tools/bathy_contours.py 設定）。opacity/width：一般線；indexOpacity/indexWidth：計曲線。farKm：畫到多遠。labelEveryKm：整千公尺的線每隔多遠標一次水深。",
-      "opacity": 0.3,
+      "_說明": "每 200 m 一條等高線，每 1000 m 一條加粗的計曲線（間距在 tools/bathy_contours.py 設定）。opacity/width：一般線；indexOpacity/indexWidth：計曲線。farKm：畫到多遠。labelEveryKm：整千公尺的線每隔多遠標一次水深。",
+      "opacity": 0.26,
       "width": 0.9,
       "indexOpacity": 0.62,
       "indexWidth": 1.3,

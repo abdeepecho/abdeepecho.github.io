@@ -6,7 +6,7 @@
 1. 經緯度換成公里（以區域中心為原點）。
 2. 沿海溝最深處找出中軸線並平滑，作為鏡頭路徑：從東北端出發，往西南走到挑戰者深淵。
 3. 座標旋轉，讓海溝大致朝鏡頭前方（+z）；只保留中軸兩側一定範圍內的等高線。
-4. 每 100 m 一條等高線（每 500 m 為加粗的計曲線），簡化、平滑後量化成 0.1 km 整數，縮小檔案。
+4. 每 200 m 一條等高線（每 1000 m 為加粗的計曲線），簡化、平滑後量化成 0.1 km 整數，縮小檔案。
 """
 import sys
 import json
@@ -15,8 +15,8 @@ import numpy as np
 from contourpy import contour_generator
 
 SRC, OUT = sys.argv[1], sys.argv[2]
-STEP_M = 100
-INDEX_M = 500
+STEP_M = 200
+INDEX_M = 1000
 CORRIDOR_KM = 140          # 中軸兩側保留的範圍
 SIMPLIFY_KM = 0.2
 SMOOTH_ITER = 2             # Chaikin 平滑次數：去掉 1 弧分網格留下的折角

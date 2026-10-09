@@ -78,7 +78,7 @@ npm run preview   # 預覽 dist/ http://localhost:4321（或 --port 指定）
 python tools/bathy_contours.py assets/source/bathymetry/etopo1_mariana.csv public/data/mariana.json
 ```
 
-  等高線間距（每 100 m）、計曲線（每 500 m）、平滑程度都在這支腳本最上面設定。需要 Python 3、numpy、contourpy。
+  等高線間距（每 200 m）、計曲線（每 1000 m）、平滑程度都在這支腳本最上面設定。需要 Python 3、numpy、contourpy。
 - 畫面可調數值在 `src/data/scene.json` 的 `contour`：垂直誇張倍率、鏡頭高度與角度、線的亮度與粗細、水深數字、霧、文字後方的留白，每一組都有中文說明。
 - 每個深度帶對應的鏡頭位置在 `depthBands[].u`（0 海面，1 海溝底）；作品頁與遊戲頁用固定位置（`<ContourBackground at={...} />`）。
 
