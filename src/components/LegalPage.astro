@@ -1,0 +1,100 @@
+---
+// 法律文件頁（各語言共用）：隱私權政策等，資料來自 src/data/legal.json
+// 版面：標題、更新日期、導言 → 一節一個標題，內容可以是段落、清單、表格、外部連結；最後一節可附聯絡信箱
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ContourBackground from './ContourBackground.astro';
+import site from '../data/site.json';
+import { pick } from '../i18n/index.js';
+interface Props { lang: string; doc: any }
+const { lang, doc } = Astro.props;
+const title = pick(doc.title, lang);
+---
+<BaseLayout
+  lang={lang}
+  path={doc.path}
+  title={`${title}｜${site.nameFull}`}
+  description={pick(doc.description, lang)}
+  bodyClass="page-legal"
+>
+  <ContourBackground slot="before-main" at={0.1} />
+
+  <article class="legal" aria-labelledby="legal-title">
+    <header class="legal-head" data-clear>
+      <h1 class="h2" id="legal-title">{title}</h1>
+      <p class="small dim legal-updated">{pick(doc.updated, lang)}</p>
+      <p class="lead legal-intro">{pick(doc.intro, lang)}</p>
+    </header>
+
+    {doc.sections.map((s: any, i: number) => {
+      const head = s.table ? pick(s.table.head, lang) : null;
+      const rows = s.table ? pick(s.table.rows, lang) : null;
+      const list = s.list ? pick(s.list, lang) : null;
+      const paragraphs = s.paragraphs ? pick(s.paragraphs, lang) : null;
+      return (
+        <section class="legal-section" aria-labelledby={`legal-s${i}`} data-clear>
+          <h2 class="h3" id={`legal-s${i}`}>{pick(s.heading, lang)}</h2>
+          {list && <ul class="legal-list">{list.map((item: string) => <li>{item}</li>)}</ul>}
+          {rows && (
+            <div class="legal-table-wrap">
+              <table class="legal-table">
+                <thead><tr>{head.map((h: string) => <th scope="col">{h}</th>)}</tr></thead>
+                <tbody>
+                  {rows.map((r: string[]) => (
+                    <tr>{r.map((cell, c) => c === 0
+                      ? <th scope="row">{cell}</th>
+                      : <td data-label={head[c]}>{cell}</td>)}</tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+          {paragraphs && paragraphs.map((p: string) => <p>{p}</p>)}
+          {s.links && (
+            <ul class="legal-links">
+              {s.links.map(([name, url]: [string, string]) => (
+                <li><a class="text-link" href={url} target="_blank" rel="noopener noreferrer">{name}</a></li>
+              ))}
+            </ul>
+          )}
+          {s.email && <p><a class="text-link" href={`mailto:${site.email}`}>{site.email}</a></p>}
+        </section>
+      );
+    })}
+  </article>
+</BaseLayout>
+
+<style>
+  .legal {
+    position: relative;
+    z-index: 2;
+    max-width: 52rem;
+    margin-inline: auto;
+    padding: calc(var(--header-h) + var(--space-8)) var(--gutter) var(--space-8);
+  }
+  .legal-updated { margin-top: var(--space-3); }
+  .legal-intro { margin-top: var(--space-5); }
+  .legal-section { margin-top: var(--space-7); display: grid; gap: var(--space-4); }
+  .legal-section p { max-width: var(--measure); }
+
+  .legal-list { margin: 0; padding-left: 1.25em; display: grid; gap: var(--space-3); max-width: var(--measure); }
+  .legal-list li::marker { color: var(--glow); }
+
+  .legal-links { display: flex; flex-wrap: wrap; gap: 0 var(--space-5); margin: 0; padding: 0; list-style: none; }
+
+  .legal-table-wrap { border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--panel); }
+  .legal-table { width: 100%; border-collapse: collapse; font-size: var(--fs-small); line-height: 1.6; }
+  .legal-table th, .legal-table td { padding: var(--space-3) var(--space-4); text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); }
+  .legal-table tbody tr:last-child > * { border-bottom: 0; }
+  .legal-table thead th { color: var(--glow); font-weight: var(--fw-ui); }
+  .legal-table tbody th { font-weight: var(--fw-ui); }
+
+  /* 窄螢幕：表格改成一列一張卡，欄名放在每格前面 */
+  @media (max-width: 700px) {
+    .legal-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+    .legal-table tr { display: block; padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--line); }
+    .legal-table tbody tr:last-child { border-bottom: 0; }
+    .legal-table th, .legal-table td { display: block; padding: var(--space-1) 0; border: 0; }
+    .legal-table td::before { content: attr(data-label) '：'; color: var(--ink-dim); }
+    html:lang(en) .legal-table td::before { content: attr(data-label) ': '; }
+  }
+</style>
