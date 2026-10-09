@@ -21,6 +21,7 @@ const { lang } = Astro.props;
           <li><span class="tool-name" lang="en">{tool.name}</span><span class="small dim">{t(lang, tool.key)}</span></li>
         ))}
       </ul>
+      <p class="tools-ai dim">{t(lang, 'tools.ai')}</p>
     </div>
   </div>
 </section>
@@ -38,4 +39,6 @@ const { lang } = Astro.props;
   }
   .tools li { display: flex; flex-direction: column; }
   .tool-name { font-weight: var(--fw-ui); }
+  /* 說明使用 AI 工具輔助開發 */
+  .tools-ai { margin-top: var(--space-5); max-width: var(--measure); }
 </style>
