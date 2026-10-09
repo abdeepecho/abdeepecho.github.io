@@ -130,6 +130,7 @@
   "form.ok": "已收到你的委託，我們會以 Email 回覆。",
   "form.fail": "送出失敗，請稍後再試，或直接來信 {email}。",
   "footer.copy": "© 2026 幽海工作室 DeepEcho",
+  "footer.bathymetry": "背景海溝地形：NOAA ETOPO1（馬里亞納海溝）",
   "game.status": "Demo 已在 Steam 上架",
   "game.awardsNote": "{year} {name}等 {n} 項獲獎與入圍",
   "game.cta.title": "下載 Demo，親自潛入",

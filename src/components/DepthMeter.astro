@@ -8,6 +8,7 @@ const { lang } = Astro.props;
 <aside class="depth-meter" aria-hidden="true">
   <p class="dm-depth"><span class="dm-num" data-depth-num>0</span><span class="dm-unit">m</span></p>
   <p class="dm-zone" data-depth-zone>{t(lang, 'zone.surface')}</p>
+  <p class="dm-coord" data-depth-coord></p>
   <div class="dm-track"><span class="dm-fill" data-depth-fill></span><span class="dm-dot" data-depth-dot></span></div>
 </aside>
 
@@ -37,6 +38,9 @@ const { lang } = Astro.props;
   }
   .dm-unit { font-family: var(--font-mark); font-weight: 600; font-size: var(--fs-small); color: var(--ink-dim); }
   .dm-zone { font-size: var(--fs-small); font-weight: var(--fw-ui); color: var(--glow); line-height: 1.4; }
+  /* 背景海溝目前位置的經緯度（真實地形） */
+  .dm-coord { font-size: var(--fs-small); color: var(--ink-dim); line-height: 1.4; font-variant-numeric: tabular-nums; letter-spacing: 0.02em; }
+  .dm-coord:empty { display: none; }
   .dm-track {
     position: relative;
     width: 2px;
@@ -72,6 +76,6 @@ const { lang } = Astro.props;
     }
     .dm-num { font-size: var(--fs-small); min-width: 0; }
 
-    .dm-track { display: none; }
+    .dm-track, .dm-coord { display: none; }
   }
 </style>

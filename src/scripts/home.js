@@ -1,11 +1,11 @@
-// 首頁主程式：捲動下潛（水深計算）、背景等高線海溝、深度計、潛水燈、聲納開場、表單
+// 首頁主程式：捲動下潛（水深計算）、背景海溝（真實地形海圖）、深度計與經緯度、聲納開場、表單
 import cfg from '../data/scene.json';
 import { S, audio } from './site-chrome.js';
 import { initInquiryForm } from './inquiry-form.js';
+import { formatLatLon } from './contour-trench.js';
 
 const root = document.documentElement;
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 const mobile = window.matchMedia('(max-width: 760px), (pointer: coarse)').matches;
 const INTRO_KEY = 'deepecho-intro-seen';
 
@@ -20,6 +20,7 @@ const hud = {
   zone: document.querySelector('[data-depth-zone]'),
   fill: document.querySelector('[data-depth-fill]'),
   dot: document.querySelector('[data-depth-dot]'),
+  coord: document.querySelector('[data-depth-coord]'),
 };
 
 // ---------------------------------------------------------------
@@ -84,15 +85,7 @@ async function initScene() {
 }
 
 // ---------------------------------------------------------------
-// 潛水燈：滑鼠游標附近的等高線變亮（觸控裝置沒有）
-// ---------------------------------------------------------------
-window.addEventListener('pointermove', (e) => {
-  if (e.pointerType !== 'mouse' || !finePointer) return;
-  scene?.setPointer(e.clientX, e.clientY);
-}, { passive: true });
-
-// ---------------------------------------------------------------
-// 聲納開場：黑畫面 → 第一圈照出背景海溝與標誌 → 第二圈照出服務項目 → 燈亮、潛水燈啟動
+// 聲納開場：黑畫面 → 第一圈照出背景海溝與標誌 → 第二圈照出服務項目 → 燈亮
 // ---------------------------------------------------------------
 const hero = document.querySelector('.hero');
 const reveal = hero?.querySelector('[data-reveal]');
@@ -123,7 +116,6 @@ function finishIntro() {
   intro.done = true;
   intro.running = false;
   intro.lightLevel = 1;
-  scene?.setLightLevel(1);
   rings.forEach((r) => { r.style.opacity = '0'; });
   reveal?.style.removeProperty('--reveal');
   root.classList.remove('intro-pending', 'intro-running');
@@ -147,7 +139,6 @@ function startIntro() {
   intro.running = true;
   intro.start = performance.now();
   intro.lightLevel = 0;
-  scene?.setLightLevel(0);
   setReveal(0);
   bg?.style.setProperty('--bg-r', '0px');
   bg?.style.setProperty('--bg-after', '0');
@@ -199,7 +190,6 @@ function tickIntro(now) {
   setReveal(rev);
 
   intro.lightLevel = lights;
-  scene?.setLightLevel(lights);
   if (t >= Son.introEndMs) finishIntro();
 }
 
@@ -218,7 +208,7 @@ function initFaq() {
 // ---------------------------------------------------------------
 let last = performance.now();
 let raf = 0;
-let lastDepth = -1, lastZone = '';
+let lastDepth = -1, lastZone = '', lastCoord = '';
 const frameTimes = [];
 let slowStrikes = 0;
 
@@ -250,6 +240,11 @@ function frame(now) {
   if (scene) {
     scene.setTarget(cameraU(depth));
     scene.render(dt, time);
+    const pos = scene.position();
+    if (pos && hud.coord) {
+      const txt = formatLatLon(pos[0], pos[1]);
+      if (txt !== lastCoord) { lastCoord = txt; hud.coord.textContent = txt; }
+    }
     watchPerformance(dt);
   }
   raf = requestAnimationFrame(frame);

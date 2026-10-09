@@ -68,9 +68,19 @@ npm run preview   # 預覽 dist/ http://localhost:4321（或 --port 指定）
 
 ## 背景海溝
 
-首頁與作品頁的背景是程式即時畫出的聲納等高線海溝（`src/scripts/contour-trench.js`，2D canvas，不需要 WebGL、沒有圖片）。
-所有可調數值在 `src/data/scene.json` 的 `contour`：岩壁陡度、蜿蜒、稜線起伏、線的間距與亮度、鏡頭路徑、回聲間隔等，每一組都有中文說明。
-每個深度帶對應的鏡頭位置在 `depthBands[].u`（0 海面，1 海溝底）。
+首頁、作品頁與遊戲頁的背景是真實的馬里亞納海溝地形，畫成海圖等高線（`src/scripts/contour-trench.js`，2D canvas，不需要 WebGL）。
+往下捲時鏡頭從海溝東北端前進，最後抵達挑戰者深淵；深度計下方顯示鏡頭所在的經緯度。
+
+- 地形資料：NOAA ETOPO1（授權與下載紀錄在 `assets/source/bathymetry/LICENSE.md`），頁尾標註來源。
+- 網頁用的等高線：`public/data/mariana.json`，背景載入；載入前只顯示深度漸層。重新產生：
+
+```
+python tools/bathy_contours.py assets/source/bathymetry/etopo1_mariana.csv public/data/mariana.json
+```
+
+  等高線間距（每 100 m）、計曲線（每 500 m）、平滑程度都在這支腳本最上面設定。需要 Python 3、numpy、contourpy。
+- 畫面可調數值在 `src/data/scene.json` 的 `contour`：垂直誇張倍率、鏡頭高度與角度、線的亮度與粗細、水深數字、霧、文字後方的留白，每一組都有中文說明。
+- 每個深度帶對應的鏡頭位置在 `depthBands[].u`（0 海面，1 海溝底）；作品頁與遊戲頁用固定位置（`<ContourBackground at={...} />`）。
 
 ## 偵錯
 

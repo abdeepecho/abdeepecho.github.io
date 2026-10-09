@@ -14,6 +14,7 @@ const { lang } = Astro.props;
       ))}
     </ul>
     <a class="footer-mail" href={`mailto:${site.email}`}>{site.email}</a>
+    <p class="footer-credit">{t(lang, 'footer.bathymetry')}</p>
   </div>
 </footer>
 
@@ -37,6 +38,7 @@ const { lang } = Astro.props;
     margin-inline: auto;
   }
   .footer-copy { margin: 0; }
+  .footer-credit { margin: 0; flex-basis: 100%; }
   .footer-socials { display: flex; flex-wrap: wrap; gap: 0 var(--space-4); margin: 0; padding: 0; list-style: none; }
   .footer-socials a, .footer-mail {
     display: inline-flex;

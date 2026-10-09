@@ -130,6 +130,7 @@
   "form.ok": "Thanks, we've received your inquiry and will reply by email.",
   "form.fail": "Something went wrong. Please try again later, or email {email}.",
   "footer.copy": "© 2026 幽海工作室 DeepEcho",
+  "footer.bathymetry": "Background bathymetry: NOAA ETOPO1 (Mariana Trench)",
   "game.status": "Demo available on Steam",
   "game.awardsNote": "{name} {year}, plus {more} more awards and selections",
   "game.cta.title": "Dive in yourself",

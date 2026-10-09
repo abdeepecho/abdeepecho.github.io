@@ -60,53 +60,42 @@
   ],
   "anchorViewportRatio": 0.14,
   "contour": {
-    "_說明": "背景的聲納等高線海溝（src/scripts/contour-trench.js）。單位是場景裡的長度，沒有真實尺寸；先小幅調整再看效果。",
-    "terrain": {
-      "_說明": "slope：溝底往前每 1 單位下降多少（越大越陡地往下沉）。wallHeight：岩壁高度。rimDistance：中線到溝緣的距離（越小岩壁越陡）。plainSlope：溝緣外海床平原的坡度。meander：海溝左右蜿蜒的幅度（大、小兩種彎）。widthVariation：海溝寬窄變化（0–0.5）。ridges：岩壁稜線起伏（大、中、細三層）。",
-      "slope": 0.5,
-      "wallHeight": 24,
-      "rimDistance": 23,
-      "plainSlope": 0.16,
-      "meander": [
-        9,
-        3.2
-      ],
-      "widthVariation": 0.22,
-      "ridges": [
-        3.4,
-        1.5,
-        0.5
-      ]
-    },
+    "_說明": "背景海溝（src/scripts/contour-trench.js）：以 NOAA ETOPO1 真實的馬里亞納海溝地形畫成海圖等高線。地形資料 public/data/mariana.json 由 tools/bathy_contours.py 產生。水平單位公里，水深單位公尺。先小幅調整再看效果。",
+    "dataUrl": "/data/mariana.json",
+    "verticalExaggeration": 15,
+    "_verticalExaggeration": "垂直誇張倍率：1 km 水深在畫面上算幾公里高。越大海溝越深、岩壁越陡；真實比例（1）幾乎看不出起伏。",
     "camera": {
-      "_說明": "travel：從海面捲到海溝底，鏡頭往前走多遠。diveEnd：捲到哪裡（0–1）完成「從上方俯瞰 → 潛入溝內」。heightStart/heightEnd：鏡頭離溝底的高度。pitchStart/pitchEnd：往下看的角度（弧度）。focal：鏡頭焦距（越大越窄、越近）。follow：捲動時鏡頭跟上的速度。",
-      "travel": 250,
-      "diveEnd": 0.42,
-      "heightStart": 42,
-      "heightEnd": 8,
-      "pitchStart": 0.78,
-      "pitchEnd": 0.4,
+      "_說明": "鏡頭沿海溝從東北端前進到挑戰者深淵，方向固定不轉。diveEnd：捲到哪裡（0–1）完成「從上方俯瞰 → 潛入溝內」。heightStart/heightEnd：鏡頭離溝底多高（畫面單位，約等於公里）。pitchStart/pitchEnd：往下看的角度（弧度）。smoothKm：鏡頭左右位置的平滑範圍（越大越穩、越不會跟著海溝的彎擺動）。focal：焦距。follow：捲動時鏡頭跟上的速度。",
+      "diveEnd": 0.5,
+      "heightStart": 150,
+      "heightEnd": 58,
+      "pitchStart": 0.6,
+      "pitchEnd": 0.5,
+      "smoothKm": 80,
       "focal": 0.95,
       "follow": 0.08
     },
     "lines": {
-      "_說明": "spacing：等高線間距（越小越密）。opacity：線的亮度。deepDim：越深越暗的程度（0–1）。width：線寬（px）。farDistance：畫到多遠。sampleStep：每條線的取樣間距（越小越平滑、越耗效能）。",
-      "spacing": 1.5,
-      "opacity": 0.4,
-      "deepDim": 0.5,
-      "width": 1.1,
-      "farDistance": 95,
-      "sampleStep": 0.8
+      "_說明": "每 100 m 一條等高線，每 500 m 一條加粗的計曲線（間距在 tools/bathy_contours.py 設定）。opacity/width：一般線；indexOpacity/indexWidth：計曲線。farKm：畫到多遠。labelEveryKm：整千公尺的線每隔多遠標一次水深。",
+      "opacity": 0.3,
+      "width": 0.9,
+      "indexOpacity": 0.62,
+      "indexWidth": 1.3,
+      "farKm": 260,
+      "labelEveryKm": 70
     },
-    "echo": {
-      "_說明": "聲納回聲：每隔幾秒一道沿海溝往前掃的亮帶。",
-      "everySeconds": 9,
-      "opacity": 0.3
+    "labels": {
+      "_說明": "水深數字：font 字型、max 一個畫面最多標幾個、maxDistance 多遠以內才標（公里）、opacity 透明度。",
+      "font": "500 11px \"Noto Sans TC\", \"Microsoft JhengHei\", sans-serif",
+      "max": 14,
+      "maxDistance": 160,
+      "opacity": 0.78
     },
     "fog": {
-      "_說明": "海溝遠端的霧：radius 相對畫面短邊，strength 0–1。",
-      "radius": 0.3,
-      "strength": 0.7
+      "_說明": "遠處的霧：distanceKm 霧的中心在正前方多遠，radius 相對畫面短邊，strength 0–1。",
+      "distanceKm": 260,
+      "radius": 0.24,
+      "strength": 0.45
     },
     "clear": {
       "_說明": "文字與圖片後方的留白：這些區塊後面的等高線會淡出，不加暗色底。selector：哪些區塊（CSS 選擇器）。strength：淡出程度（0 不處理，1 完全清空）；手機文字幾乎佔滿畫面，所以另用 strengthMobile。padding：往外多留多少（px）。feather：邊緣柔和的範圍（px）。首頁開場的標誌與服務項目不在其中，讓海溝完整露出。",
@@ -116,25 +105,14 @@
       "padding": 28,
       "feather": 56
     },
-    "torch": {
-      "_說明": "潛水燈：游標附近的線變亮（只有滑鼠）。",
-      "radius": 220,
-      "radiusMobile": 160,
-      "strength": 0.55
-    },
-    "glow": 0.85,
-    "snow": {
-      "desktop": 140,
-      "mobile": 70
-    },
     "colors": {
       "surface": "#0E3D5C",
       "abyss": "#06213A",
       "hadal": "#01070E",
       "floor": "#000307",
-      "line": "#8EF0DE",
-      "echo": "#BEFFF0",
-      "torch": "#E6FFFA"
+      "line": "#96B6C6",
+      "indexLine": "#C4D8E2",
+      "label": "#CEE0E8"
     },
     "maxPixelRatio": 1.5
   },

@@ -1,7 +1,8 @@
-// 聲納等高線海溝（2D canvas）：一條往前、往下延伸的 V/U 形海溝，兩側接海床平原
-// 高度 h(x,z) = floorY(z) + G(與中線的距離)；等高線 = h 等於固定值的線，
-// 從左壁繞過溝底接到右壁，一層層 V 字，這是看得出「谷」的關鍵。
-// 每條等高線是一整條連續路徑、固定透明度；遠處的霧、文字與圖片後方的留白、潛水燈都用整片遮罩處理，線不會斷。
+// 背景海溝（2D canvas）：以真實的馬里亞納海溝地形（NOAA ETOPO1）畫成海圖等高線
+// - 地形資料 public/data/mariana.json 由 tools/bathy_contours.py 產生，背景另外載入，載入前只顯示深度漸層
+// - 鏡頭沿海溝從東北端往西南前進，最後抵達挑戰者深淵；方向固定不轉、只往下不回升，捲動時不晃
+// - 海圖畫法：細線不發光，每 500 m 一條加粗計曲線，整千公尺標水深數字（字寫在線上方，線不斷開）
+// - 每條等高線是一整條連續路徑；遠處的霧、文字與圖片後方的留白都用整片遮罩處理
 // 所有可調數值在 src/data/scene.json 的 contour。
 
 const clamp01 = (v) => Math.min(1, Math.max(0, v));
@@ -11,52 +12,73 @@ const hexRgb = (hex) => { const n = parseInt(hex.slice(1), 16); return [(n >> 16
 const rgb = (c) => `rgb(${c.map((v) => Math.round(v)).join(',')})`;
 const mixRgb = (a, b, k) => a.map((v, i) => lerp(v, b[i], k));
 
+// 經緯度顯示：11°21′N 142°11′E
+export function formatLatLon(lat, lon) {
+  const dm = (v, pos, neg) => {
+    const a = Math.abs(v);
+    let d = Math.floor(a), m = Math.round((a - d) * 60);
+    if (m === 60) { d += 1; m = 0; }
+    return `${d}°${String(m).padStart(2, '0')}′${v >= 0 ? pos : neg}`;
+  };
+  return `${dm(lat, 'N', 'S')}　${dm(lon, 'E', 'W')}`;
+}
+
 export function createContourTrench(canvas, C, { mobile = false, reduceMotion = false } = {}) {
   const ctx = canvas.getContext('2d');
   const lc = document.createElement('canvas');   // 等高線圖層（先畫線、套遮罩，再合成到主畫布）
   const lx = lc.getContext('2d');
-  const T = C.terrain, CAM = C.camera, L = C.lines;
+  const CAM = C.camera, L = C.lines, E = C.verticalExaggeration;
   const colSurface = hexRgb(C.colors.surface), colAbyss = hexRgb(C.colors.abyss), colHadal = hexRgb(C.colors.hadal), colFloor = hexRgb(C.colors.floor);
-  const lineRgb = hexRgb(C.colors.line).join(','), echoRgb = hexRgb(C.colors.echo).join(','), torchRgb = hexRgb(C.colors.torch).join(',');
+  const lineRgb = hexRgb(C.colors.line).join(','), indexRgb = hexRgb(C.colors.indexLine).join(','), labelRgb = hexRgb(C.colors.label).join(',');
 
-  // ---- 地形 ----
-  const floorY = (z) => -T.slope * z;
-  const G = (d) =>                                   // 離中線 d 處比溝底高多少（單調遞增，才能反查）
-    0.12 * Math.min(d, 2) ** 2 + T.wallHeight * sstep(1.2, T.rimDistance, d) + T.plainSlope * Math.max(0, d - T.rimDistance) + 0.01 * d;
-  const U_STEP = 0.05, INV = [];
-  for (let u = 0, d = 0; u <= 120; u += U_STEP) { while (G(d) < u) d += 0.01; INV.push(d); }
-  const Ginv = (u) => {
-    if (u <= 0) return 0;
-    const i = u / U_STEP, i0 = Math.floor(i);
-    if (i0 >= INV.length - 1) return INV[INV.length - 1];
-    return INV[i0] + (INV[i0 + 1] - INV[i0]) * (i - i0);
-  };
-  const M = T.meander;
-  const cx = (z) => M[0] * Math.sin(z * 0.028 + 0.6) + M[1] * Math.sin(z * 0.071 + 2.1);
-  const widen = (z) => 1 + T.widthVariation * Math.sin(z * 0.043 + 0.7);
-  const R = T.ridges;
-  const spur = (z, y, s) =>                          // 沿岩壁往下的稜線與溝槽，相鄰等高線一起彎才有立體感
-    R[0] * Math.sin(z * 0.115 + s * 2.1 + y * 0.045)
-    + R[1] * Math.sin(z * 0.27 + s * 4.7 - y * 0.07)
-    + R[2] * Math.sin(z * 0.66 + s + y * 0.21);
-  const wallX = (s, y, z) => {
-    const base = Ginv(y - floorY(z)) * widen(z);
-    return cx(z) + s * Math.max(0, base + spur(z, y, s) * sstep(0, 6, base));
-  };
+  // ---- 地形資料（背景載入）----
+  let lines = null, path = null, pathLatLon = null, plen = 0, camX = null, camFloor = null;
+  function setData(data) {
+    lines = data.lines.map((l) => {
+      const p = l.p, n = p.length / 2, xs = new Float32Array(n), zs = new Float32Array(n);
+      let ax = 0, az = 0, minx = Infinity, maxx = -Infinity, minz = Infinity, maxz = -Infinity;
+      for (let i = 0; i < n; i++) {   // 差分編碼：逐點累加還原（單位 0.1 km）
+        ax += p[i * 2]; az += p[i * 2 + 1];
+        xs[i] = ax / 10; zs[i] = az / 10;
+        minx = Math.min(minx, xs[i]); maxx = Math.max(maxx, xs[i]); minz = Math.min(minz, zs[i]); maxz = Math.max(maxz, zs[i]);
+      }
+      // 水深標註點：只放整千公尺，沿線每 labelEveryKm 一個（固定在地形上，捲動時不滑動）
+      const anchors = [];
+      if (l.d % 1000 === 0) {
+        let acc = L.labelEveryKm / 2;
+        for (let i = 1; i < n; i++) { acc += Math.hypot(xs[i] - xs[i - 1], zs[i] - zs[i - 1]); if (acc >= L.labelEveryKm) { anchors.push(i); acc = 0; } }
+      }
+      return { d: l.d, y: (-l.d / 1000) * E, xs, zs, n, bb: [minx, maxx, minz, maxz], index: l.d % data.index === 0, anchors, text: `−${l.d.toLocaleString('en-US')}` };
+    });
+    path = data.path; pathLatLon = data.pathLatLon; plen = path.length - 1;
+    // 鏡頭軌道：左右位置取前後 smoothKm 的平均（只緩慢平移，不轉向）；溝底高度只往下、不回升
+    camX = []; camFloor = [];
+    let run = Infinity;
+    const w = CAM.smoothKm;
+    for (let i = 0; i <= plen; i++) {
+      let sx = 0, sf = 0, n = 0;
+      for (let j = Math.max(0, i - w); j <= Math.min(plen, i + w); j++) { sx += path[j][0]; sf += path[j][2]; n++; }
+      camX.push(sx / n);
+      run = Math.min(run, sf / n);
+      camFloor.push(run);
+    }
+  }
+  const at = (arr, s) => { s = Math.max(0, Math.min(plen, s)); const i = Math.floor(s), k = s - i; return lerp(arr[i], arr[Math.min(plen, i + 1)], k); };
+  const pathZ = (s) => { s = Math.max(0, Math.min(plen, s)); const i = Math.floor(s), k = s - i; return lerp(path[i][1], path[Math.min(plen, i + 1)][1], k); };
 
-  // ---- 相機（先轉向、再俯角）----
-  const cam = { x: 0, y: 0, z: 0 };
-  let cyw = 1, syw = 0, cp = 1, sp = 0;
-  const out = { x: 0, y: 0 };
+  // ---- 相機（俯角，方向固定朝海溝整體走向 +z）----
+  const cam = { x: 0, y: 0, z: 0, s: 0 };
+  let cp = 1, sp = 0;
+  const out = { x: 0, y: 0, d: 0 };
   let W = 0, H = 0, DPR = 1;
   function proj(x, y, z) {
     const dx = x - cam.x, dy = y - cam.y, dz = z - cam.z;
-    const x1 = dx * cyw - dz * syw, z1 = dx * syw + dz * cyw;
-    const yy = dy * cp + z1 * sp, zz = -dy * sp + z1 * cp;
+    const yy = dy * cp + dz * sp, zz = -dy * sp + dz * cp;
     if (zz < 0.6) return false;
     const f = H * CAM.focal;
-    out.x = W / 2 + (x1 / zz) * f;
+    out.x = W / 2 + (dx / zz) * f;
     out.y = H * 0.5 - (yy / zz) * f;
+    out.d = zz;
     return true;
   }
 
@@ -73,42 +95,101 @@ export function createContourTrench(canvas, C, { mobile = false, reduceMotion = 
     W = window.innerWidth; H = window.innerHeight;
     DPR = Math.min(window.devicePixelRatio || 1, maxDpr);
     for (const c of [canvas, lc]) { c.width = Math.round(W * DPR); c.height = Math.round(H * DPR); }
-    zc.width = Math.ceil(W / Q); zc.height = Math.ceil(H / Q);
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
     lx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    zc.width = Math.ceil(W / Q); zc.height = Math.ceil(H / Q);
   }
   resize();
 
-  // ---- 海雪 ----
-  const snow = Array.from({ length: mobile ? C.snow.mobile : C.snow.desktop }, () => ({
-    x: Math.random(), y: Math.random(), r: 0.6 + Math.random() * 1.6, a: 0.12 + Math.random() * 0.35, v: 0.004 + Math.random() * 0.01,
-  }));
+  let target = 0, u = 0;
+  const labels = [];
 
-  // ---- 狀態 ----
-  let target = 0, u = 0, light = 1;
-  const pointer = { x: 0, y: 0, on: false };
-  const armL = [], armR = [];
-  const Z_STEP = L.sampleStep;
-
-  function arm(s, y, zA, zB, arr) {                 // 一側岩壁上，等高線 y 從 zA 到 zB 的投影點
-    arr.length = 0;
-    let z = zA;
-    while (z <= zB) {
-      if (proj(wallX(s, y, z), y, z)) arr.push(out.x, out.y);
-      else if (arr.length) break;
-      z = z === zA ? (Math.floor(zA / Z_STEP) + 1) * Z_STEP : z + Z_STEP;   // 取樣點固定在世界格點上，捲動時線不抖
+  function drawLines() {
+    const far2 = L.farKm * L.farKm;
+    labels.length = 0;
+    for (const ln of lines) {
+      const bb = ln.bb;
+      const ddx = Math.max(bb[0] - cam.x, 0, cam.x - bb[1]), ddz = Math.max(bb[2] - cam.z, 0, cam.z - bb[3]);
+      if (ddx * ddx + ddz * ddz > far2) continue;
+      lx.beginPath();
+      let started = false;
+      for (let i = 0; i < ln.n; i++) {
+        if (proj(ln.xs[i], ln.y, ln.zs[i])) { if (!started) { lx.moveTo(out.x, out.y); started = true; } else lx.lineTo(out.x, out.y); }
+        else started = false;
+      }
+      lx.strokeStyle = ln.index ? `rgba(${indexRgb},${L.indexOpacity})` : `rgba(${lineRgb},${L.opacity})`;
+      lx.lineWidth = ln.index ? L.indexWidth : L.width;
+      lx.stroke();
+      for (const j of ln.anchors) labels.push({ ln, j, dist: Math.hypot(ln.xs[j] - cam.x, ln.zs[j] - cam.z) });
     }
   }
 
-  function render(dt, time) {
+  // 水深數字：沿線方向、固定字級、寫在線的上方；太陡、太遠、互相重疊的不標
+  function drawLabels() {
+    lx.font = C.labels.font;
+    lx.textAlign = 'center';
+    lx.textBaseline = 'bottom';
+    labels.sort((a, b) => a.dist - b.dist);
+    const boxes = [];
+    let drawn = 0;
+    for (const lb of labels) {
+      if (drawn >= C.labels.max) break;
+      const { ln, j } = lb;
+      if (!proj(ln.xs[j], ln.y, ln.zs[j])) continue;
+      const x0 = out.x, y0 = out.y, d = out.d;
+      if (d > C.labels.maxDistance || x0 < 30 || x0 > W - 30 || y0 < 70 || y0 > H - 20) continue;
+      const j2 = j + 1 < ln.n ? j + 1 : j - 1;
+      if (!proj(ln.xs[j2], ln.y, ln.zs[j2])) continue;
+      let ang = Math.atan2(out.y - y0, out.x - x0);
+      if (ang > Math.PI / 2) ang -= Math.PI;
+      if (ang < -Math.PI / 2) ang += Math.PI;
+      if (Math.abs(ang) > 1.2) continue;
+      if (boxes.some((b) => Math.abs(b[0] - x0) < 70 && Math.abs(b[1] - y0) < 22)) continue;
+      boxes.push([x0, y0]);
+      const fade = d < 12 ? d / 12 : 1;
+      lx.save();
+      lx.translate(x0, y0);
+      lx.rotate(ang);
+      lx.fillStyle = `rgba(${labelRgb},${C.labels.opacity * fade})`;
+      lx.fillText(ln.text, 0, -3);
+      lx.restore();
+      drawn++;
+    }
+  }
+
+  function clearZones() {
+    const strength = C.clear ? (mobile ? C.clear.strengthMobile : C.clear.strength) : 0;
+    if (!zoneEls.length || strength <= 0) return;
+    const pad = C.clear.padding;
+    zx.setTransform(1, 0, 0, 1, 0, 0);
+    zx.filter = 'none';
+    zx.clearRect(0, 0, zc.width, zc.height);
+    zx.fillStyle = '#000';
+    let any = false;
+    for (const el of zoneEls) {
+      const r = el.getBoundingClientRect();
+      if (r.bottom < -pad || r.top > H + pad || r.width === 0) continue;
+      zx.fillRect((r.left - pad) / Q, (r.top - pad) / Q, (r.width + pad * 2) / Q, (r.height + pad * 2) / Q);
+      any = true;
+    }
+    if (!any) return;
+    if ('filter' in zx) {               // 在小畫布上再模糊一次，讓邊緣更柔
+      zx.filter = `blur(${C.clear.feather / Q}px)`;
+      zx.globalCompositeOperation = 'copy';
+      zx.drawImage(zc, 0, 0);
+      zx.globalCompositeOperation = 'source-over';
+      zx.filter = 'none';
+    }
+    lx.globalCompositeOperation = 'destination-out';
+    lx.globalAlpha = strength;
+    lx.imageSmoothingEnabled = true;
+    lx.drawImage(zc, 0, 0, zc.width * Q, zc.height * Q);
+    lx.globalAlpha = 1;
+    lx.globalCompositeOperation = 'source-over';
+  }
+
+  function render(dt) {
     u += (target - u) * (reduceMotion ? 1 : Math.min(1, CAM.follow * dt * 60));
-    const dive = sstep(0, CAM.diveEnd, u);           // 前段：從海床上方俯瞰 → 潛入溝內
-    cam.z = u * CAM.travel;
-    cam.x = cx(cam.z) * lerp(0.6, 1, dive);
-    cam.y = floorY(cam.z) + lerp(CAM.heightStart, CAM.heightEnd, dive);
-    const yaw = Math.atan((cx(cam.z + 28) - cx(cam.z)) / 28) * 0.8;
-    const pitch = lerp(CAM.pitchStart, CAM.pitchEnd, dive);
-    cyw = Math.cos(yaw); syw = Math.sin(yaw); cp = Math.cos(pitch); sp = Math.sin(pitch);
 
     // 背景：依深度漸暗
     const g = ctx.createLinearGradient(0, 0, 0, H);
@@ -118,61 +199,28 @@ export function createContourTrench(canvas, C, { mobile = false, reduceMotion = 
     ctx.globalCompositeOperation = 'source-over';
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, W, H);
-    if (u < 0.4) {                                   // 頂光，只在淺處
-      const rg = ctx.createRadialGradient(W / 2, -H * 0.15, 0, W / 2, -H * 0.15, H * 0.9);
-      rg.addColorStop(0, `rgba(120,200,215,${0.32 * (1 - u / 0.4)})`);
-      rg.addColorStop(1, 'rgba(120,200,215,0)');
-      ctx.fillStyle = rg;
-      ctx.fillRect(0, 0, W, H);
-    }
+    if (!lines) return;
 
-    // 等高線：左壁遠端 → 溝底轉彎 → 右壁遠端，一整條連續路徑
+    // 鏡頭：開場在海面上方俯瞰，潛入後停在岩壁中段往下看
+    const dive = sstep(0, CAM.diveEnd, u);
+    const s = u * (plen - 6);
+    const floorUnits = (at(camFloor, s) / 1000) * E;
+    cam.s = s;
+    cam.x = at(camX, s);
+    cam.z = pathZ(s);
+    cam.y = floorUnits + lerp(CAM.heightStart, CAM.heightEnd, dive);
+    const pitch = lerp(CAM.pitchStart, CAM.pitchEnd, dive);
+    cp = Math.cos(pitch); sp = Math.sin(pitch);
+
     lx.globalCompositeOperation = 'source-over';
     lx.clearRect(0, 0, W, H);
     lx.lineCap = 'round';
     lx.lineJoin = 'round';
-    const zNear = cam.z + 0.5, zFar = cam.z + L.farDistance;
-    const pingD = reduceMotion ? -1 : ((time % C.echo.everySeconds) / C.echo.everySeconds) * (L.farDistance + 10) - 5;
-    const yTop = floorY(cam.z) + T.wallHeight + 14, yBot = floorY(zFar);
-    const deepest = T.slope * (CAM.travel + L.farDistance);
-    for (let y = Math.floor(yTop / L.spacing) * L.spacing; y > yBot; y -= L.spacing) {
-      const zApex = -y / T.slope;                    // 這條等高線在溝底轉彎的位置
-      const zA = Math.max(zNear, zApex);
-      if (zA >= zFar) continue;
-      const a = L.opacity * (1 - L.deepDim * Math.min(1, -y / deepest));
-      arm(-1, y, zA, zFar, armL);
-      arm(1, y, zA, zFar, armR);
-      lx.beginPath();
-      for (let n = armL.length - 2; n >= 0; n -= 2) {
-        if (n === armL.length - 2) lx.moveTo(armL[n], armL[n + 1]); else lx.lineTo(armL[n], armL[n + 1]);
-      }
-      if ((zApex < zNear || !armL.length) && armR.length) lx.moveTo(armR[0], armR[1]);   // 轉彎點在鏡頭後方：兩側各一條
-      for (let n = 0; n < armR.length; n += 2) lx.lineTo(armR[n], armR[n + 1]);
-      lx.strokeStyle = `rgba(${lineRgb},${a})`;
-      lx.lineWidth = L.width;
-      lx.stroke();
+    drawLines();
 
-      // 聲納回聲：在 pingD 附近把兩側同一段再描亮
-      const pz = cam.z + pingD;
-      if (pingD > 0 && pz > zA && pz - 3 < zFar) {
-        lx.beginPath();
-        for (let s = -1; s <= 1; s += 2) {
-          let started = false;
-          for (let zb = Math.max(zA, pz - 3); zb <= Math.min(zFar, pz + 0.4); zb += 0.4) {
-            if (!proj(wallX(s, y, zb), y, zb)) continue;
-            if (!started) { lx.moveTo(out.x, out.y); started = true; } else lx.lineTo(out.x, out.y);
-          }
-        }
-        lx.strokeStyle = `rgba(${echoRgb},${C.echo.opacity})`;
-        lx.lineWidth = L.width + 0.5;
-        lx.stroke();
-      }
-    }
-
-    // 遠處霧：以海溝遠端為中心，整片柔和淡出
+    // 遠處的霧：正前方遠處、與溝底同高（不會蓋在近處的溝底上）
     let fx = W / 2, fy = H * 0.4;
-    const zf = cam.z + 70;
-    if (proj(cx(zf), floorY(zf), zf)) { fx = out.x; fy = out.y; }
+    if (proj(cam.x, floorUnits, cam.z + C.fog.distanceKm)) { fx = out.x; fy = out.y; }
     lx.globalCompositeOperation = 'destination-out';
     const fog = lx.createRadialGradient(fx, fy, 0, fx, fy, Math.min(W, H) * C.fog.radius);
     fog.addColorStop(0, `rgba(0,0,0,${C.fog.strength})`);
@@ -180,79 +228,31 @@ export function createContourTrench(canvas, C, { mobile = false, reduceMotion = 
     fog.addColorStop(1, 'rgba(0,0,0,0)');
     lx.fillStyle = fog;
     lx.fillRect(0, 0, W, H);
-    // 留白區：文字與圖片後方的線淡出
-    const clearStrength = C.clear ? (mobile ? C.clear.strengthMobile : C.clear.strength) : 0;
-    if (zoneEls.length && clearStrength > 0) {
-      const pad = C.clear.padding;
-      zx.setTransform(1, 0, 0, 1, 0, 0);
-      zx.filter = 'none';
-      zx.clearRect(0, 0, zc.width, zc.height);
-      zx.fillStyle = '#000';
-      let any = false;
-      for (const el of zoneEls) {
-        const r = el.getBoundingClientRect();
-        if (r.bottom < -pad || r.top > H + pad || r.width === 0) continue;
-        zx.fillRect((r.left - pad) / Q, (r.top - pad) / Q, (r.width + pad * 2) / Q, (r.height + pad * 2) / Q);
-        any = true;
-      }
-      if (any) {
-        if ('filter' in zx) {               // 在小畫布上再模糊一次，讓邊緣更柔
-          zx.filter = `blur(${C.clear.feather / Q}px)`;
-          zx.globalCompositeOperation = 'copy';
-          zx.drawImage(zc, 0, 0);
-          zx.globalCompositeOperation = 'source-over';
-          zx.filter = 'none';
-        }
-        lx.globalCompositeOperation = 'destination-out';
-        lx.globalAlpha = clearStrength;
-        lx.imageSmoothingEnabled = true;
-        lx.drawImage(zc, 0, 0, zc.width * Q, zc.height * Q);
-        lx.globalAlpha = 1;
-      }
-    }
-    // 潛水燈：照到的線變亮
-    if (pointer.on && light > 0) {
-      lx.globalCompositeOperation = 'source-atop';
-      const r = mobile ? C.torch.radiusMobile : C.torch.radius;
-      const tr = lx.createRadialGradient(pointer.x, pointer.y, 0, pointer.x, pointer.y, r);
-      tr.addColorStop(0, `rgba(${torchRgb},${C.torch.strength * light})`);
-      tr.addColorStop(1, `rgba(${torchRgb},0)`);
-      lx.fillStyle = tr;
-      lx.fillRect(0, 0, W, H);
-    }
     lx.globalCompositeOperation = 'source-over';
+    drawLabels();
+    clearZones();
 
-    // 合成：柔光暈 + 清晰線
     ctx.save();
     ctx.setTransform(1, 0, 0, 1, 0, 0);
-    if (C.glow > 0 && 'filter' in ctx) {
-      ctx.filter = `blur(${Math.round(5 * DPR)}px)`;
-      ctx.globalAlpha = C.glow;
-      ctx.drawImage(lc, 0, 0);
-      ctx.filter = 'none';
-      ctx.globalAlpha = 1;
-    }
     ctx.drawImage(lc, 0, 0);
     ctx.restore();
-
-    // 海雪
-    for (const f of snow) {
-      if (!reduceMotion) { f.y += f.v * dt * 6; if (f.y > 1.02) { f.y = -0.02; f.x = Math.random(); } }
-      ctx.fillStyle = `rgba(205,238,244,${f.a * (1 - u * 0.5)})`;
-      ctx.beginPath();
-      ctx.arc(f.x * W, f.y * H, f.r, 0, 6.283);
-      ctx.fill();
-    }
   }
+
+  // 背景載入地形資料；失敗時只留深度漸層
+  const ready = fetch(C.dataUrl)
+    .then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
+    .then((data) => { setData(data); return true; })
+    .catch((err) => { console.info(`[DeepEcho] 地形資料載入失敗：${err && err.message}`); return false; });
 
   return {
     render,
     resize,
+    ready,
     setTarget(v) { target = clamp01(v); },
     jumpTo(v) { target = u = clamp01(v); },
-    setPointer(x, y) { pointer.x = x; pointer.y = y; pointer.on = true; },
-    setLightLevel(v) { light = clamp01(v); },
     lowerQuality() { maxDpr = 1; resize(); },
     refreshZones,
+    // 目前鏡頭所在的經緯度（資料載入前為 null）
+    position() { return pathLatLon ? pathLatLon[Math.round(Math.max(0, Math.min(plen, cam.s)))] : null; },
   };
 }

@@ -22,13 +22,14 @@ const { at } = Astro.props;
       trench.jumpTo(Number(host.dataset.at));
       let last = performance.now();
       const frame = (now: number) => {
-        trench.render(Math.min((now - last) / 1000, 0.05), now / 1000);
+        trench.render(Math.min((now - last) / 1000, 0.05));
         last = now;
         if (!reduceMotion && !document.hidden) requestAnimationFrame(frame);
       };
       requestAnimationFrame(frame);
+      trench.ready.then(() => { if (reduceMotion) trench.render(0, 0); });
       document.addEventListener('visibilitychange', () => { if (!document.hidden && !reduceMotion) { last = performance.now(); requestAnimationFrame(frame); } });
-      window.addEventListener('resize', () => { trench.resize(); if (reduceMotion) trench.render(0, 0); });
+      window.addEventListener('resize', () => { trench.resize(); if (reduceMotion) trench.render(0); });
     }
   </script>
 )}
