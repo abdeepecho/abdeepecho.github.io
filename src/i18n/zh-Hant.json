@@ -1,6 +1,6 @@
 {
-  "meta.home.title": "幽海工作室 DeepEcho｜深潛想像，回響於世",
-  "meta.home.desc": "深潛想像，回響於世。幽海工作室 DeepEcho 是來自台灣的獨立遊戲與數位內容團隊，承接遊戲開發、UE5 專案、3D 動畫與多媒體製作委託。",
+  "meta.home.title": "幽海工作室 DeepEcho｜遊戲與 3D 內容製作",
+  "meta.home.desc": "幽海工作室 DeepEcho 是來自台灣的獨立遊戲與數位內容團隊，承接遊戲開發、UE5 專案、3D 動畫與多媒體製作委託。",
   "meta.ogLocale": "zh_TW",
   "skip": "跳至主要內容",
   "nav.label": "主選單",
@@ -23,7 +23,6 @@
   "nav.hire": "委託我們",
   "hero.h1": "幽海工作室 DeepEcho",
   "alt.logo": "幽海工作室 DeepEcho 標誌",
-  "slogan": "深潛想像，回響於世",
   "hero.sub": "遊戲・UE5・3D 動畫・多媒體",
   "hero.dive": "往下潛",
   "intro.skip": "跳過開場",

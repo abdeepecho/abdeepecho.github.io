@@ -30,7 +30,7 @@ npm run preview   # 預覽 dist/ http://localhost:4321（或 --port 指定）
 
 ## 字級規則
 
-全站只有五階字級（`tokens.css`）：`--fs-display`（只用在首頁開場標語與遊戲頁的遊戲名稱）、`--fs-h2`（所有區塊標題）、`--fs-h3`（卡片、服務、獎項、流程、常見問題標題）、`--fs-body`（所有內文）、`--fs-small`（標籤、說明、頁尾）。標題用 Noto Serif TC 700，內文 Noto Sans TC 400／500，Cinzel 只用在 DEEP ECHO 字標與水深數字。新增樣式時不要寫其他 font-size。
+全站只有五階字級（`tokens.css`）：`--fs-display`（只用在遊戲頁的遊戲名稱）、`--fs-h2`（所有區塊標題）、`--fs-h3`（卡片、服務、獎項、流程、常見問題標題）、`--fs-body`（所有內文）、`--fs-small`（標籤、說明、頁尾）。標題用 Noto Serif TC 700，內文 Noto Sans TC 400／500，Cinzel 只用在 DEEP ECHO 字標與水深數字。新增樣式時不要寫其他 font-size。
 
 新增語言：在 `src/i18n/` 加一個 `<語言>.json`，並在 `src/i18n/index.js` 的 `LOCALES` 加一筆，再新增對應的 `src/pages/<prefix>/` 頁面。語言選單、hreflang 與 sitemap 會自動帶入。
 

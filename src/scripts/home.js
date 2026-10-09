@@ -92,7 +92,7 @@ window.addEventListener('pointermove', (e) => {
 }, { passive: true });
 
 // ---------------------------------------------------------------
-// 聲納開場：黑畫面 → 第一圈照出背景海溝與標誌 → 第二圈照出標語 → 燈亮、潛水燈啟動
+// 聲納開場：黑畫面 → 第一圈照出背景海溝與標誌 → 第二圈照出服務項目 → 燈亮、潛水燈啟動
 // ---------------------------------------------------------------
 const hero = document.querySelector('.hero');
 const reveal = hero?.querySelector('[data-reveal]');
@@ -104,7 +104,7 @@ function introGeometry() {
   const box = reveal.getBoundingClientRect();
   const cx = art.left + art.width / 2, cy = art.top + art.height / 2;
   const zh = hero.querySelector('.wordmark-zh').getBoundingClientRect();
-  const slogan = hero.querySelector('.slogan').getBoundingClientRect();
+  const sub = hero.querySelector('.hero-sub').getBoundingClientRect();
   const r1 = Math.max(art.width / 2 + 40, zh.bottom - cy + 40);
   const r2 = Math.hypot(Math.max(cx - box.left, box.right - cx), Math.max(cy - box.top, box.bottom - cy)) + 80;
   reveal.style.setProperty('--reveal-y', `${((cy - box.top) / box.height) * 100}%`);
@@ -113,7 +113,7 @@ function introGeometry() {
   hero.style.setProperty('--ring-y', `${cy - heroBox.top}px`);
   bg?.style.setProperty('--ring-cx', `${cx}px`);
   bg?.style.setProperty('--ring-cy', `${cy}px`);
-  return { r1, r2, sloganDist: slogan.top - cy, maxR: Math.hypot(window.innerWidth, window.innerHeight) };
+  return { r1, r2, subDist: sub.top - cy, maxR: Math.hypot(window.innerWidth, window.innerHeight) };
 }
 
 function setReveal(px) { reveal?.style.setProperty('--reveal', `${Math.round(px)}px`); }
@@ -188,13 +188,13 @@ function tickIntro(now) {
     bg.style.setProperty('--bg-outer', pingIndex === 1 ? after.toFixed(3) : lights.toFixed(3));
   }
 
-  // 內容遮罩跟著光環：第一圈只到標誌，第二圈揭開標語
+  // 內容遮罩跟著光環：第一圈只到標誌，第二圈揭開服務項目
   let rev = 0;
   if (t >= p1.atMs) rev = Math.min(g.r1, ringR(p1.atMs));
   if (p2 && t >= p2.atMs) {
     const r = ringR(p2.atMs);
     rev = Math.max(g.r1, Math.min(g.r2, r));
-    if (r >= g.sloganDist) root.classList.add('intro-late');
+    if (r >= g.subDist) root.classList.add('intro-late');
   }
   setReveal(rev);
 

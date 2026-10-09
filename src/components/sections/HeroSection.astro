@@ -1,12 +1,10 @@
 ---
-// 0 m 開場：聲納光波照出背景海溝與工作室標誌，第二圈照出標語
+// 0 m 開場：聲納光波照出背景海溝與工作室標誌，第二圈照出服務項目
 import site from '../../data/site.json';
 import { t } from '../../i18n/index.js';
 interface Props { lang: string }
 const { lang } = Astro.props;
 const B = site.brand;
-// 標語在逗號或句點後分成兩段，各自不斷行，避免手機上最後一個字單獨換行
-const sloganParts = t(lang, 'slogan').match(/[^，。.]+[，。.]?\s*/g) ?? [t(lang, 'slogan')];
 ---
 <section class="hero" id="top" data-depth="0" data-zone="surface">
   <div class="hero-content" data-reveal>
@@ -18,7 +16,6 @@ const sloganParts = t(lang, 'slogan').match(/[^，。.]+[，。.]?\s*/g) ?? [t(l
       <span class="wordmark" lang="en">Deep Echo</span>
       <span class="wordmark-zh" lang="zh-Hant">幽海工作室</span>
     </h1>
-    <p class="slogan" data-reveal-late>{sloganParts.map((part) => <span class="slogan-part">{part}</span>)}</p>
     <p class="hero-sub" data-reveal-late>{t(lang, 'hero.sub')}</p>
   </div>
   <span class="sonar-rings" aria-hidden="true"><span class="sonar-ring"></span><span class="sonar-ring"></span></span>
@@ -96,17 +93,7 @@ const sloganParts = t(lang, 'slogan').match(/[^，。.]+[，。.]?\s*/g) ?? [t(l
   }
   .wordmark-zh::before, .wordmark-zh::after { content: ''; width: 2.2em; height: 1px; background: currentColor; opacity: 0.6; }
   .wordmark-zh::after { margin-left: -0.42em; }
-  .slogan {
-    margin-top: var(--space-7);
-    font-family: var(--font-heading);
-    font-weight: var(--fw-heading);
-    font-size: var(--fs-display);
-    line-height: 1.25;
-    letter-spacing: var(--ls-heading);
-  }
-  .slogan-part { display: inline-block; white-space: nowrap; }
-  .slogan:lang(en) .slogan-part + .slogan-part { margin-left: 0.28em; }
-  .hero-sub { margin-top: var(--space-4); letter-spacing: 0.1em; }
+  .hero-sub { margin-top: var(--space-7); letter-spacing: 0.1em; }
   .hero-sub:lang(en) { letter-spacing: 0.02em; }
 
   /* 聲納光環：以標誌中心擴散，開場時由 home.js 播放 */

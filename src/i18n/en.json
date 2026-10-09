@@ -1,6 +1,6 @@
 {
-  "meta.home.title": "DeepEcho | Dive deep. Echo far.",
-  "meta.home.desc": "Dive deep. Echo far. DeepEcho is an independent game and digital content studio from Taiwan, taking on commissions in game development, Unreal Engine 5 projects, 3D animation and media production.",
+  "meta.home.title": "DeepEcho | Game and 3D Content Studio",
+  "meta.home.desc": "DeepEcho is an independent game and digital content studio from Taiwan, taking on commissions in game development, Unreal Engine 5 projects, 3D animation and media production.",
   "meta.ogLocale": "en_US",
   "skip": "Skip to main content",
   "nav.label": "Main menu",
@@ -23,7 +23,6 @@
   "nav.hire": "Hire us",
   "hero.h1": "DeepEcho (幽海工作室)",
   "alt.logo": "DeepEcho logo",
-  "slogan": "Dive deep. Echo far.",
   "hero.sub": "Games · UE5 · 3D Animation · Media",
   "hero.dive": "Dive",
   "intro.skip": "Skip intro",
