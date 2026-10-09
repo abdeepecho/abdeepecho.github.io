@@ -1,4 +1,4 @@
-// 遊戲作品頁：截圖燈箱（<dialog>）；預告片由 TrailerPlayer.astro 處理
+// 圖片燈箱（<dialog>）：遊戲頁與作品頁共用；點縮圖放大、左右鍵切換、關閉後焦點回到縮圖
 function initLightbox() {
   const lightbox = document.getElementById('lightbox');
   const shots = [...document.querySelectorAll('.shot')];

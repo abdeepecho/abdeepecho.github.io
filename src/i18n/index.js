@@ -1,15 +1,19 @@
-// 多語系工具：字串表在同資料夾的 <語言>.json，新增語言時在 LOCALES 加一筆並放入對應的 json
-import zhHant from './zh-Hant.json';
-import en from './en.json';
+// 多語系工具
+// 新增語言：1) 在 locales.json 加一筆（code、網址前綴、選單名稱、縮寫）2) 放一個 <code>.json 字串檔
+// 頁面（src/pages/[...route].astro）、語言選單、hreflang、sitemap 都會自動跟著產生；缺的字串會退回預設語言
+import localeList from './locales.json';
 
-// 預設語言放在網站根目錄（/），其他語言放在 /<prefix>/
-export const DEFAULT_LOCALE = 'zh-Hant';
+const dicts = import.meta.glob(['./*.json', '!./locales.json'], { eager: true, import: 'default' });
+
+// 第一筆是預設語言，放在網站根目錄（/）；其他語言放在 /<prefix>/
+export const DEFAULT_LOCALE = localeList[0].code;
 
 // name：語言選單中顯示的名稱（用該語言書寫）；short：地球圖示旁的縮寫
-export const LOCALES = {
-  'zh-Hant': { prefix: '', name: '繁體中文', short: '中文', dict: zhHant },
-  en: { prefix: 'en', name: 'English', short: 'EN', dict: en },
-};
+export const LOCALES = Object.fromEntries(localeList.map((l) => {
+  const dict = dicts[`./${l.code}.json`];
+  if (!dict) throw new Error(`[i18n] 找不到字串檔 src/i18n/${l.code}.json`);
+  return [l.code, { prefix: l.prefix, name: l.name, short: l.short, dict }];
+}));
 
 export const LOCALE_CODES = Object.keys(LOCALES);
 

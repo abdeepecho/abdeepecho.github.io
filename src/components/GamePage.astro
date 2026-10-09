@@ -1,19 +1,18 @@
 ---
-// 遊戲作品頁（中英文共用）：/games/<slug>/、/en/games/<slug>/，資料來自 src/data/games.json
+// 遊戲作品頁（各語言共用）：/games/<slug>/、/en/games/<slug>/，資料來自 src/data/games.json
 // 順序：開場（標題、一句話、Steam / Discord、主視覺）→ 預告片 → 故事 → 遊戲特色 → 截圖 → 獲獎 → 下載與返回
 // 背景是固定深度的聲納等高線海溝；文字與圖片不疊在一起，也不加暗色底，靠 data-clear 讓後方的線淡出
 // Steam 與 Discord 屬於遊戲，只出現在這一頁
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ContourBackground from './ContourBackground.astro';
 import TrailerPlayer from './TrailerPlayer.astro';
+import Gallery from './Gallery.astro';
 import { t, pick, localePath } from '../i18n/index.js';
 interface Props { lang: string; game: any }
 const { lang, game } = Astro.props;
 const S = game.screenshots;
-const shotSrc = (n: number, w: number) => `${S.dir}${S.pattern.replace('{n}', String(n)).replace('{w}', String(w))}`;
 const imgSrc = (name: string, w: number) => `${S.dir}${name}-${w}.webp`;
 const srcset = (name: string, widths: number[] = S.widths) => widths.map((w: number) => `${imgSrc(name, w)} ${w}w`).join(', ');
-const shots = Array.from({ length: S.count }, (_, i) => i + 1);
 const otherLang = lang === 'en' ? 'zh-Hant' : 'en';
 const title = pick(game.title, lang);
 const K = game.keyart;
@@ -121,15 +120,7 @@ const newTab = t(lang, 'common.newTab');
     <section class="section" aria-labelledby="gallery-title">
       <div class="section-inner">
         <div class="section-head" data-clear><h2 class="h2" id="gallery-title">{t(lang, 'gallery.title')}</h2></div>
-        <ul class="section-body shots" data-clear>
-          {shots.map((n, i) => (
-            <li>
-              <button class="shot" type="button" data-shot={i}>
-                <img data-full={shotSrc(n, S.widths[1])} src={shotSrc(n, S.widths[0])} srcset={S.widths.map((w: number) => `${shotSrc(n, w)} ${w}w`).join(', ')} sizes="(max-width: 900px) 50vw, 280px" width={S.widths[0]} height={Math.round(S.widths[0] * S.size[1] / S.size[0])} loading="lazy" decoding="async" alt={t(lang, 'alt.screenshot', { n })} />
-              </button>
-            </li>
-          ))}
-        </ul>
+        <Gallery lang={lang} shots={S} />
       </div>
     </section>
 
@@ -172,20 +163,7 @@ const newTab = t(lang, 'common.newTab');
     </section>
   </div>
 
-  <dialog class="lightbox" id="lightbox" aria-label={t(lang, 'lb.label')} slot="before-main">
-    <figure class="lightbox-figure">
-      <img class="lightbox-img" src={shotSrc(1, S.widths[1])} alt="" width={S.size[0]} height={S.size[1]} />
-      <figcaption class="lightbox-count small" aria-live="polite"></figcaption>
-    </figure>
-    <button class="icon-btn lightbox-btn lightbox-close" type="button" aria-label={t(lang, 'lb.close')}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
-    <button class="icon-btn lightbox-btn lightbox-prev" type="button" aria-label={t(lang, 'lb.prev')}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></button>
-    <button class="icon-btn lightbox-btn lightbox-next" type="button" aria-label={t(lang, 'lb.next')}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></button>
-  </dialog>
 </BaseLayout>
-
-<script>
-  import '../scripts/game-page.js';
-</script>
 
 <style>
   .game { position: relative; z-index: 2; }
@@ -264,13 +242,6 @@ const newTab = t(lang, 'common.newTab');
   .feature-text .h3 { margin-top: var(--space-3); }
   .feature-text p { margin-top: var(--space-3); max-width: 30em; color: var(--ink-dim); }
 
-  /* ---- 截圖 ---- */
-  .shots { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-3); padding: 0; list-style: none; }
-  .shot { display: block; width: 100%; padding: 0; border: 1px solid var(--line); border-radius: var(--radius-sm); overflow: hidden; background: var(--water-hadal); cursor: zoom-in; transition: border-color var(--dur-fast); }
-  .shot img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; transition: transform var(--dur-med) var(--ease-out); }
-  .shot:hover { border-color: var(--line-strong); }
-  .shot:hover img { transform: scale(1.03); }
-
   /* ---- 獲獎：與首頁相同的安靜清單 ---- */
   .gp-awards { max-width: 56rem; background: var(--panel); }
   .gp-award {
@@ -289,18 +260,6 @@ const newTab = t(lang, 'common.newTab');
   .gp-studio { display: flex; flex-wrap: wrap; align-items: center; gap: 0 var(--space-5); margin-top: var(--space-7); padding-top: var(--space-5); border-top: 1px solid var(--line); max-width: 46rem; }
   .gp-studio p { margin-right: auto; font-size: var(--fs-small); }
 
-  /* ---- 燈箱 ---- */
-  .lightbox { width: 100vw; height: 100vh; max-width: none; max-height: none; margin: 0; padding: var(--space-8); border: 0; background: rgba(1, 7, 14, 0.94); color: var(--ink); }
-  .lightbox::backdrop { background: rgba(1, 7, 14, 0.8); }
-  .lightbox-figure { display: grid; place-items: center; gap: var(--space-3); height: 100%; }
-  .lightbox-img { max-height: calc(100vh - 10rem); width: auto; object-fit: contain; }
-  .lightbox-count { color: var(--ink-dim); }
-  .lightbox-btn { position: absolute; }
-  .lightbox-close { top: var(--space-4); right: var(--space-4); }
-  .lightbox-prev { left: var(--space-4); top: 50%; transform: translateY(-50%); }
-  .lightbox-next { right: var(--space-4); top: 50%; transform: translateY(-50%); }
-  .lightbox-btn svg { width: 26px; height: 26px; }
-
   @media (max-width: 900px) {
     .gp-hero-inner, .gp-hero-inner.is-portrait { grid-template-columns: minmax(0, 1fr); gap: var(--space-6); }
     .gp-keyart { order: -1; }
@@ -309,8 +268,6 @@ const newTab = t(lang, 'common.newTab');
     .info { margin-top: 0; }
     .feature, .feature:nth-child(even) { grid-template-columns: minmax(0, 1fr); gap: var(--space-5); }
     .feature:nth-child(even) .feature-img { order: 0; }
-    .shots { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .lightbox { padding: var(--space-8) var(--space-3); }
   }
   @media (max-width: 760px) {
     .gp-hero { padding-top: calc(var(--header-h) + var(--space-5)); }

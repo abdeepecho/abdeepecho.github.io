@@ -3,6 +3,7 @@
 // - 鏡頭沿海溝從東北端往西南前進，最後抵達挑戰者深淵；方向固定不轉、只往下不回升，捲動時不晃
 // - 海圖畫法：細線不發光，每 1000 m 一條加粗計曲線並標水深數字（字寫在線上方，線不斷開）
 // - 每條等高線是一整條連續路徑；遠處的霧、文字與圖片後方的留白都用整片遮罩處理
+// - 畫面是靜止的海圖：只有捲動、視窗大小、版面或資料改變時才重畫，閒置時不耗電
 // 所有可調數值在 src/data/scene.json 的 contour。
 
 const clamp01 = (v) => Math.min(1, Math.max(0, v));
@@ -51,6 +52,7 @@ export function createContourTrench(canvas, C, { mobile = false, reduceMotion = 
       return { d: l.d, y: (-l.d / 1000) * E, xs, zs, n, bb: [minx, maxx, minz, maxz], index: l.d % data.index === 0, anchors, text: `−${l.d.toLocaleString('en-US')}` };
     });
     path = data.path; pathLatLon = data.pathLatLon; plen = path.length - 1;
+    dirty = true;
     // 鏡頭軌道：左右位置取前後 smoothKm 的平均（只緩慢平移，不轉向）；溝底高度只往下、不回升
     camX = []; camFloor = [];
     let run = Infinity;
@@ -87,8 +89,11 @@ export function createContourTrench(canvas, C, { mobile = false, reduceMotion = 
   const zc = document.createElement('canvas');
   const zx = zc.getContext('2d');
   let zoneEls = [];
-  const refreshZones = () => { zoneEls = C.clear ? [...document.querySelectorAll(C.clear.selector)] : []; };
+  const refreshZones = () => { zoneEls = C.clear ? [...document.querySelectorAll(C.clear.selector)] : []; dirty = true; };
+  // 是否需要重畫：捲動位置、鏡頭位置以外的變化（視窗、版面、資料）都標記為 dirty
+  let dirty = true, lastU = -1, lastScroll = -1;
   refreshZones();
+  if ('ResizeObserver' in window) new ResizeObserver(() => { dirty = true; }).observe(document.body);
 
   let maxDpr = C.maxPixelRatio;
   function resize() {
@@ -98,6 +103,7 @@ export function createContourTrench(canvas, C, { mobile = false, reduceMotion = 
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
     lx.setTransform(DPR, 0, 0, DPR, 0, 0);
     zc.width = Math.ceil(W / Q); zc.height = Math.ceil(H / Q);
+    dirty = true;
   }
   resize();
 
@@ -190,6 +196,10 @@ export function createContourTrench(canvas, C, { mobile = false, reduceMotion = 
 
   function render(dt) {
     u += (target - u) * (reduceMotion ? 1 : Math.min(1, CAM.follow * dt * 60));
+    if (Math.abs(target - u) < 1e-4) u = target;
+    const scroll = window.scrollY;
+    if (!dirty && u === lastU && scroll === lastScroll) return;   // 沒有變化：沿用上一張畫面
+    dirty = false; lastU = u; lastScroll = scroll;
 
     // 背景：依深度漸暗
     const g = ctx.createLinearGradient(0, 0, 0, H);

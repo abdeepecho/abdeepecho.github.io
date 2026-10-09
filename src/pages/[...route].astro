@@ -1,0 +1,30 @@
+---
+// 所有頁面、所有語言由這一個檔案產生：
+//   /             首頁          /works/        作品列表      /games/<slug>/  遊戲頁      /works/<slug>/  接案／動畫作品頁
+//   /<prefix>/... 其他語言（前綴在 src/i18n/locales.json）
+// 新增語言或作品都不需要改這裡：語言清單來自 locales.json，遊戲來自 games.json，其他作品來自 works.json
+import { games, works } from '../data/catalog.js';
+import HomePage from '../components/HomePage.astro';
+import WorksPage from '../components/WorksPage.astro';
+import GamePage from '../components/GamePage.astro';
+import WorkPage from '../components/WorkPage.astro';
+import { LOCALES, LOCALE_CODES } from '../i18n/index.js';
+
+export function getStaticPaths() {
+  const join = (prefix: string, path: string) => [prefix, path].filter(Boolean).join('/') || undefined;
+  return LOCALE_CODES.flatMap((lang) => {
+    const prefix = LOCALES[lang].prefix;
+    return [
+      { params: { route: join(prefix, '') }, props: { lang, page: 'home' } },
+      { params: { route: join(prefix, 'works') }, props: { lang, page: 'works' } },
+      ...games.map((game) => ({ params: { route: join(prefix, `games/${game.slug}`) }, props: { lang, page: 'game', game } })),
+      ...works.map((work) => ({ params: { route: join(prefix, `works/${work.slug}`) }, props: { lang, page: 'work', work } })),
+    ];
+  });
+}
+const { lang, page, game, work } = Astro.props;
+---
+{page === 'home' && <HomePage lang={lang} />}
+{page === 'works' && <WorksPage lang={lang} />}
+{page === 'game' && <GamePage lang={lang} game={game} />}
+{page === 'work' && <WorkPage lang={lang} work={work} />}

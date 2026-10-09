@@ -1,0 +1,12 @@
+# 每月檢查一次：自動部署用的 GitHub Actions 與 npm 套件有新版本時，開 PR 提醒（不會自動合併）
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 5

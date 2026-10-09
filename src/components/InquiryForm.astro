@@ -75,6 +75,7 @@ const budgets = [
     <button class="btn btn-lure inquiry-submit" type="submit">{t(lang, 'form.submit')}</button>
     <p class="form-note"><span class="req" aria-hidden="true">*</span> {t(lang, 'form.required')}</p>
   </div>
+  <p class="form-privacy">{t(lang, 'form.privacy')}</p>
   <p class="form-status" role="status" aria-live="polite"></p>
 </form>
 
@@ -108,6 +109,8 @@ const budgets = [
   .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
   .inquiry-foot { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4) var(--space-5); margin-top: var(--space-2); }
   .form-note { font-size: var(--fs-small); color: var(--ink-dim); }
+  /* 個資告知：說明資料用途（個人資料保護法） */
+  .form-privacy { margin: 0; font-size: var(--fs-small); color: var(--ink-dim); max-width: var(--measure); }
   .form-status { font-size: var(--fs-small); }
   .form-status:empty { display: none; }
   .form-status:global(.is-ok) { color: var(--glow); }

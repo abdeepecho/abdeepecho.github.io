@@ -7,7 +7,7 @@ import Sounding from '../Sounding.astro';
 interface Props { lang: string }
 const { lang } = Astro.props;
 const awards = games.flatMap((g) => (g.awards ?? []).map((a) => ({ ...a, game: pick(g.title, lang) })));
-const work = (name: string) => (lang === 'zh-Hant' ? `《${name}》` : name);
+const work = (name: string) => t(lang, 'common.workTitle', { name });
 ---
 <section class="section awards" id="awards" data-depth="4000" data-zone="abyss" aria-labelledby="awards-title">
   <div class="section-inner">

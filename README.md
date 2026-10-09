@@ -32,7 +32,18 @@ npm run preview   # 預覽 dist/ http://localhost:4321（或 --port 指定）
 
 全站只有五階字級（`tokens.css`）：`--fs-display`（只用在遊戲頁的遊戲名稱）、`--fs-h2`（所有區塊標題）、`--fs-h3`（卡片、服務、獎項、流程、常見問題標題）、`--fs-body`（所有內文）、`--fs-small`（標籤、說明、頁尾）。標題用 Noto Serif TC 700，內文 Noto Sans TC 400／500，Cinzel 只用在 DEEP ECHO 字標與水深數字。新增樣式時不要寫其他 font-size。
 
-新增語言：在 `src/i18n/` 加一個 `<語言>.json`，並在 `src/i18n/index.js` 的 `LOCALES` 加一筆，再新增對應的 `src/pages/<prefix>/` 頁面。語言選單、hreflang 與 sitemap 會自動帶入。
+新增語言（例如日文）：
+
+1. `src/i18n/locales.json` 加一筆：`{ "code": "ja", "prefix": "ja", "name": "日本語", "short": "日本語" }`（第一筆是預設語言，放在網站根目錄）
+2. 放一個 `src/i18n/ja.json` 字串檔（可從 `en.json` 複製後翻譯；缺的字串會退回中文）
+3. `games.json`、`works.json` 等內容欄位可加上 `"ja": "..."`，沒有的會退回中文
+
+所有頁面由 `src/pages/[...route].astro` 一次產生，語言選單、hreflang、sitemap、第一次造訪的自動轉址都會自動跟著更新，不需要複製頁面檔。
+
+新增接案作品或動畫：在 `src/data/works.json` 加一筆（`type` 為 `commission` 或 `animation`），會產生 `/works/<slug>/` 作品頁，並出現在首頁與作品列表的卡片中。欄位：
+
+- 必填：`slug`、`type`、`title`、`cover`（`shot` 第幾張當封面、`alt`）、`screenshots`（與遊戲相同：`dir`、`count`、`pattern`、`widths`、`size`）
+- 選填：`altTitle`、`tagline`、`year`、`client`、`role`、`tools`（陣列）、`trailer`（YouTube，與遊戲相同）、`body`（各語言的段落陣列）、`credits`（`role`、`name`）、`meta`（頁面標題與描述）、`ogImage`
 
 新增遊戲：在 `src/data/games.json` 加一筆，圖片放到 `public/assets/games/<slug>/`。主視覺（`keyart.image`）、特色配圖（`features[].image`）、預告片海報（`trailer.poster`）都寫檔名前綴，實際檔案是 `<前綴>-960.webp` 與 `<前綴>-1920.webp`。遊戲頁不在圖片上疊文字，也不加暗色漸層。
 
@@ -47,7 +58,9 @@ npm run preview   # 預覽 dist/ http://localhost:4321（或 --port 指定）
 
 ## 委託表單
 
-送到 Formspree：`src/data/site.json` 的 `formEndpoint`（目前 `https://formspree.io/f/xwlvplpa`）。前端驗證、honeypot 欄位 `_gotcha`、送出結果顯示在表單內。
+送到 Formspree：`src/data/site.json` 的 `formEndpoint`（目前 `https://formspree.io/f/xwlvplpa`）。前端驗證、honeypot 欄位 `_gotcha`、送出結果顯示在表單內，表單下方有個資用途說明（`form.privacy`）。
+
+Formspree 後台建議設定：表單只接受來自 `abdeepecho.github.io` 的送出（Restrict to domain），並開啟 reCAPTCHA，避免表單網址被拿去灌垃圾信。
 
 ## 必須保留
 
@@ -56,6 +69,12 @@ npm run preview   # 預覽 dist/ http://localhost:4321（或 --port 指定）
 - `public/silent-wreckage.html`、`public/en/silent-wreckage.html`：舊網址轉址到新作品頁
 - `/sitemap.xml` 由 `src/pages/sitemap.xml.ts` 產生，轉指向 `@astrojs/sitemap` 的 `sitemap-0.xml`，避免 Search Console 已登錄的舊網址失效
 - 首頁 `#contact` 錨點（lit.link 連到這裡）
+
+## 資安設定
+
+- **CSP（安全政策）**：`astro.config.mjs` 的 `security.csp`。建置時每頁加上 CSP meta，頁面自己的 inline script／style 由 Astro 算雜湊；外部只允許 Google 字型、Formspree、YouTube（nocookie）。要加新的外部服務（例如新的嵌入影片網站、分析工具）時，記得在這裡加網域，否則會被瀏覽器擋下。
+- **自動部署的外部工具**鎖定在確切的版本（`deploy.yml` 裡的 commit 雜湊），`.github/dependabot.yml` 每月檢查一次，有新版會開 PR 提醒，不會自動合併。
+- 沒有任何密碼或金鑰放在程式碼裡；Formspree 的表單網址本來就是公開的。
 
 ## 部署（上線切換）
 

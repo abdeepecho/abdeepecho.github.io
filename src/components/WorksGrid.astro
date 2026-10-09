@@ -1,5 +1,5 @@
 ---
-// 作品卡片格線：資料來自 src/data/games.json（type = original / commission / animation）
+// 作品卡片格線：資料來自 src/data/catalog.js（遊戲＋接案／動畫作品，type = original / commission / animation）
 // 首頁最多顯示 limit 張；只有一件作品時，第一張卡片放寬成兩欄，旁邊放「更多作品開發中」
 import { t, pick, localePath } from '../i18n/index.js';
 interface Props {
@@ -25,7 +25,7 @@ const cover = (g: any) => {
     const c = cover(g);
     return (
       <li class="work-card" data-type={g.type}>
-        <a class="work-link" href={localePath(lang, `/games/${g.slug}/`)}>
+        <a class="work-link" href={localePath(lang, g.href)}>
           <div class="work-cover">
             <img src={c.src} srcset={c.srcset} sizes={featured ? '(max-width: 1024px) 100vw, 640px' : '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 360px'} width={c.w} height={c.h} loading="lazy" decoding="async" alt={pick(g.cover.alt, lang)} />
           </div>
@@ -35,7 +35,7 @@ const cover = (g: any) => {
               <span>{t(lang, `works.type.${g.type}`)}</span>
             </p>
             <Heading class="h3 work-title">{pick(g.title, lang)}</Heading>
-            <p class="work-alt" lang={otherLang}>{pick(g.altTitle, lang)}</p>
+            {g.altTitle && <p class="work-alt" lang={otherLang}>{pick(g.altTitle, lang)}</p>}
             <p class="work-desc">{pick(g.tagline, lang)}</p>
             <span class="work-more">{t(lang, 'works.more')}</span>
           </div>

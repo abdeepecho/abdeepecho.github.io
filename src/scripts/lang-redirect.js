@@ -6,26 +6,29 @@
  * 規則
  *   1. ?lang=xx      記住 xx 並前往該語言版本（去掉 ?lang）
  *   2. 已存的選擇    只在預設語言（中文）頁面上，轉到所選語言的版本
- *   3. 第一次造訪、而且瀏覽器語言清單中沒有中文：轉到英文版一次。
- *      只做一次、使用者明確選過語言後不再執行、搜尋引擎爬蟲不轉址。
+ *   3. 第一次造訪預設語言頁：依瀏覽器的語言偏好，轉到網站有的第一個語言版本；
+ *      都沒有就轉英文版。只做一次、使用者明確選過語言後不再執行、搜尋引擎爬蟲不轉址。
+ *   預設語言由 hreflang="x-default" 判斷，新增語言不需要修改這裡。
  */
 (function () {
   'use strict';
 
   var STORE = 'deepecho-lang';        /* 明確的選擇（選單或 ?lang=） */
   var AUTO = 'deepecho-lang-auto';    /* 第一次造訪的自動轉址已決定過 */
-  var DEFAULT = 'zh-Hant';
-
   function get(k) { try { return window.localStorage.getItem(k); } catch (e) { return null; } }
   function set(k, v) { try { window.localStorage.setItem(k, v); } catch (e) { /* 被封鎖 */ } }
 
-  var page = document.documentElement.getAttribute('lang') || DEFAULT;
   var alts = {};
   var links = document.querySelectorAll('link[rel="alternate"][hreflang]');
   for (var i = 0; i < links.length; i++) {
     var code = links[i].getAttribute('hreflang');
     if (code !== 'x-default') alts[code] = links[i].getAttribute('href');
   }
+  /* 預設語言：網址與 x-default 相同的那個版本 */
+  var DEFAULT = null;
+  var xd = document.querySelector('link[rel="alternate"][hreflang="x-default"]');
+  if (xd) for (var c in alts) if (alts[c] === xd.getAttribute('href')) DEFAULT = c;
+  var page = document.documentElement.getAttribute('lang') || DEFAULT;
 
   /* "en-US" / "zh-TW" / "zh" -> 這頁有的語言版本 */
   function match(c) {
@@ -72,7 +75,8 @@
   set(AUTO, '1');
   var prefs = navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language || ''];
   for (var j = 0; j < prefs.length; j++) {
-    if (/^zh\b/i.test(prefs[j])) return;
+    var m = match(prefs[j]);
+    if (m) { go(m); return; }   /* 偏好的是預設語言時 go() 不會動作 */
   }
   go(match('en'));
 })();

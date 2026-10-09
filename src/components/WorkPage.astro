@@ -1,0 +1,150 @@
+---
+// 接案／動畫作品頁（各語言共用）：/works/<slug>/，資料來自 src/data/works.json
+// 比遊戲頁簡單：開場（類型、名稱、一句話、基本資料、封面）→ 影片 → 介紹 → 作品畫面 → 製作名單 → 委託與返回
+// 圖片與影片欄位和 games.json 相同（screenshots、cover、trailer），所以共用卡片、影片播放器與燈箱
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ContourBackground from './ContourBackground.astro';
+import TrailerPlayer from './TrailerPlayer.astro';
+import Gallery from './Gallery.astro';
+import { t, pick, localePath } from '../i18n/index.js';
+interface Props { lang: string; work: any }
+const { lang, work } = Astro.props;
+const S = work.screenshots;
+const shotSrc = (n: number, w: number) => `${S.dir}${S.pattern.replace('{n}', String(n)).replace('{w}', String(w))}`;
+const cover = work.cover?.shot ?? 1;
+const otherLang = lang === 'en' ? 'zh-Hant' : 'en';
+const facts = [
+  work.year && ['work.year', String(work.year)],
+  work.client && ['work.client', pick(work.client, lang)],
+  work.role && ['work.role', pick(work.role, lang)],
+  work.tools?.length && ['work.tools', work.tools.join('・')],
+].filter(Boolean) as [string, string][];
+const body: string[] = pick(work.body, lang) ?? [];
+const credits = work.credits ?? [];
+---
+<BaseLayout
+  lang={lang}
+  path={`/works/${work.slug}/`}
+  title={pick(work.meta?.title, lang) ?? `${pick(work.title, lang)}｜${t(lang, 'meta.siteName')}`}
+  description={pick(work.meta?.description, lang) ?? pick(work.tagline, lang)}
+  ogImage={work.ogImage}
+  bodyClass="page-work"
+>
+  <ContourBackground slot="before-main" at={0.6} />
+
+  <div class="work-page">
+    <section class="wp-hero" aria-labelledby="work-title">
+      <div class="wp-hero-inner">
+        <div class="wp-hero-text" data-clear>
+          <p class="wp-type">{t(lang, `works.type.${work.type}`)}</p>
+          <h1 class="h2 wp-title" id="work-title">{pick(work.title, lang)}</h1>
+          {work.altTitle && <p class="wp-alt" lang={otherLang}>{pick(work.altTitle, lang)}</p>}
+          {work.tagline && <p class="lead wp-tagline">{pick(work.tagline, lang)}</p>}
+          {facts.length > 0 && (
+            <dl class="rows wp-facts">
+              {facts.map(([key, value]) => (
+                <div class="row"><dt class="small dim">{t(lang, key)}</dt><dd>{value}</dd></div>
+              ))}
+            </dl>
+          )}
+        </div>
+        <figure class="wp-cover" data-clear>
+          <img src={shotSrc(cover, S.widths[0])} srcset={S.widths.map((w: number) => `${shotSrc(cover, w)} ${w}w`).join(', ')} sizes="(max-width: 900px) 100vw, 680px" width={S.size[0]} height={S.size[1]} fetchpriority="high" decoding="async" alt={pick(work.cover?.alt, lang) ?? ''} />
+        </figure>
+      </div>
+    </section>
+
+    {work.trailer && (
+      <section class="section" aria-labelledby="work-video-title">
+        <div class="section-inner">
+          <div class="section-head" data-clear><h2 class="h2" id="work-video-title">{t(lang, 'work.video')}</h2></div>
+          <div class="section-body" data-clear><TrailerPlayer lang={lang} game={work} /></div>
+        </div>
+      </section>
+    )}
+
+    {body.length > 0 && (
+      <section class="section" aria-labelledby="work-about-title">
+        <div class="section-inner">
+          <div class="section-head" data-clear>
+            <h2 class="h2" id="work-about-title">{t(lang, 'work.about')}</h2>
+          </div>
+          <div class="section-body wp-body" data-clear>
+            {body.map((p) => <p>{p}</p>)}
+          </div>
+        </div>
+      </section>
+    )}
+
+    {S.count > 1 && (
+      <section class="section" aria-labelledby="work-gallery-title">
+        <div class="section-inner">
+          <div class="section-head" data-clear><h2 class="h2" id="work-gallery-title">{t(lang, 'work.gallery')}</h2></div>
+          <Gallery lang={lang} shots={S} columns={3} />
+        </div>
+      </section>
+    )}
+
+    {credits.length > 0 && (
+      <section class="section" aria-labelledby="work-credits-title">
+        <div class="section-inner">
+          <div class="section-head" data-clear><h2 class="h2" id="work-credits-title">{t(lang, 'work.credits')}</h2></div>
+          <dl class="section-body rows wp-credits" data-clear>
+            {credits.map((c: any) => (
+              <div class="row"><dt class="small dim">{pick(c.role, lang)}</dt><dd>{pick(c.name, lang)}</dd></div>
+            ))}
+          </dl>
+        </div>
+      </section>
+    )}
+
+    <section class="section wp-end" aria-labelledby="work-end-title">
+      <div class="section-inner">
+        <div class="section-head" data-clear>
+          <h2 class="h2" id="work-end-title">{t(lang, 'work.cta.title')}</h2>
+          <p class="lead">{t(lang, 'work.cta.lead')}</p>
+        </div>
+        <div class="section-body" data-clear>
+          <div class="actions">
+            <a class="btn btn-lure" href={`${localePath(lang, '/')}#contact`}>{t(lang, 'work.cta.button')}</a>
+            <a class="btn" href={localePath(lang, '/works/')}>{t(lang, 'back')}</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</BaseLayout>
+
+<style>
+  .work-page { position: relative; z-index: 2; }
+
+  /* ---- 開場：左邊名稱與基本資料，右邊封面；文字不壓在圖上 ---- */
+  .wp-hero { padding: calc(var(--header-h) + var(--space-8)) var(--gutter) 0; }
+  .wp-hero-inner {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: var(--space-8);
+    align-items: center;
+    max-width: var(--content-max);
+    margin-inline: auto;
+  }
+  .wp-type { font-size: var(--fs-small); font-weight: var(--fw-ui); color: var(--glow); }
+  .wp-title { margin-top: var(--space-3); text-wrap: balance; }
+  .wp-alt { margin-top: var(--space-2); font-size: var(--fs-small); color: var(--ink-dim); letter-spacing: 0.12em; }
+  .wp-tagline { margin-top: var(--space-5); }
+  .wp-facts { margin: var(--space-6) 0 0; }
+  .wp-facts .row, .wp-credits .row { display: grid; grid-template-columns: 7rem minmax(0, 1fr); gap: var(--space-4); padding: var(--space-3) 0; align-items: baseline; }
+  .wp-facts dd, .wp-credits dd { margin: 0; }
+  .wp-cover { border: 1px solid var(--line); border-radius: var(--radius-sm); overflow: hidden; background: var(--water-hadal); }
+  .wp-cover img { width: 100%; height: auto; }
+
+  .wp-body { display: grid; gap: var(--space-4); max-width: var(--measure); }
+  .wp-credits { max-width: 46rem; }
+  .actions { display: flex; flex-wrap: wrap; gap: var(--space-4); }
+
+  @media (max-width: 900px) {
+    .wp-hero-inner { grid-template-columns: minmax(0, 1fr); gap: var(--space-6); }
+    .wp-cover { order: -1; }
+    .actions .btn { flex: 1 1 100%; justify-content: center; }
+  }
+</style>
