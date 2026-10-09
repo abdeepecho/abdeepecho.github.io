@@ -1,13 +1,16 @@
 ---
 // 所有頁面、所有語言由這一個檔案產生：
 //   /             首頁          /works/        作品列表      /games/<slug>/  遊戲頁      /works/<slug>/  接案／動畫作品頁
+//   法律文件（例如 /lingolay/privacy/ 隱私權政策）：網址寫在 legal.json 的 path
 //   /<prefix>/... 其他語言（前綴在 src/i18n/locales.json）
-// 新增語言或作品都不需要改這裡：語言清單來自 locales.json，遊戲來自 games.json，其他作品來自 works.json
+// 新增語言或作品都不需要改這裡：語言清單來自 locales.json，遊戲來自 games.json，其他作品來自 works.json，法律文件來自 legal.json
 import { games, works } from '../data/catalog.js';
+import legal from '../data/legal.json';
 import HomePage from '../components/HomePage.astro';
 import WorksPage from '../components/WorksPage.astro';
 import GamePage from '../components/GamePage.astro';
 import WorkPage from '../components/WorkPage.astro';
+import LegalPage from '../components/LegalPage.astro';
 import { LOCALES, LOCALE_CODES } from '../i18n/index.js';
 
 export function getStaticPaths() {
@@ -19,12 +22,14 @@ export function getStaticPaths() {
       { params: { route: join(prefix, 'works') }, props: { lang, page: 'works' } },
       ...games.map((game) => ({ params: { route: join(prefix, `games/${game.slug}`) }, props: { lang, page: 'game', game } })),
       ...works.map((work) => ({ params: { route: join(prefix, `works/${work.slug}`) }, props: { lang, page: 'work', work } })),
+      ...legal.pages.map((doc) => ({ params: { route: join(prefix, doc.path.replace(/^\/|\/$/g, '')) }, props: { lang, page: 'legal', doc } })),
     ];
   });
 }
-const { lang, page, game, work } = Astro.props;
+const { lang, page, game, work, doc } = Astro.props;
 ---
 {page === 'home' && <HomePage lang={lang} />}
 {page === 'works' && <WorksPage lang={lang} />}
 {page === 'game' && <GamePage lang={lang} game={game} />}
 {page === 'work' && <WorkPage lang={lang} work={work} />}
+{page === 'legal' && <LegalPage lang={lang} doc={doc} />}
