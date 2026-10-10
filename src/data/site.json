@@ -68,10 +68,12 @@
   "team": [
     {
       "name": "江浚盛",
+      "title": "team.1.title",
       "role": "team.1"
     },
     {
       "name": "陳威宇",
+      "title": "team.2.title",
       "role": "team.2"
     }
   ],

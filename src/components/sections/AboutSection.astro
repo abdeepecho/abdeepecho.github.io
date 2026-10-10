@@ -18,7 +18,12 @@ const { lang } = Astro.props;
       <h3 class="h3">{t(lang, 'team.title')}</h3>
       <p class="team-lead dim">{t(lang, 'team.lead')}</p>
       <ul class="rows team">
-        {site.team.map((m) => <li><span class="member" lang="zh-Hant">{m.name}</span><span class="dim">{t(lang, m.role)}</span></li>)}
+        {site.team.map((m) => (
+          <li>
+            <p class="member"><span class="member-name" lang="zh-Hant">{m.name}</span>{m.title && <span class="member-title small">{t(lang, m.title)}</span>}</p>
+            <p class="member-role dim">{t(lang, m.role)}</p>
+          </li>
+        ))}
       </ul>
       <p class="team-note dim">{t(lang, 'team.3')}</p>
     </div>
@@ -39,10 +44,13 @@ const { lang } = Astro.props;
   .team-block, .tools-block { max-width: 46rem; }
   .team-lead { margin-top: var(--space-3); }
   .team { margin: var(--space-4) 0 0; }
-  .team li { display: grid; grid-template-columns: 7rem minmax(0, 1fr); gap: var(--space-4); align-items: baseline; padding: var(--space-3) 0; }
-  .member { font-weight: var(--fw-ui); }
+  .team li { display: grid; grid-template-columns: 12rem minmax(0, 1fr); gap: var(--space-5); align-items: baseline; padding: var(--space-4) 0; }
+  .member { display: flex; flex-direction: column; margin: 0; }
+  .member-name { font-weight: var(--fw-ui); }
+  .member-title { color: var(--glow); }
+  .member-role { margin: 0; }
   .team-note { margin-top: var(--space-4); }
-  @media (max-width: 480px) { .team li { grid-template-columns: minmax(0, 1fr); gap: var(--space-1); } }
+  @media (max-width: 640px) { .team li { grid-template-columns: minmax(0, 1fr); gap: var(--space-2); } }
   .tools {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
