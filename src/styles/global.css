@@ -45,7 +45,7 @@ button, input, select, textarea { font: inherit; color: inherit; letter-spacing:
 }
 .h2 { font-size: var(--fs-h2); }
 .h3 { font-size: var(--fs-h3); }
-.lead { max-width: var(--measure); font-size: var(--fs-body); color: var(--ink); }
+.lead { max-width: var(--measure); font-size: var(--fs-body); color: var(--ink); text-wrap: pretty; }   /* 避免最後一行只剩一個字 */
 .small { font-size: var(--fs-small); line-height: 1.6; }
 .dim { color: var(--ink-dim); }
 

@@ -65,6 +65,11 @@
       "icon": "screen"
     }
   ],
+  "team": [
+    "team.1",
+    "team.2",
+    "team.3"
+  ],
   "tools": [
     {
       "name": "Unreal Engine 5",

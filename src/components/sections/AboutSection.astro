@@ -1,5 +1,5 @@
 ---
-// 0 m 關於：兩三句介紹與使用工具
+// 0 m 關於：兩三句介紹、團隊分工與使用工具（分工清單在 site.json 的 team）
 import site from '../../data/site.json';
 import { t } from '../../i18n/index.js';
 import Sounding from '../Sounding.astro';
@@ -13,6 +13,13 @@ const { lang } = Astro.props;
       <h2 class="h2" id="about-title">{t(lang, 'about.title')}</h2>
       <p class="lead">{t(lang, 'about.body')}</p>
       <p class="small about-meta">{t(lang, 'about.meta')}</p>
+    </div>
+    <div class="section-body team-block" data-clear>
+      <h3 class="h3">{t(lang, 'team.title')}</h3>
+      <p class="team-lead dim">{t(lang, 'team.lead')}</p>
+      <ul class="rows team">
+        {site.team.map((key) => <li>{t(lang, key)}</li>)}
+      </ul>
     </div>
     <div class="section-body tools-block" data-clear>
       <h3 class="h3">{t(lang, 'tools.title')}</h3>
@@ -28,7 +35,10 @@ const { lang } = Astro.props;
 
 <style>
   .about-meta { margin-top: var(--space-4); }
-  .tools-block { max-width: 46rem; }
+  .team-block, .tools-block { max-width: 46rem; }
+  .team-lead { margin-top: var(--space-3); }
+  .team { margin: var(--space-4) 0 0; }
+  .team li { padding: var(--space-3) 0; }
   .tools {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
