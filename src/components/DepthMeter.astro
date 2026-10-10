@@ -1,5 +1,5 @@
 ---
-// 深度計：桌機在右側中間（即時水深、深度帶名稱、下潛進度）；手機縮成右下角一行
+// 深度計：桌機在右側中間（下潛深度、深度帶名稱、正下方海床水深、經緯度、下潛進度）；手機縮成右下角一行
 // 數值由 home.js 每幀更新；各區塊的水深標記已提供相同資訊給螢幕閱讀器，所以這裡 aria-hidden
 import { t } from '../i18n/index.js';
 interface Props { lang: string }
@@ -8,6 +8,7 @@ const { lang } = Astro.props;
 <aside class="depth-meter" aria-hidden="true">
   <p class="dm-depth"><span class="dm-num" data-depth-num>0</span><span class="dm-unit">m</span></p>
   <p class="dm-zone" data-depth-zone>{t(lang, 'zone.surface')}</p>
+  <p class="dm-floor" data-depth-floor></p>
   <p class="dm-coord" data-depth-coord></p>
   <div class="dm-track"><span class="dm-fill" data-depth-fill></span><span class="dm-dot" data-depth-dot></span></div>
 </aside>
@@ -41,6 +42,9 @@ const { lang } = Astro.props;
   /* 背景海溝目前位置的經緯度（真實地形） */
   .dm-coord { font-size: var(--fs-small); color: var(--ink-dim); line-height: 1.4; font-variant-numeric: tabular-nums; letter-spacing: 0.02em; }
   .dm-coord:empty { display: none; }
+  /* 下方海床水深：背景海圖的等高線就是這個海床的地形 */
+  .dm-floor { margin-top: var(--space-2); font-size: var(--fs-small); color: var(--ink-dim); line-height: 1.4; font-variant-numeric: tabular-nums; }
+  .dm-floor:empty { display: none; }
   .dm-track {
     position: relative;
     width: 2px;
@@ -75,6 +79,7 @@ const { lang } = Astro.props;
       backdrop-filter: blur(6px);
     }
     .dm-num { font-size: var(--fs-small); min-width: 0; }
+    .dm-floor { margin-top: 0; }
 
     .dm-track, .dm-coord { display: none; }
   }

@@ -264,5 +264,7 @@ export function createContourTrench(canvas, C, { mobile = false, reduceMotion = 
     refreshZones,
     // 目前鏡頭所在的經緯度（資料載入前為 null）
     position() { return pathLatLon ? pathLatLon[Math.round(Math.max(0, Math.min(plen, cam.s)))] : null; },
+    // 鏡頭正下方（海溝中軸）的海床水深，公尺（資料載入前為 null）
+    seafloor() { return path ? Math.abs(path[Math.round(Math.max(0, Math.min(plen, cam.s)))][2]) : null; },
   };
 }

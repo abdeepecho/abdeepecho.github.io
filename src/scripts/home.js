@@ -21,6 +21,7 @@ const hud = {
   fill: document.querySelector('[data-depth-fill]'),
   dot: document.querySelector('[data-depth-dot]'),
   coord: document.querySelector('[data-depth-coord]'),
+  floor: document.querySelector('[data-depth-floor]'),
 };
 
 // ---------------------------------------------------------------
@@ -208,7 +209,7 @@ function initFaq() {
 // ---------------------------------------------------------------
 let last = performance.now();
 let raf = 0;
-let lastDepth = -1, lastZone = '', lastCoord = '';
+let lastDepth = -1, lastZone = '', lastCoord = '', lastFloor = '';
 const frameTimes = [];
 let slowStrikes = 0;
 
@@ -244,6 +245,14 @@ function frame(now) {
     if (pos && hud.coord) {
       const txt = formatLatLon(pos[0], pos[1]);
       if (txt !== lastCoord) { lastCoord = txt; hud.coord.textContent = txt; }
+    }
+    // 海床水深：背景海圖畫的是潛水者正下方的海床，所以和「你的深度」分開顯示；
+    // 海床不會比潛水者淺（最後抵達海溝底時兩者相同）
+    const sea = scene.seafloor();
+    if (sea != null && hud.floor) {
+      const d = depth >= sea ? Math.round(depth) : Math.round(sea / 10) * 10;   // 抵達海床時與下潛深度完全相同
+      const txt = (S['depth.seafloor'] || '{d} m').replace('{d}', d.toLocaleString('en-US'));
+      if (txt !== lastFloor) { lastFloor = txt; hud.floor.textContent = txt; }
     }
     watchPerformance(dt);
   }
