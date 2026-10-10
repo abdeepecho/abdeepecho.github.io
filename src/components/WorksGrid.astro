@@ -14,10 +14,13 @@ const shown = games.slice(0, limit);
 const featured = shown.length === 1;
 const otherLang = lang === 'en' ? 'zh-Hant' : 'en';
 const Heading = headingTag;
+// 封面：cover.image（主視覺等，<dir><image>-<寬>.webp）優先，沒有時用第 cover.shot 張截圖
 const cover = (g: any) => {
   const S = g.screenshots;
-  const src = (w: number) => `${S.dir}${S.pattern.replace('{n}', String(g.cover.shot)).replace('{w}', String(w))}`;
-  return { src: src(S.widths[0]), srcset: S.widths.map((w: number) => `${src(w)} ${w}w`).join(', '), w: S.widths[0], h: Math.round(S.widths[0] * S.size[1] / S.size[0]) };
+  const C = g.cover;
+  const src = (w: number) => (C.image ? `${S.dir}${C.image}-${w}.webp` : `${S.dir}${S.pattern.replace('{n}', String(C.shot)).replace('{w}', String(w))}`);
+  const size = C.size ?? S.size;
+  return { src: src(S.widths[0]), srcset: S.widths.map((w: number) => `${src(w)} ${w}w`).join(', '), w: S.widths[0], h: Math.round(S.widths[0] * size[1] / size[0]), position: C.position };
 };
 ---
 <ul class:list={['works-grid', { 'is-featured': featured }]} data-works-grid>
@@ -27,7 +30,7 @@ const cover = (g: any) => {
       <li class="work-card" data-type={g.type}>
         <a class="work-link" href={localePath(lang, g.href)}>
           <div class="work-cover">
-            <img src={c.src} srcset={c.srcset} sizes={featured ? '(max-width: 1024px) 100vw, 640px' : '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 360px'} width={c.w} height={c.h} loading="lazy" decoding="async" alt={pick(g.cover.alt, lang)} />
+            <img src={c.src} srcset={c.srcset} sizes={featured ? '(max-width: 1024px) 100vw, 640px' : '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 360px'} width={c.w} height={c.h} loading="lazy" decoding="async" alt={pick(g.cover.alt, lang)} style={c.position ? `object-position: ${c.position}` : undefined} />
           </div>
           <div class="work-text">
             <p class="work-meta">
@@ -104,11 +107,14 @@ const cover = (g: any) => {
   .is-featured .work-card:first-child .work-link { flex-direction: row; }
   .is-featured .work-card:first-child .work-cover { flex: 0 0 58%; aspect-ratio: auto; min-height: 100%; }
 
+  /* 畫面不夠寬時改成圖在上、文字在下，封面維持 16:9，主視覺裡的標題字不會被裁掉 */
+  @media (max-width: 1279px) {
+    .is-featured .work-card:first-child .work-link { flex-direction: column; }
+    .is-featured .work-card:first-child .work-cover { flex: none; aspect-ratio: 16 / 9; min-height: 0; }
+  }
   @media (max-width: 1024px) {
     .works-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .is-featured .work-card { grid-column: span 2; }
-    .is-featured .work-card:first-child .work-link { flex-direction: column; }
-    .is-featured .work-card:first-child .work-cover { flex: none; aspect-ratio: 16 / 9; min-height: 0; }
   }
   @media (max-width: 640px) {
     .works-grid { grid-template-columns: minmax(0, 1fr); }
