@@ -1,5 +1,5 @@
 ---
-// 0 m 關於：兩三句介紹、團隊分工與使用工具（分工清單在 site.json 的 team）
+// 0 m 關於：兩三句介紹、團隊分工與使用工具（成員與分工在 site.json 的 team）
 import site from '../../data/site.json';
 import { t } from '../../i18n/index.js';
 import Sounding from '../Sounding.astro';
@@ -18,8 +18,9 @@ const { lang } = Astro.props;
       <h3 class="h3">{t(lang, 'team.title')}</h3>
       <p class="team-lead dim">{t(lang, 'team.lead')}</p>
       <ul class="rows team">
-        {site.team.map((key) => <li>{t(lang, key)}</li>)}
+        {site.team.map((m) => <li><span class="member" lang="zh-Hant">{m.name}</span><span class="dim">{t(lang, m.role)}</span></li>)}
       </ul>
+      <p class="team-note dim">{t(lang, 'team.3')}</p>
     </div>
     <div class="section-body tools-block" data-clear>
       <h3 class="h3">{t(lang, 'tools.title')}</h3>
@@ -38,7 +39,10 @@ const { lang } = Astro.props;
   .team-block, .tools-block { max-width: 46rem; }
   .team-lead { margin-top: var(--space-3); }
   .team { margin: var(--space-4) 0 0; }
-  .team li { padding: var(--space-3) 0; }
+  .team li { display: grid; grid-template-columns: 7rem minmax(0, 1fr); gap: var(--space-4); align-items: baseline; padding: var(--space-3) 0; }
+  .member { font-weight: var(--fw-ui); }
+  .team-note { margin-top: var(--space-4); }
+  @media (max-width: 480px) { .team li { grid-template-columns: minmax(0, 1fr); gap: var(--space-1); } }
   .tools {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));

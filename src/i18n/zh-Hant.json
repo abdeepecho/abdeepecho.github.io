@@ -40,7 +40,7 @@
   "about.body": "幽海工作室 DeepEcho 是來自台灣的獨立遊戲與數位內容團隊，以 Unreal Engine 5 打造沉浸、有氛圍感的互動體驗。除了開發原創遊戲，我們也承接遊戲、UE5 專案、3D 動畫與多媒體製作委託。",
   "about.meta": "獨立遊戲與數位內容，台灣",
   "team.title": "團隊",
-  "team.lead": "我們是 2 人的小型團隊，分工如下：",
+  "team.lead": "我們是 2 人的小型團隊：",
   "team.1": "企劃・3D 美術",
   "team.2": "故事・腳本・劇本・動態影像（After Effects）",
   "team.3": "程式開發：與 AI 工具 Claude Code 協作完成",

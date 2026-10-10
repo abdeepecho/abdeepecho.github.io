@@ -7,7 +7,7 @@
   "siteUrl": "https://abdeepecho.github.io",
   "email": "abstarhuides@gmail.com",
   "formEndpoint": "https://formspree.io/f/xwlvplpa",
-  "commissionsOpen": true,
+  "commissionsOpen": false,
   "ogImage": "/assets/brand/og-image.jpg",
   "ogImageSize": [
     1200,
@@ -66,9 +66,14 @@
     }
   ],
   "team": [
-    "team.1",
-    "team.2",
-    "team.3"
+    {
+      "name": "江浚盛",
+      "role": "team.1"
+    },
+    {
+      "name": "陳威宇",
+      "role": "team.2"
+    }
   ],
   "tools": [
     {
