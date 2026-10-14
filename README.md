@@ -76,14 +76,9 @@ Formspree 後台建議設定：表單只接受來自 `abdeepecho.github.io` 的�
 - **自動部署的外部工具**鎖定在確切的版本（`deploy.yml` 裡的 commit 雜湊），`.github/dependabot.yml` 每月檢查一次，有新版會開 PR 提醒，不會自動合併。
 - 沒有任何密碼或金鑰放在程式碼裡；Formspree 的表單網址本來就是公開的。
 
-## 部署（上線切換）
+## 部署
 
-`.github/workflows/deploy.yml` 會在推送到 `master` 時建置並部署。**第一次上線前**需要：
-
-1. 把 `astro-redesign` 分支合併進 `master`
-2. GitHub repo 的 Settings → Pages → Build and deployment → Source 改成「GitHub Actions」
-
-改之前，GitHub Pages 仍然直接發布 master 分支的檔案（舊網站）。
+`.github/workflows/deploy.yml` 在推送到 `master` 時自動建置並部署（Pages 的 Source 已設為 GitHub Actions）。直接改、推送到 master 即可，約 1 到 2 分鐘上線。
 
 ## 背景海溝
 
@@ -106,3 +101,24 @@ python tools/bathy_contours.py assets/source/bathymetry/etopo1_mariana.csv publi
 - `?scene=off`：關閉背景海溝，只留漸層
 - `?lang=en` / `?lang=zh-Hant`：切換並記住語言
 - 重新看開場：清除瀏覽器 localStorage 的 `deepecho-intro-seen`
+
+## 內容原則（改文案前先看）
+
+- **團隊**：2 人（`site.json` 的 `team`）。江浚盛：創辦人・製作人，負責企劃、遊戲與關卡設計、美術指導、3D 美術、場景燈光；陳威宇：共同創辦人・敘事總監，負責劇本、敘事設計、世界觀、分鏡、動態影像、剪輯與預告片。**程式由 AI 工具 Claude Code 協作完成**，網站已公開說明（`team.3`、`tools.ai`、FAQ）。不要誇大專長：江浚盛不是技術美術、也不寫程式。成員不放照片。
+- **接案**：目前暫停（`commissionsOpen: false`），只有使用者說重開才改。回覆承諾是 3 個工作天內、只用信箱，不承諾視訊或會議（英文溝通較弱）。
+- **接案經驗**：曾做過動態繪本的委託案，但客戶不得在網站出現名稱或畫面。
+- **音樂**：遊戲配樂是購買授權的，不能寫成工作室自製，也不提供配樂服務。
+- **獎項**：只放網路上查得到的；「2026 金點新秀設計獎入圍」是使用者口頭確認。
+- **社群**：工作室頁尾與聯絡區只放 IG、X、Threads、YouTube。Discord 與 Steam 屬於《寂靜沉輪》，只出現在遊戲頁。
+- **素材**：`D:\DeepEcho\03_作品\寂靜沉輪\宣傳素材` 裡只有檔名是亂碼雜湊的 10 張 jpg 是參考圖、不能用；主視覺、直式海報與場景圖都是工作室自有。
+- **視覺**：背景線條、文字與圖片後方不加黑色光暈或暗角；不放發光字、CSS 畫的假岩石。
+- 英文版的成員姓名目前顯示中文，尚未提供英文拼音。
+
+## 還需要使用者自己處理的帳號設定
+
+- Formspree：限制只接受 `abdeepecho.github.io`、開啟 reCAPTCHA
+- GitHub 組織：要求成員 2FA、保護 `master` 分支、新增第二位擁有者
+- Formspree、Google、Gmail、GitHub 都開啟 2FA；GitHub 開啟「Keep my email address private」
+- GitHub Desktop 若提示 commit 作者信箱與登入帳號不符：選 Ignore（網站 repo 刻意用工作室身分 `DeepEcho 幽海工作室 <abstarhuides@gmail.com>`，全域設定則是個人身分）
+- 早期 8 筆 commit 含個人信箱，已決定不改寫歷史
+- Dependabot 開的 PR 要自己看過再合併
