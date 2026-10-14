@@ -3,7 +3,7 @@
 // - 鏡頭沿海溝從東北端往西南前進，最後抵達挑戰者深淵；方向固定不轉、只往下不回升，捲動時不晃
 // - 海圖畫法：細線不發光，每 1000 m 一條加粗計曲線並標水深數字（字寫在線上方，線不斷開）
 // - 每條等高線是一整條連續路徑；遠處的霧、文字與圖片後方的留白都用整片遮罩處理
-// - 畫面是靜止的海圖：只有捲動、視窗大小、版面或資料改變時才重畫，閒置時不耗電
+// - 畫面是靜止的海圖：只有捲動、視窗大小、版面、資料改變或點擊聲納的光環播放時才重畫，閒置時不耗電
 // 所有可調數值在 src/data/scene.json 的 contour。
 
 const clamp01 = (v) => Math.min(1, Math.max(0, v));
@@ -28,6 +28,8 @@ export function createContourTrench(canvas, C, { mobile = false, reduceMotion = 
   const ctx = canvas.getContext('2d');
   const lc = document.createElement('canvas');   // 等高線圖層（先畫線、套遮罩，再合成到主畫布）
   const lx = lc.getContext('2d');
+  const pc = document.createElement('canvas');   // 點擊聲納：光環掃過的那一圈線（從等高線圖層裁出，再疊加到主畫布）
+  const px = pc.getContext('2d');
   const CAM = C.camera, L = C.lines, E = C.verticalExaggeration;
   const colSurface = hexRgb(C.colors.surface), colAbyss = hexRgb(C.colors.abyss), colHadal = hexRgb(C.colors.hadal), colFloor = hexRgb(C.colors.floor);
   const lineRgb = hexRgb(C.colors.line).join(','), indexRgb = hexRgb(C.colors.indexLine).join(','), labelRgb = hexRgb(C.colors.label).join(',');
@@ -99,7 +101,7 @@ export function createContourTrench(canvas, C, { mobile = false, reduceMotion = 
   function resize() {
     W = window.innerWidth; H = window.innerHeight;
     DPR = Math.min(window.devicePixelRatio || 1, maxDpr);
-    for (const c of [canvas, lc]) { c.width = Math.round(W * DPR); c.height = Math.round(H * DPR); }
+    for (const c of [canvas, lc, pc]) { c.width = Math.round(W * DPR); c.height = Math.round(H * DPR); }
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
     lx.setTransform(DPR, 0, 0, DPR, 0, 0);
     zc.width = Math.ceil(W / Q); zc.height = Math.ceil(H / Q);
@@ -109,6 +111,40 @@ export function createContourTrench(canvas, C, { mobile = false, reduceMotion = 
 
   let target = 0, u = 0;
   const labels = [];
+
+  // ---- 點擊聲納：光環從點擊位置擴散，掃過的等高線短暫變亮 ----
+  const P = C.pulse;
+  const ringRgb = hexRgb(P.color).join(',');
+  let pulses = [];
+  function drawPulses(now) {
+    const band = P.bandPx * DPR;
+    for (const p of pulses) {
+      const k = (now - p.t0) / P.durationMs;
+      const r = (1 - Math.pow(1 - k, 2.2)) * p.maxR * DPR;
+      const fade = Math.pow(1 - k, 1.4);
+      const cx = p.x * DPR, cy = p.y * DPR;
+      const r0 = Math.max(0, r - band), r1 = r + band * 0.15;
+      const g = px.createRadialGradient(cx, cy, r0, cx, cy, r1);
+      g.addColorStop(0, 'rgba(0,0,0,0)');
+      g.addColorStop((r - r0) / (r1 - r0), 'rgba(0,0,0,1)');
+      g.addColorStop(1, 'rgba(0,0,0,0)');
+      px.globalCompositeOperation = 'copy';
+      px.drawImage(lc, 0, 0);
+      px.globalCompositeOperation = 'destination-in';
+      px.fillStyle = g;
+      px.fillRect(0, 0, pc.width, pc.height);
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.globalAlpha = fade;
+      for (let i = 0; i < P.passes; i++) ctx.drawImage(pc, 0, 0);
+      ctx.globalAlpha = 1;
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      ctx.strokeStyle = `rgba(${ringRgb},${P.ringOpacity * fade})`;
+      ctx.lineWidth = 1.5 * DPR;
+      ctx.stroke();
+    }
+  }
 
   function drawLines() {
     const far2 = L.farKm * L.farKm;
@@ -198,6 +234,11 @@ export function createContourTrench(canvas, C, { mobile = false, reduceMotion = 
     u += (target - u) * (reduceMotion ? 1 : Math.min(1, CAM.follow * dt * 60));
     if (Math.abs(target - u) < 1e-4) u = target;
     const scroll = window.scrollY;
+    const now = performance.now();
+    if (pulses.length) {
+      pulses = pulses.filter((p) => now - p.t0 < P.durationMs);
+      dirty = true;   // 光環播放中每格重畫；結束後再多畫一次把光環擦掉
+    }
     if (!dirty && u === lastU && scroll === lastScroll) return;   // 沒有變化：沿用上一張畫面
     dirty = false; lastU = u; lastScroll = scroll;
 
@@ -245,6 +286,7 @@ export function createContourTrench(canvas, C, { mobile = false, reduceMotion = 
     ctx.save();
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.drawImage(lc, 0, 0);
+    drawPulses(now);
     ctx.restore();
   }
 
@@ -262,6 +304,12 @@ export function createContourTrench(canvas, C, { mobile = false, reduceMotion = 
     jumpTo(v) { target = u = clamp01(v); },
     lowerQuality() { maxDpr = 1; resize(); },
     refreshZones,
+    // 點擊聲納：從視窗座標 (x, y) 擴散一圈光環（同時最多 3 圈）
+    pulse(x, y) {
+      pulses.push({ x, y, t0: performance.now(), maxR: Math.hypot(W, H) * P.reach });
+      if (pulses.length > 3) pulses.shift();
+      dirty = true;
+    },
     // 目前鏡頭所在的經緯度（資料載入前為 null）
     position() { return pathLatLon ? pathLatLon[Math.round(Math.max(0, Math.min(plen, cam.s)))] : null; },
     // 鏡頭正下方（海溝中軸）的海床水深，公尺（資料載入前為 null）

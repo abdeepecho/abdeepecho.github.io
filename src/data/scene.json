@@ -105,6 +105,15 @@
       "padding": 28,
       "feather": 56
     },
+    "pulse": {
+      "_說明": "點擊聲納：點畫面空白處，從點擊位置擴散一圈光環，掃過的等高線會短暫變亮。durationMs 持續時間；reach 擴散到的半徑（相對畫面對角線）；bandPx 變亮的範圍寬度（px）；passes 疊加幾次（越多越亮）；ringOpacity 光環亮度；color 光環顏色。",
+      "durationMs": 2200,
+      "reach": 0.75,
+      "bandPx": 150,
+      "passes": 3,
+      "ringOpacity": 0.55,
+      "color": "#8EF0DE"
+    },
     "colors": {
       "surface": "#0E3D5C",
       "abyss": "#06213A",
@@ -131,7 +140,13 @@
     "lightsUpMs": 900,
     "introEndMs": 3000,
     "domRingMs": 1500,
-    "afterglow": 0.35
+    "afterglow": 0.35,
+    "click": {
+      "_說明": "點擊聲納（背景光環見 contour.pulse）：pingLevel 音量（只有訪客開了環境音才聽得到）；cooldownMs 連點的最短間隔；ignore 這些元素上的點擊不觸發。",
+      "pingLevel": 0.5,
+      "cooldownMs": 450,
+      "ignore": "a, button, input, textarea, select, summary, label, video, iframe, .site-header, .depth-meter"
+    }
   },
   "performance": {
     "maxPixelRatio": 1.5,

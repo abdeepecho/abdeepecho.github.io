@@ -93,6 +93,7 @@ python tools/bathy_contours.py assets/source/bathymetry/etopo1_mariana.csv publi
 ```
 
   等高線間距（每 200 m）、計曲線（每 1000 m）、平滑程度都在這支腳本最上面設定。需要 Python 3、numpy、contourpy。
+- **點擊聲納**：點首頁空白處會從點擊位置發出一圈光環、掃過的等高線短暫變亮；環境音開著時同時響一聲。連結、按鈕、表單、導覽列、選取文字時不觸發，減少動態時只留聲音。光環參數在 `scene.json` 的 `contour.pulse`，觸發規則在 `sonar.click`。
 - 畫面可調數值在 `src/data/scene.json` 的 `contour`：垂直誇張倍率、鏡頭高度與角度、線的亮度與粗細、水深數字、霧、文字後方的留白，每一組都有中文說明。
 - 每個深度帶對應的鏡頭位置在 `depthBands[].u`（0 海面，1 海溝底）；作品頁與遊戲頁用固定位置（`<ContourBackground at={...} />`）。
 
@@ -112,7 +113,13 @@ python tools/bathy_contours.py assets/source/bathymetry/etopo1_mariana.csv publi
 - **社群**：工作室頁尾與聯絡區只放 IG、X、Threads、YouTube。Discord 與 Steam 屬於《寂靜沉輪》，只出現在遊戲頁。
 - **素材**：`D:\DeepEcho\03_作品\寂靜沉輪\宣傳素材` 裡只有檔名是亂碼雜湊的 10 張 jpg 是參考圖、不能用；主視覺、直式海報與場景圖都是工作室自有。
 - **視覺**：背景線條、文字與圖片後方不加黑色光暈或暗角；不放發光字、CSS 畫的假岩石。
-- 英文版的成員姓名目前顯示中文，尚未提供英文拼音。
+- **成員姓名**：江浚盛 Jason Jiang、陳威宇 Willson Chen（`site.json` 的 `team[].nameEn`）。中文版以中文名為主、英文名在旁；英文版相反。
+
+## 決定暫不處理
+
+- 自有網域與工作室信箱：目前沒有，聯絡信箱沿用 `site.json` 的 `email`
+- 流量分析：先不裝
+- 暫停接案期間仍保留「也承接委託」字句（使用者決定不改）
 
 ## 還需要使用者自己處理的帳號設定
 

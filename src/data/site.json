@@ -68,11 +68,13 @@
   "team": [
     {
       "name": "江浚盛",
+      "nameEn": "Jason Jiang",
       "title": "team.1.title",
       "role": "team.1"
     },
     {
       "name": "陳威宇",
+      "nameEn": "Willson Chen",
       "title": "team.2.title",
       "role": "team.2"
     }

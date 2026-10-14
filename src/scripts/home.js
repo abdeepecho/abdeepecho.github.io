@@ -194,6 +194,23 @@ function tickIntro(now) {
   if (t >= Son.introEndMs) finishIntro();
 }
 
+// 點擊聲納：點畫面空白處，從點擊位置發出一圈光環（背景等高線短暫變亮）；環境音開著時同時響一聲
+// 連結、按鈕、表單、導覽列與選取文字時不觸發；減少動態時只留聲音
+function initSonarClick() {
+  const K = cfg.sonar.click;
+  let lastAt = 0;
+  document.addEventListener('click', (e) => {
+    if (!intro.done || e.button !== 0 || root.classList.contains('no-scroll')) return;
+    if (e.target.closest?.(K.ignore)) return;
+    if (!window.getSelection()?.isCollapsed) return;
+    const now = performance.now();
+    if (now - lastAt < K.cooldownMs) return;
+    lastAt = now;
+    audio.ping(K.pingLevel);
+    if (!reduceMotion) scene?.pulse(e.clientX, e.clientY);
+  });
+}
+
 // 常見問題：一次只展開一題
 function initFaq() {
   document.querySelectorAll('[data-accordion]').forEach((acc) => {
@@ -295,6 +312,7 @@ async function boot() {
   document.fonts?.ready.then(measureAnchors);
 
   initFaq();
+  initSonarClick();
   initInquiryForm(document.getElementById('inquiry'));
 
   const wantsIntro = root.classList.contains('intro-pending');
